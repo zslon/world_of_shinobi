@@ -203,6 +203,25 @@ button .button_hachimon-2 -state disabled -command {
 		no_chakra_message
 	}
 }
+button .button_hachimon-3 -state disabled -command {
+	if {([get_chakra "hero"] > 59 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] > 39) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] > 19)) && !([is_in "hachimon-3" $used])} {
+		tech_hachimon-3 "hero"
+		lappend effects [list "hachimon-3" "hero" -1]
+		if {[is_in "hachimon-1" $used]} {
+		} else {
+			lappend used "hachimon-1"
+		}
+		if {[is_in "hachimon-2" $used]} {
+		} else {
+			lappend used "hachimon-2"
+		}
+		lappend used "hachimon-3"
+		replace
+		end_turn "hachimon-3"
+	} elseif {[get_chakra "hero"] < 60 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] < 40) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] < 20)} {
+		no_chakra_message
+	}
+}
 button .button_shofu -state disabled -command {
 	set q 0
 	set l [get_location "hero"]

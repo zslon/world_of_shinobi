@@ -315,8 +315,8 @@ proc replace {} {
 		}
 	}
 }
-proc stand_animation {tag im} {
-	global hero_ancof mydir
+proc stand_animation {tag im {s 0}} {
+	global hero_ancof mydir slide
 	if {$tag == "heroi"} {
 		if {$hero_ancof} {
 			set hero_ancof [expr $hero_ancof + 1]
@@ -324,7 +324,7 @@ proc stand_animation {tag im} {
 				set hero_ancof 1
 			}
 			image create photo heroi -file [file join $mydir images heroes $im stand $hero_ancof.gif]
-			after 150 "stand_animation $tag $im"			
+			after 150 "stand_animation $tag $im $s"			
 		} else {
 			image create photo heroi -file [file join $mydir images heroes $im stand 1.gif]
 		}
@@ -336,10 +336,12 @@ proc stand_animation {tag im} {
 				set [set tag]_ancof 1
 			}
 			image create photo [set tag] -file [file join $mydir images heroes $im stand [set [set tag]_ancof].gif]
-			after 150 "stand_animation $tag $im"			
+			if {$s == $slide} {
+				after 150 "stand_animation $tag $im $s"	
+			}		
 		} else {
-			if {[get_hitpoints $tag] > 0} {
-				after 150 "stand_animation $tag $im"
+			if {[get_hitpoints $tag] > 0 && $s == $slide} {
+				after 150 "stand_animation $tag $im $s"
 			}
 		}
 	}
@@ -588,68 +590,68 @@ proc lumber {x y} {
 	.c raise enemy$enemy
 }
 proc genin_from_robber {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes genin-robber stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "genin-robber"
+	stand_animation enemy$enemy "genin-robber" $slide
 }
 proc genin_from_sound {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes genin-sound stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "genin-sound"
+	stand_animation enemy$enemy "genin-sound" $slide
 }
 proc genin_armmaster_from_robber {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes genin-robber-armmaster stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "genin-robber-armmaster"
+	stand_animation enemy$enemy "genin-robber-armmaster" $slide
 }
 proc genin_armmaster_from_sound {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes genin-sound-armmaster stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "genin-sound-armmaster"
+	stand_animation enemy$enemy "genin-sound-armmaster" $slide
 }
 #personal
 proc genin_tenten {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes tenten stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "tenten"
+	stand_animation enemy$enemy "tenten" $slide
 }
 proc chunin_tenten {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes tenten-adult stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "tenten-adult"
+	stand_animation enemy$enemy "tenten-adult" $slide
 }
 proc jonin_might_guy {x y} {
-	global mydir enemy
+	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
 	image create photo enemy$enemy -file [file join $mydir images heroes gui stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
-	stand_animation enemy$enemy "gui"
+	stand_animation enemy$enemy "gui" $slide
 }
 #tech
 proc suiken_not_message {} {

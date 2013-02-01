@@ -42,7 +42,7 @@ proc slide_5 {} {
 	global locations
 	phon 5
 	set locations [list 3 1 1 1]
-	genin_sound 400 520 1 1 2 1
+	genin_sound 400 520
 	medpack 50 520
 }
 proc slide_6 {} {
@@ -50,16 +50,15 @@ proc slide_6 {} {
 	set ai_type "high"
 	phon 6
 	set locations [list 1 1 1 1]
-	genin_sound_armmaster 1000 520 1 1 2 4 {"raiko-kenka"}
+	genin_sound_armmaster 1000 520 1 1 2 4 {"raiko-kenka" "soshoryu"}
+	genin_sound_armmaster 700 520 1 1 2 4 {"kuchiese-meisu"}
 }
 proc slide_7 {} {
 	global locations ai_type
-	set ai_type "normal"
 	phon 7
-	set locations [list 3 3 3 1]
-	green_table 650 320
-	genin_sound_armmaster 1000 520 1 1 2 4 {"kuchiese-meisu"}
-	scenery_message {Battle pills}
+	set locations [list 1 1 1 1]
+	green_table 950 520
+	genin_sound_armmaster 700 520 2 2 2 4 {"raiko-kenka" "futon-zankuha" "kawarimi"}
 }
 proc slide_8 {} {
 	global locations ai_type

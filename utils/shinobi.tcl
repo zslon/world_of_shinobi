@@ -541,7 +541,7 @@ proc fighting_sensor {} {
 	}
 }
 proc dies {} {
-	global enemy bonus herolevel
+	global enemy bonus herolevel slide
 	if {$enemy > 0} {
 		global enemy$enemy
 	}
@@ -567,7 +567,8 @@ proc dies {} {
 				.c addtag enemy$e withtag enemy$enemy
 				.c dtag enemy$enemy
 				.c itemconfigure enemy$e -image enemy$e
-				enemy$e copy enemy$enemy"
+				enemy$e copy enemy$enemy
+				stand_animation enemy$e [get_name enemy$e] $slide"
 			}
 			.c delete panelenemy$e
 			.c addtag panelenemy$e withtag panelenemy$enemy
@@ -805,6 +806,8 @@ proc melee_tech {from to name par ans par2} {
 		set ti 15
 	}
 	set n 1
+	set h11 [get_hitpoints $to]
+	set h12 [get_hitpoints $from]
 	while {$n <= $num || $n <= $num2} {		
 		if {[get_status $from] == "cast" && $n <= $num} {
 #konoha_senpu effect
@@ -814,12 +817,15 @@ proc melee_tech {from to name par ans par2} {
 					incr dam 2
 				}
 				if {[is_in "konoha-congoriki-senpu" $sk]} {
-					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti [expr $dam * 2]
+					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti [expr $dam * 2] "final" [expr $num - $n]
 				} else {
-					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam
+					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "begin"
 				}
 			} else {
 				tech_$name $from $to [expr $mt*($n-1)] $ti $dam 
+			}
+			if {$n == 2 && $name == "attack" && [is_in "konoha-dai-senpu" $sk] && $dam > 0 && [get_hitpoints $to] < $h11} {
+				tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "final" [expr $num - $n]
 			}
 		}
 		if {[get_status $to] == "cast" && $n <= $num2 && $dam2 > 0} {
@@ -830,12 +836,15 @@ proc melee_tech {from to name par ans par2} {
 					incr dam2 2
 				}
 				if {[is_in "konoha-congoriki-senpu" $sk2]} {
-					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 [expr $dam2 * 2] 
+					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 [expr $dam2 * 2] "final" [expr $num2 - $n]
 				} else {
-					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 
+					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 "begin"
 				}
 			} else { 
 				tech_$ans $to $from [expr $mt2*($n-1)] $ti2 $dam2 
+			}
+			if {$n == 2 && $ans == "attack" && [is_in "konoha-dai-senpu" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12} {
+				tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 "final" [expr $num2 - $n]
 			}
 		}	
 		incr n
@@ -889,10 +898,10 @@ proc nokout {p} {
 			}
 			set h [get_hitpoints $p]
 			if {$h > 0} {
+				after $t "image create photo $tag -file [file join $mydir images heroes $n stand 1.gif]"
+			} else {
 				image create photo die$tag -file [file join $mydir images heroes $n wound 7.gif]
 				after [expr $t - 50] ".c itemconfigure $tag -image die$tag"
-			} else {
-				after $t "image create photo $tag -file [file join $mydir images heroes $n stand 1.gif]"
 			}
 		} else {
 			wound_animation $tag [get_name $p]

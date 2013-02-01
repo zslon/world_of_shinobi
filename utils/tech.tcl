@@ -59,6 +59,18 @@ proc effect {name owner what} {
 			} 
 			set used [lreplace $used $i $i]
 		}
+		if {$name == "hachimon-3"} {
+			set_speed $owner [expr [get_speed $owner] - 1]
+			set u 0
+			set i 0
+			foreach s $used {
+				if {$s == "hachimon-2"} {
+					set i $u
+				}
+				incr u
+			} 
+			set used [lreplace $used $i $i]
+		}
 		if {$name == "kuchiese-meisu"} {
 			set s [expr $speed - 1]
 			set_speed $owner [expr [get_speed $owner] + $s]
@@ -260,7 +272,7 @@ image create photo $tag -file [file join $mydir images heroes $user soshuga $i.g
 		take_damage $p $d "soshuga"
 	}
 }
-proc tech_konoha-senpu {u p {timestart 0} interval d} {
+proc tech_konoha-senpu {u p {timestart 0} interval d {type "begin"} {strikes 0}} {
 	global mydir
 	if {$u == "hero"} {
 		set tag "heroi"
@@ -286,7 +298,77 @@ image create photo $tag -file [file join $mydir images heroes $user konoha-senpu
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "konoha-senpu"
+		if {$type == "final"} {
+			set_speed $p 0
+			set_speed $u 0 
+			after [expr $t + 900] "set_speed $u $s1"
+			after [expr $t + 900] "set_speed $p $s2"
+			if {$strikes > 0} {
+				tech_final-konoha-senpu $u $p $t $interval $d $strikes
+			}
+		}
 	}
+}
+proc tech_final-konoha-senpu {u p {timestart 0} interval d strikes} {
+	global mydir locations
+	if {$u == "hero"} {
+		set tag "heroi"
+		set tag2 $p
+	} else {
+		set tag $u
+		set tag2 "heroi"
+	}
+	.c raise $tag
+	set user [get_name $u]
+	set purpose [get_name $p]
+	set t $timestart
+	while {$strikes > 0} {
+		set i 1
+		while {$i <= 7} {
+			set t [expr $t + $interval]
+			after $t ".c raise $tag
+image create photo $tag -file [file join $mydir images heroes $user konoha-senpu $i.gif]"
+			incr i
+		}
+		set t [expr $t + $interval]
+		#damage
+		set s1 [get_speed $u]
+		set s2 [get_speed $p]
+		set chance [expr 50 - ($s2-$s1)*10]
+		set randomnumber [expr 100*rand()]
+		if {$randomnumber < $chance} {
+			#hit
+			take_damage $p $d "omote-renge"
+		}
+		incr strikes -1
+	}
+	set tincr 0
+	while {$tincr < 300} {
+		after [expr $timestart + $tincr] ".c move $tag2 0 -8
+.c move $tag 0 -10"
+		incr tincr 25
+	}
+	while {$tincr < 600} {
+		after [expr $timestart + $tincr] ".c move $tag2 0 8
+.c move $tag 0 10"
+		incr tincr 25
+	}
+	after [expr $timestart + 75] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 2.gif]"
+	after [expr $timestart + $tincr] ".c move $tag2 0 -10
+	image create photo $tag2 -file [file join $mydir images heroes $purpose wound 3.gif]"
+	after [expr $timestart + $tincr + 25] ".c move $tag2 0 -10"
+	after [expr $timestart + $tincr + 50] ".c move $tag2 0 10"
+	after [expr $timestart + $tincr + 100] ".c move $tag2 0 10"
+	after [expr $timestart + $tincr + 125] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 4.gif]"
+	after [expr $timestart + $tincr + 150] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 5.gif]"
+	after [expr $timestart + $tincr + 175] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 6.gif]"
+	after [expr $timestart + $tincr + 200] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 7.gif]"
+	if {[get_hitpoints $p] > 0} {
+		after [expr $timestart + $tincr + 200] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 8.gif]"
+		after [expr $timestart + $tincr + 225] "image create photo $tag2 -file [file join $mydir images heroes $purpose stand 1.gif]"
+	}
+	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]"
+	after $t "replace"
 }
 proc tech_shofu {u p {timestart 0} interval d} {
 	global mydir
@@ -350,7 +432,6 @@ proc tech_omote-renge {u p {timestart 0} interval d} {
 	} else {
 		set tag $u
 		set tag2 "heroi"
-		set tag2 $p
 		#throw
 		set pos [get_location $u]
 		if {$pos > 0} {
@@ -779,6 +860,49 @@ proc tech_hachimon-2 {u} {
 		set_hitpoints $u [expr 50*($level + 1)]
 	}
 
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 20} {
+		after $t "image create photo $tag -file [file join $mydir images heroes $user hachimon $i.gif]"
+		incr i
+		incr t 50
+	}
+	after $t "replace"
+}
+proc tech_hachimon-3 {u} {
+	global mydir effects herolevel enemy bonus
+	if {$u == "hero"} {
+		set tag "heroi"
+		set level $herolevel
+	} else {
+		set tag $u
+#not exact
+		set level [expr $bonus / ($enemy/20) - 1]
+	}
+	if {[is_in [list "hachimon-1" $u -1] $effects]} {
+
+	} else {
+#first gate
+		lappend effects [list "hachimon-1" $u -1]
+		set_form $u "hachimon"
+		set_tai $u [expr [get_tai $u] + 1]
+		set_chakra $u [expr [get_chakra $u] - 20]
+	}
+	if {[is_in [list "hachimon-2" $u -1] $effects]} {
+
+	} else {
+#second gate
+		lappend effects [list "hachimon-2" $u -1]
+		set_chakra $u [expr [get_chakra $u] - 20]
+		set_chakra $u [expr [get_chakra $u] + 25]
+		set_hitpoints $u [expr [get_hitpoints $u] + 50]
+		if {[get_hitpoints $u] > [expr 50*($level + 1)]} {
+			set_hitpoints $u [expr 50*($level + 1)]
+		}
+	}
+	set_speed $u [expr [get_speed $u] + 1]
+	set_chakra $u [expr [get_chakra $u] - 20]
 	set user [get_name $u]
 	set t 100
 	set i 1
