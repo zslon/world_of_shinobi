@@ -62,9 +62,14 @@ proc slide_7 {} {
 }
 proc slide_8 {} {
 	global locations ai_type
+	set locations [list 1 3 2 3]
+	phon 8
+	chunin_sound 1000 320 3 3 3 3 {"futon-zankuha" "kawarimi"}
+}
+proc slide_9 {} {
 	set ai_type "special"
 	set locations [list 3 1 1 1]
-	phon 8
+	phon 9
 	ten_ten 100 320 {"raiko-kenka"}
 	might_guy 1000 520 {"shofu"}
 }

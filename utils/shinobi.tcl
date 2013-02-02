@@ -79,6 +79,19 @@ proc genin_armmaster {x y village tai nin gen sp skills} {
 		gen_plus $enemy
 	}
 }
+proc chunin {x y village tai nin gen sp skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "chunin-$village" 2 $tai $nin $gen $sp $skills
+	chunin_from_$village $x $y
+	if {$tai < 3 || $nin < 3 || $gen < 3 || $sp < 3} {
+		gen_minus $enemy
+	}
+	if {$tai > 3 || $nin > 3 || $gen > 3 || $sp > 3} {
+		gen_plus $enemy
+	}
+}
 proc genin_robber {x y {tai 2} {nin 1} {gen 1} {sp 1} {skills {}}} {
 	genin $x $y robber $tai $nin $gen $sp $skills
 }
@@ -90,6 +103,9 @@ proc genin_robber_armmaster {x y {tai 1} {nin 1} {gen 1} {sp 4} {skills {}}} {
 }
 proc genin_sound_armmaster {x y {tai 1} {nin 1} {gen 2} {sp 4} {skills {}}} {
 	genin_armmaster $x $y sound $tai $nin $gen $sp $skills
+}
+proc chunin_sound {x y {tai 3} {nin 3} {gen 3} {sp 3} {skills {}}} {
+	chunin $x $y sound $tai $nin $gen $sp $skills
 }
 #personal
 proc ten_ten {x y skills {level 1}} {
@@ -828,9 +844,9 @@ proc melee_tech {from to name par ans par2} {
 				tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "final" [expr $num - $n]
 			}
 		}
-		if {[get_status $to] == "cast" && $n <= $num2 && $dam2 > 0} {
+		if {[get_status $to] == "cast" && $n <= $num2} {
 #konoha_senpu effect
-			if {$n == 1 && $ans == "attack" && [is_in "konoha-senpu" $sk2]} {
+			if {$n == 1 && $ans == "attack" && [is_in "konoha-senpu" $sk2] && $dam2 > 0} {
 				incr dam2 1
 				if {[is_in "konoha-goriki-senpu" $sk2]} {	
 					incr dam2 2

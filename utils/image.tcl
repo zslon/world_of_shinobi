@@ -625,6 +625,15 @@ proc genin_armmaster_from_sound {x y} {
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-sound-armmaster" $slide
 }
+proc chunin_from_sound {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	image create photo enemy$enemy -file [file join $mydir images heroes chunin-sound stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "chunin-sound" $slide
+}
 #personal
 proc genin_tenten {x y} {
 	global mydir enemy slide

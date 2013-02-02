@@ -285,12 +285,25 @@ proc tech_konoha-senpu {u p {timestart 0} interval d {type "begin"} {strikes 0}}
 	set i 1
 	while {$i <= 7} {
 		set t [expr $t + $interval]
-		after $t ".c raise $tag
+		if {$type == "begin"} {
+			after $t ".c raise $tag
 image create photo $tag -file [file join $mydir images heroes $user konoha-senpu $i.gif]"
-		incr i
+			incr i
+		}
+		if {$type == "final"} {
+			after $t ".c raise $tag
+image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.gif]"
+			incr i
+		}
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
-	replace"
+	if {$type == "begin"} {
+		after $t ".c raise $tag
+image create photo $tag -file [file join $mydir images heroes $user konoha-senpu 8.gif]
+replace"
+	} else {
+		after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
+		replace"
+	}
 	#damage
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
@@ -323,7 +336,7 @@ proc tech_final-konoha-senpu {u p {timestart 0} interval d strikes} {
 	set purpose [get_name $p]
 	set t $timestart
 	while {$strikes > 0} {
-		set i 1
+		set i 2
 		while {$i <= 7} {
 			set t [expr $t + $interval]
 			after $t ".c raise $tag
