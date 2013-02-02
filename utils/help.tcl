@@ -1,14 +1,14 @@
 #imageworking
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu
 set meleelist [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
-set rangedlist [list "hirudora" "asakujaku" "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
+set rangedlist [list "hirudora" "asakujaku" "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "hachimon-2" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kawarimi"]
-set ninjitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
+set ninjitsu [list "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set taijitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
 set genjitsu [list "kawarimi"]
-set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "konoha-senpu" "shofu" "attack"]
+set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "shoshitsu" "konoha-senpu" "shofu" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "raiko-kenka" "kunai"]
-set futonjitsu [list "futon-zankuha"]
+set futonjitsu [list "futon-zankukyokuha" "futon-zankuha"]
 proc enciclopedia_search {testskill testobj skill name damage number chakra} {
 	if {$testskill == $skill} {
 		return [set [set testobj]]
@@ -30,6 +30,7 @@ proc enciclopedia {skill obj {par "0"}} {
 	lappend cyclo [list "hachimon-7" "Kyomon" 0 -1 25]
 	lappend cyclo [list "hachimon-8" "Shimon" 0 -1 50]
 	lappend cyclo [list "konoha-senpu" "Konoha Senpu" 0 0 0]
+	lappend cyclo [list "konoha-senpu" "Shoshitsu" 0 0 0]
 	lappend cyclo [list "shofu" "Shofu" [expr 3 + $par] 1 10]
 	lappend cyclo [list "konoha-dai-senpu" "Konoha Dai Senpu" 0 0 0]
 	lappend cyclo [list "omote-renge" "Omote Renge" [expr 3*(3+$par)*(2+$par/2)/2] 1 25]
@@ -41,6 +42,7 @@ proc enciclopedia {skill obj {par "0"}} {
 	lappend cyclo [list "hirudora" "Hirudora" [expr (3+$par)*(4+$par)] 1 200]
 	lappend cyclo [list "kawarimi" "Kawarimi no Jitsu" 0 1 10]
 	lappend cyclo [list "futon-zankuha" "Futon: Zankuha" [expr 7*$par] 1 15]
+	lappend cyclo [list "futon-zankukyokuha" "Futon: Zankukyokuha" [expr 10*$par] 1 25]
 	lappend cyclo [list "raiko-kenka" "Raiko Kenka" 0 -1 15]
 	lappend cyclo [list "kuchiese-kusarigama" "Kuchiese: Kusarigama" 0 -1 15]
 	lappend cyclo [list "kuchiese-meisu" "Kuchiese: Meisu" 0 -1 25]
@@ -91,4 +93,8 @@ proc is_kunai_based {tech} {
 proc have_special_animate {tech} {
 #range tech, with have special animate
 	return [is_in $tech [list "hirudora" "asakujaku" "sogu-tensasai" "soshoryu"]]
+}
+proc is_high {name} {
+#hero height for kunai technics
+	return [is_in [get_name $name] [list "gui" "chunin-sound"]]
 }

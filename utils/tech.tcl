@@ -83,16 +83,19 @@ proc take_damage {p d t} {
 }
 #techincs
 #Taijitsu
-proc tech_kunai {x y r p {timestart 0} d} {
+proc tech_kunai {x y r p {timestart 0} d {type "little"}} {
 	global mydir effects
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		image create photo i_$randomnumber -file [file join $mydir images attacks kunai 2.gif]
+		get_image i_$randomnumber [file join $mydir images attacks kunai 2.gif]
 	} else {
-		image create photo i_$randomnumber -file [file join $mydir images attacks kunai 1.gif]
+		get_image i_$randomnumber [file join $mydir images attacks kunai 1.gif]
 	}
 	set t $timestart
 	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	if {$type == "big"} {
+		after $t " .c move t_$randomnumber 0 -20"
+	}
 	while {$t < [expr $timestart + 200]} {
 		after $t ".c move t_$randomnumber [expr $r / 10] 0"
 		incr t 20	
@@ -114,9 +117,9 @@ proc tech_suriken {x y r p {timestart 0} d} {
 	global mydir effects
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		image create photo i_$randomnumber -file [file join $mydir images attacks suriken 2.gif]
+		get_image i_$randomnumber [file join $mydir images attacks suriken 2.gif]
 	} else {
-		image create photo i_$randomnumber -file [file join $mydir images attacks suriken 1.gif]
+		get_image i_$randomnumber [file join $mydir images attacks suriken 1.gif]
 	}
 	set t $timestart
 	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
@@ -137,14 +140,14 @@ proc tech_suriken {x y r p {timestart 0} d} {
 		}
 	}
 }
-proc tech_kusarigama {x y r p {timestart 0} d} {
+proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 	global mydir effects
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		image create photo i_$randomnumber -file [file join $mydir images attacks kusarigama 1-1.gif]
+		get_image i_$randomnumber [file join $mydir images attacks kusarigama 1-1.gif]
 		set pref 1
 	} else {
-		image create photo i_$randomnumber -file [file join $mydir images attacks kusarigama 2-1.gif]
+		get_image i_$randomnumber -[file join $mydir images attacks kusarigama 2-1.gif]
 		set pref 2
 	}
 	set t $timestart
@@ -154,16 +157,19 @@ proc tech_kusarigama {x y r p {timestart 0} d} {
 	if {$r < 0} {
 		after $t ".c create image [expr $x - 175] $y -image i_$randomnumber -tag t_$randomnumber"
 	}
+	if {$type == "big"} {
+		after $t ".c move t_$randomnumber 0 -20"
+	}
 	set i 1
 	while {$i < 8} {
-		after $t "image create photo i_$randomnumber -file [file join $mydir images attacks kusarigama [set pref]-[set i].gif]"
+		after $t "get_image i_$randomnumber [file join $mydir images attacks kusarigama [set pref]-[set i].gif]"
 		incr t 28
 		incr i 1
 	}
 	incr i -1
 	incr t 28
 	while {$i > 0} {
-		after $t "image create photo i_$randomnumber -file [file join $mydir images attacks kusarigama [set pref]-[set i].gif]"
+		after $t "get_image i_$randomnumber [file join $mydir images attacks kusarigama [set pref]-[set i].gif]"
 		incr t 28
 		incr i -1
 	}	
@@ -202,10 +208,10 @@ proc tech_attack {u p {timestart 0} interval d} {
 	while {$i <= 7} {
 		set t [expr $t + $interval]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user attack $r-$i.gif]"
+get_image $tag [file join $mydir images heroes $user attack $r-$i.gif] run $u"
 		incr i
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
 	replace"
 	#damage
 	set s1 [get_speed $u]
@@ -230,10 +236,10 @@ proc tech_meisu {u p {timestart 0} interval d} {
 	while {$i <= 7} {
 		set t [expr $t + $interval]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user meisu $i.gif]"
+get_image $tag [file join $mydir images heroes $user meisu $i.gif]"
 		incr i
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
 	replace"
 	#damage
 	set s1 [get_speed $u]
@@ -258,10 +264,10 @@ proc tech_nunchaka {u p {timestart 0} interval d} {
 	while {$i <= 7} {
 		set t [expr $t + $interval]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user soshuga $i.gif]"
+get_image $tag [file join $mydir images heroes $user soshuga $i.gif]"
 		incr i
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
 	replace"
 	#damage
 	set s1 [get_speed $u]
@@ -270,6 +276,34 @@ image create photo $tag -file [file join $mydir images heroes $user soshuga $i.g
 	if {$randomnumber < $chance} {
 		#decrease enemy taijitsu by 1
 		take_damage $p $d "soshuga"
+	}
+}
+proc tech_shoshitsu {u p {timestart 0} interval d} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set randomnumber [expr 100*rand()]
+	set user [get_name $u]
+	set t $timestart
+	set i 1
+	while {$i <= 5} {
+		set t [expr $t + $interval]
+		after $t ".c raise $tag
+get_image $tag [file join $mydir images heroes $user shoshitsu $i.gif]"
+		incr i
+	}
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
+	replace"
+	#damage
+	set s1 [get_speed $u]
+	set s2 [get_speed $p]	
+	set chance [expr 50 - ($s2-$s1)*10]
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "shoshitsu"
 	}
 }
 proc tech_konoha-senpu {u p {timestart 0} interval d {type "begin"} {strikes 0}} {
@@ -287,21 +321,21 @@ proc tech_konoha-senpu {u p {timestart 0} interval d {type "begin"} {strikes 0}}
 		set t [expr $t + $interval]
 		if {$type == "begin"} {
 			after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user konoha-senpu $i.gif]"
+get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 			incr i
 		}
 		if {$type == "final"} {
 			after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.gif]"
+get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 			incr i
 		}
 	}
 	if {$type == "begin"} {
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user konoha-senpu 8.gif]
+get_image $tag [file join $mydir images heroes $user konoha-senpu 8.gif]
 replace"
 	} else {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]
+		after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
 		replace"
 	}
 	#damage
@@ -340,7 +374,7 @@ proc tech_final-konoha-senpu {u p {timestart 0} interval d strikes} {
 		while {$i <= 7} {
 			set t [expr $t + $interval]
 			after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user konoha-senpu $i.gif]"
+get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 			incr i
 		}
 		set t [expr $t + $interval]
@@ -366,21 +400,21 @@ image create photo $tag -file [file join $mydir images heroes $user konoha-senpu
 .c move $tag 0 10"
 		incr tincr 25
 	}
-	after [expr $timestart + 75] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 2.gif]"
+	after [expr $timestart + 75] "get_image $tag2 [file join $mydir images heroes $purpose wound 2.gif]"
 	after [expr $timestart + $tincr] ".c move $tag2 0 -10
-	image create photo $tag2 -file [file join $mydir images heroes $purpose wound 3.gif]"
+	get_image $tag2 [file join $mydir images heroes $purpose wound 3.gif]"
 	after [expr $timestart + $tincr + 25] ".c move $tag2 0 -10"
 	after [expr $timestart + $tincr + 50] ".c move $tag2 0 10"
 	after [expr $timestart + $tincr + 100] ".c move $tag2 0 10"
-	after [expr $timestart + $tincr + 125] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 4.gif]"
-	after [expr $timestart + $tincr + 150] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 5.gif]"
-	after [expr $timestart + $tincr + 175] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 6.gif]"
-	after [expr $timestart + $tincr + 200] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 7.gif]"
+	after [expr $timestart + $tincr + 125] "get_image $tag2 [file join $mydir images heroes $purpose wound 4.gif]"
+	after [expr $timestart + $tincr + 150] "get_image $tag2 [file join $mydir images heroes $purpose wound 5.gif]"
+	after [expr $timestart + $tincr + 175] "get_image $tag2 [file join $mydir images heroes $purpose wound 6.gif]"
+	after [expr $timestart + $tincr + 200] "get_image $tag2 [file join $mydir images heroes $purpose wound 7.gif]"
 	if {[get_hitpoints $p] > 0} {
-		after [expr $timestart + $tincr + 200] "image create photo $tag2 -file [file join $mydir images heroes $purpose wound 8.gif]"
-		after [expr $timestart + $tincr + 225] "image create photo $tag2 -file [file join $mydir images heroes $purpose stand 1.gif]"
+		after [expr $timestart + $tincr + 200] "get_image $tag2 [file join $mydir images heroes $purpose wound 8.gif]"
+		after [expr $timestart + $tincr + 225] "get_image $tag2 [file join $mydir images heroes $purpose stand 1.gif]"
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after $t "replace"
 }
 proc tech_shofu {u p {timestart 0} interval d} {
@@ -399,11 +433,11 @@ proc tech_shofu {u p {timestart 0} interval d} {
 	while {$i <= 7} {
 		set t [expr $t + $interval]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.gif]"
+get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		incr i
 	}
 	set t [expr $t + $interval]
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after $t "replace"
 	#damage
 	set s1 [get_speed $u]
@@ -475,7 +509,7 @@ proc tech_omote-renge {u p {timestart 0} interval d} {
 	while {$i <= 7} {
 		set t [expr $t + $interval]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.gif]"
+get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		incr i
 	}
 	set t [expr $t + $interval]
@@ -500,29 +534,29 @@ image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.
 		set i 1
 		set t [expr $t + $interval*3]
 		while {$i <= 4} {
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			after $t ".c move $tag 0 -25"
 			set t [expr $t + $interval / 2]
 			incr i
 		}
 		set i 3
 		while {$i <= 4} {
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			after $t ".c move $tag 0 -25"
 			set t [expr $t + $interval / 2]
 			incr i
 		}
 		while {$i <= 8} {
 			after $t ".c move $tag2 0 5"
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			set t [expr $t + $interval]
 			incr i
 		}
-		after $t "image create photo $tag2 -file [file join $mydir images heroes empty.gif]"
+		after $t "get_image $tag2 [file join $mydir images heroes empty.gif]"
 		while {$i <= 12} {
 			after $t ".c move $tag $dx $dy"
 			after $t ".c move $tag2 $dx $dy"
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			set t [expr $t + $interval / 2]
 			incr i
 		}
@@ -530,7 +564,7 @@ image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.
 		while {$i <= 12} {
 			after $t ".c move $tag $dx $dy"
 			after $t ".c move $tag2 $dx $dy"
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			set t [expr $t + $interval / 2]
 			incr i
 		}
@@ -538,7 +572,7 @@ image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.
 		while {$i <= 10} {
 			after $t ".c move $tag $dx $dy"
 			after $t ".c move $tag2 $dx $dy"
-			after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge $i.gif]"
+			after $t "get_image $tag [file join $mydir images heroes $user omote-renge $i.gif]"
 			set t [expr $t + $interval / 2]
 			incr i
 		}
@@ -553,17 +587,17 @@ image create photo $tag -file [file join $mydir images heroes $user attack 3-$i.
 		}
 		set dx [expr $dx/2]
 		after [expr $t2 + $interval/2] ".c move $tag2 0 30"
-		after $t "image create photo $tag2 -file [file join $mydir images heroes [get_name $p] wound 2.gif]"
-		after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge 13.gif]"
+		after $t "get_image $tag2 [file join $mydir images heroes [get_name $p] wound 2.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user omote-renge 13.gif]"
 		set t [expr $t + $interval]
-		after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge 14.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user omote-renge 14.gif]"
 		set t [expr $t + $interval]
-		after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge 15.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user omote-renge 15.gif]"
 		after $t ".c move $tag [expr $dx*(-10)] [expr $ds*(-100)]"
 		set t [expr $t + $interval]
-		after $t "image create photo $tag -file [file join $mydir images heroes $user omote-renge 14.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user omote-renge 14.gif]"
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user stand 1.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after $t "replace"
 }
 #ranged 
@@ -585,10 +619,10 @@ proc tech_soshoryu {u r p {timestart 0} d} {
 	while {$i <= 20} {
 		set t [expr $t + 100]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $name soshoryu $i.gif]"
+get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 		incr i 1
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $name stand 1.gif]
+	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif]
 	replace"
 	set k 1
 	set t 1100
@@ -654,10 +688,10 @@ proc tech_sogu-tensasai {u r p {timestart 0} d} {
 	while {$i <= 20} {
 		set t [expr $t + 100]
 		after $t ".c raise $tag
-image create photo $tag -file [file join $mydir images heroes $name soshoryu $i.gif]"
+get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 		incr i 1
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $name stand 1.gif]
+	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif]
 	replace"
 	set k 1
 	set t 1100
@@ -714,7 +748,7 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		image create photo i_$randomnumber -file [file join $mydir images attacks zankuha 2.gif]
+		get_image i_$randomnumber [file join $mydir images attacks zankuha 2.gif]
 		set e 1
 		while {$e <= $enemy} {
 			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
@@ -724,7 +758,7 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 		}
 		set_chakra $u [expr [get_chakra $u] - 15]
 	} else {
-		image create photo i_$randomnumber -file [file join $mydir images attacks zankuha 1.gif]
+		get_image i_$randomnumber [file join $mydir images attacks zankuha 1.gif]
 		set_chakra "hero" [expr [get_chakra "hero"] - 15]
 		set u "hero"
 	}
@@ -746,6 +780,48 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 		if {[get_chakra $p] == 0} {
 			set_hitpoints $p 0
 		}
+	}
+}
+proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
+	global mydir effects enemy
+	set randomnumber [expr 100*rand()]
+	if {$p == "hero"} {
+		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 2.gif]
+		set e 1
+		while {$e <= $enemy} {
+			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
+				set u "enemy$e"
+			}
+			incr e
+		}
+		set_chakra $u [expr [get_chakra $u] - 25]
+	} else {
+		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 1.gif]
+		set_chakra "hero" [expr [get_chakra "hero"] - 25]
+		set u "hero"
+	}
+	set t $timestart
+	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	while {$t < [expr $timestart + 500]} {
+		after $t "if_delete t_$randomnumber $u
+.c move t_$randomnumber [expr $r / 25] 0"
+		incr t 20	
+	}
+	after $t ".c delete t_$randomnumber
+	replace"
+	#damage (very very mark - minimal chance is 70% vs naruto in fox-mode)
+	set s [get_speed $p]
+	set chance [expr 100 - $s*3]
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "futon-zankukyokuha"
+		if {[get_chakra $p] == 0} {
+			set_hitpoints $p 0
+		}
+		#throws enemy
+		after [expr $t - 100] "set_speed $p 0"
+		after [expr $t + 900] "set_speed $p $s"
+		after [expr $t - 100] "nokout $p"
 	}
 }
 #bonus
@@ -770,12 +846,12 @@ proc tech_raiko-kenka {u} {
 	set t 100
 	set i 1
 	while {$i <= 9} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user kuchiese $i.gif] run $u"
 		incr i
 		incr t 100
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese suriken.gif]"
-	after [expr $t + 100] "image create photo $tag -file [file join $mydir images heroes $user kuchiese suriken.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user kuchiese suriken.gif]"
+	after [expr $t + 100] "get_image $tag [file join $mydir images heroes $user kuchiese suriken.gif]"
 	after $t "replace"
 }
 proc tech_kuchiese-kusarigama {u} {
@@ -799,12 +875,12 @@ proc tech_kuchiese-kusarigama {u} {
 	set t 100
 	set i 1
 	while {$i <= 9} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user kuchiese $i.gif] run $u"
 		incr i
 		incr t 100
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese kusarigama.gif]"
-	after [expr $t + 100] "image create photo $tag -file [file join $mydir images heroes $user kuchiese kusarigama.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user kuchiese kusarigama.gif]"
+	after [expr $t + 100] "get_image $tag [file join $mydir images heroes $user kuchiese kusarigama.gif]"
 	after $t "replace"
 }
 proc tech_suiken {u} {
@@ -820,7 +896,7 @@ proc tech_suiken {u} {
 	set t 100
 	set i 1
 	while {$i <= 11} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user suiken $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user suiken $i.gif] run $u"
 		incr i
 		incr t 100
 	}
@@ -840,7 +916,7 @@ proc tech_hachimon-1 {u} {
 	set t 100
 	set i 1
 	while {$i <= 20} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user hachimon $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user hachimon $i.gif] run $u"
 		incr i
 		incr t 50
 	}
@@ -877,7 +953,7 @@ proc tech_hachimon-2 {u} {
 	set t 100
 	set i 1
 	while {$i <= 20} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user hachimon $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user hachimon $i.gif] run $u"
 		incr i
 		incr t 50
 	}
@@ -920,7 +996,7 @@ proc tech_hachimon-3 {u} {
 	set t 100
 	set i 1
 	while {$i <= 20} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user hachimon $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user hachimon $i.gif] run $u"
 		incr i
 		incr t 50
 	}
@@ -947,12 +1023,12 @@ proc tech_soshuga {u} {
 	set t 100
 	set i 1
 	while {$i <= 9} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user kuchiese $i.gif] run $u"
 		incr i
 		incr t 100
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese soshuga.gif]"
-	after [expr $t + 100] "image create photo $tag -file [file join $mydir images heroes $user kuchiese soshuga.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user kuchiese soshuga.gif]"
+	after [expr $t + 100] "get_image $tag [file join $mydir images heroes $user kuchiese soshuga.gif]"
 	after $t "replace"
 }
 proc tech_kuchiese-meisu {u} {
@@ -979,12 +1055,12 @@ proc tech_kuchiese-meisu {u} {
 	set t 100
 	set i 1
 	while {$i <= 9} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user kuchiese $i.gif] run $u"
 		incr i
 		incr t 100
 	}
-	after $t "image create photo $tag -file [file join $mydir images heroes $user kuchiese meisu.gif]"
-	after [expr $t + 100] "image create photo $tag -file [file join $mydir images heroes $user kuchiese meisu.gif]"
+	after $t "get_image $tag [file join $mydir images heroes $user kuchiese meisu.gif]"
+	after [expr $t + 100] "get_image $tag [file join $mydir images heroes $user kuchiese meisu.gif]"
 	after $t "replace"
 }
 #genjitsu bonus
@@ -1001,7 +1077,7 @@ proc tech_kawarimi {u} {
 	set t 100
 	set i 1
 	while {$i <= 5} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $user kawarimi $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $user kawarimi $i.gif] run $u"
 		incr i
 		incr t 100
 	}

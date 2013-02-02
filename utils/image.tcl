@@ -1,20 +1,29 @@
 #imageworking
+proc get_image {im from {class "norm"} {tag "hero"}} {
+	if {$class == "run"} {
+		if {[get_speed $tag] > 0} {
+			image create photo $im -file $from
+		}
+	} else {
+		image create photo $im -file $from
+	} 
+}
 set leeskillist [list "konoha-senpu" "shofu" "konoha-dai-senpu" "omote-renge" "ura-renge" "konoha-goriki-senpu" "tsuten-kyaku" "asakujaku" "hirudora" "konoha-congoriki-senpu" "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8"]
 foreach s $leeskillist {
-	image create photo skill_$s -file [file join $mydir images skills lee $s.gif]
+	get_image skill_$s [file join $mydir images skills lee $s.gif]
 }
-image create photo cross -file [file join $mydir images skills cross.gif]
-image create photo aceptbutton -file [file join $mydir images skills acept.gif]
+get_image cross [file join $mydir images skills cross.gif]
+get_image aceptbutton [file join $mydir images skills acept.gif]
 proc create_skillpanel {} {
 	global mydir
-	image create photo emptyskillpanel -file [file join $mydir images skills standart.gif]
+	get_image emptyskillpanel [file join $mydir images skills standart.gif]
 	.c create image 512 288 -image emptyskillpanel -tag phon
 	.c create image 225 200 -image individualpanel -tag skills
 	.c create image 600 310 -image accesspanel -tag skills
 }
 proc skillmessage {} {
 	global mydir
-	image create photo mess -file [file join $mydir images skills information message.gif]
+	get_image mess [file join $mydir images skills information message.gif]
 	catch {
 		destroy .m
 	}
@@ -34,13 +43,13 @@ proc skillmessage {} {
 }
 proc victory_image {} {
 	global mydir 
-	image create photo win -file [file join $mydir images win.gif]
+	get_image win [file join $mydir images win.gif]
 	.c create image 512 288 -image win
 }
 proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	global mydir campdir newskill
 	set newskill $image
-	image create photo infa -file [file join $mydir images skills information $image.gif]
+	get_image infa [file join $mydir images skills information $image.gif]
 	catch {
 		destroy .i
 	}
@@ -78,7 +87,7 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 		}
 	}	
 	if {$access < 0} {
-		image create photo infa -file [file join $mydir images skills information $image-n.gif]
+		get_image infa [file join $mydir images skills information $image-n.gif]
 	}
 	
 }
@@ -86,7 +95,7 @@ proc breefing {} {
 	global campdir missionnumber slide enemy
 	set slide 1
 	set enemy 0
-	image create photo phonimage -file [file join $campdir breefings $missionnumber.gif]
+	get_image phonimage [file join $campdir breefings $missionnumber.gif]
 	.c create image 512 288 -image phonimage -tag phon
 	bind .c <ButtonPress> {
 		if {[object_in %x %y 800 50 200 70]} {
@@ -101,7 +110,7 @@ proc scenery_message {str} {
 	catch {
 		destroy .m
 	}
-	image create photo mess -file [file join $campdir messages $missionnumber-$slide.gif]
+	get_image mess [file join $campdir messages $missionnumber-$slide.gif]
 	toplevel .m
 	wm title .m $str
 	wm geometry .m 400x300
@@ -118,12 +127,12 @@ proc scenery_message {str} {
 }
 proc phon {number} {
 	global campdir missionnumber
-	image create photo phonimage -file [file join $campdir land $missionnumber-$number.gif]
+	get_image phonimage [file join $campdir land $missionnumber-$number.gif]
 }
 proc create_battlepanel {} {
 	global heroname mydir enemy slide skills
-	image create photo battlepanel -file [file join $mydir images skills battlepanel.gif]
-	image create photo heroportrait -file [file join $mydir images heroes $heroname face.gif]
+	get_image battlepanel [file join $mydir images skills battlepanel.gif]
+	get_image heroportrait [file join $mydir images heroes $heroname face.gif]
 	.c create image 512 100 -image battlepanel -tag panel
 	.c create image 26 26 -image heroportrait -tag panel
 	.c create text 175 12 -text [get_hitpoints "hero"] -tag stat
@@ -137,7 +146,7 @@ proc create_battlepanel {} {
 	set e 1
 	while {$e <= $enemy} {
 		if {[get_name enemy$e] != "trap"} {
-			image create photo face$e -file [file join $mydir images heroes [get_name enemy$e] face.gif]
+			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
 			.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
 			create_hitpoints enemy$e
 			create_chakra enemy$e
@@ -294,7 +303,7 @@ proc replace {} {
 		if {[get_name enemy$e] != "trap"} {
 			create_hitpoints enemy$e
 			create_chakra enemy$e
-			image create photo face$e -file [file join $mydir images heroes [get_name enemy$e] face.gif]
+			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
 			.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
 			.c raise panelenemy$e
 		}
@@ -323,10 +332,10 @@ proc stand_animation {tag im {s 0}} {
 			if {$hero_ancof == 5} {
 				set hero_ancof 1
 			}
-			image create photo heroi -file [file join $mydir images heroes $im stand $hero_ancof.gif]
+			get_image heroi [file join $mydir images heroes $im stand $hero_ancof.gif]
 			after 150 "stand_animation $tag $im $s"			
 		} else {
-			image create photo heroi -file [file join $mydir images heroes $im stand 1.gif]
+			get_image heroi [file join $mydir images heroes $im stand 1.gif]
 		}
 	} else {
 		global [set tag]_ancof
@@ -335,7 +344,7 @@ proc stand_animation {tag im {s 0}} {
 			if {[set [set tag]_ancof] == 5} {
 				set [set tag]_ancof 1
 			}
-			image create photo [set tag] -file [file join $mydir images heroes $im stand [set [set tag]_ancof].gif]
+			get_image [set tag] [file join $mydir images heroes $im stand [set [set tag]_ancof].gif]
 			if {$s == $slide} {
 				after 150 "stand_animation $tag $im $s"	
 			}		
@@ -349,11 +358,11 @@ proc stand_animation {tag im {s 0}} {
 proc block_animation {tag im} {
 	global mydir hero_ancof
 	set hero_ancof 0
-	image create photo $tag -file [file join $mydir images heroes $im block 1.gif]	
-	after 100 "image create photo $tag -file [file join $mydir images heroes $im block 2.gif]"
-	after 200 "image create photo $tag -file [file join $mydir images heroes $im block 3.gif]"
-	after 800 "image create photo $tag -file [file join $mydir images heroes $im block 4.gif]"
-	after 900 "image create photo $tag -file [file join $mydir images heroes $im stand 1.gif]"
+	get_image $tag [file join $mydir images heroes $im block 1.gif]	
+	after 100 "get_image $tag [file join $mydir images heroes $im block 2.gif]"
+	after 200 "get_image $tag [file join $mydir images heroes $im block 3.gif]"
+	after 800 "get_image $tag [file join $mydir images heroes $im block 4.gif]"
+	after 900 "get_image $tag [file join $mydir images heroes $im stand 1.gif]"
 }
 proc wound_animation {tag im} {
 	global mydir hero_ancof
@@ -366,7 +375,7 @@ proc wound_animation {tag im} {
 	set i 1
 	set t 0
 	while {$t < 800} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $im wound $i.gif]"
+		after $t "get_image $tag [file join $mydir images heroes $im wound $i.gif]"
 		incr t 100
 		incr i
 	}
@@ -377,7 +386,7 @@ proc concentrate_chakra {tag im} {
 	set t 0
 	set i 1
 	while {$t < 1000} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $im chakra $i.gif]"	
+		after $t "get_image $tag [file join $mydir images heroes $im chakra $i.gif]"	
 		incr t 100
 		incr i 
 	}
@@ -404,7 +413,7 @@ proc die {class} {
 		set im [get_name $class]
 		while {$t < 700} {
 			if {$im != "trap"} {
-				after $t "image create photo [set tag] -file [file join $mydir images heroes $im wound $i.gif]"
+				after $t "get_image [set tag] [file join $mydir images heroes $im wound $i.gif]"
 			}
 			incr t 100
 			incr i
@@ -422,7 +431,7 @@ proc teleport {im num} {
 	set i 1
 	while {$t <= 500} {
 		if {$im != "trap"} {
-			after $t "image create photo [set tag] -file [file join $mydir images heroes $im teleport $i.gif]"
+			after $t "get_image [set tag] [file join $mydir images heroes $im teleport $i.gif]"
 		}
 		incr t 100
 		incr i
@@ -455,7 +464,7 @@ proc teleport {im num} {
 proc traectory {x y vector image user} {
 	global mydir
 	set r [expr rand()*100]
-	image create photo image_$r -file [file join $mydir images attacks $image t0.gif]
+	get_image image_$r [file join $mydir images attacks $image t0.gif]
 	.c create image $x $y -image image_$r -tag tag_$r
 
 	set ax 0
@@ -471,7 +480,7 @@ proc traectory {x y vector image user} {
 		set ax 45
 		set ay 0
 	}
-	after 50 "image create photo image_$r -file [file join $mydir images attacks $image t$d.gif]"
+	after 50 "get_image image_$r [file join $mydir images attacks $image t$d.gif]"
 	set t 100
 	while {$t <= 550} {
 		after $t "if_delete tag_$r $user
@@ -515,7 +524,13 @@ proc kawarimi_teleport {tag im} {
 				if {$h < [lindex $locations $l]} {
 					after 600 ".c move $tag 0 -100"
 				} else {
-					after 600 ".c move $tag 300 0"
+					set le [lindex $locations [expr $l + 1]]
+					if {abs($le) == $h || ($h < $le)} {
+						after 600 ".c move $tag 300 0"
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 600 ".c move $tag 300 $d"
+					}
 				}
 			}
 		} else {
@@ -539,7 +554,13 @@ proc kawarimi_teleport {tag im} {
 				if {$h < [lindex $locations $l]} {
 					after 600 ".c move $tag 0 -100"
 				} else {
-					after 600 ".c move $tag -300 0"
+					set le [lindex $locations [expr $l - 1]]
+					if {abs($le) == $h || ($h < $le)} {
+						after 600 ".c move $tag -300 0"
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 600 ".c move $tag -300 $d"
+					}
 				}
 			}
 		} else {
@@ -553,7 +574,7 @@ proc kawarimi_teleport {tag im} {
 	set t 100
 	set i 6
 	while {$t <= 1000} {
-		after $t "image create photo $tag -file [file join $mydir images heroes $im kawarimi $i.gif]"	
+		after $t "get_image $tag [file join $mydir images heroes $im kawarimi $i.gif]"	
 		incr t 100
 		incr i 
 	}
@@ -562,7 +583,7 @@ proc kawarimi_teleport {tag im} {
 proc rock_lee {x y} {
 	global mydir hero_ancof
 	set hero_ancof 1
-	image create photo heroi -file [file join $mydir images heroes lee stand 1.gif]
+	get_image heroi [file join $mydir images heroes lee stand 1.gif]
 	.c create image $x $y -image heroi -tag heroi
 	.c raise heroi
 }
@@ -575,7 +596,7 @@ proc lee_2 {x y} {
 proc chunin_rock_lee {x y} {
 	global mydir hero_ancof
 	set hero_ancof 1
-	image create photo heroi -file [file join $mydir images heroes lee-adult stand 1.gif]
+	get_image heroi [file join $mydir images heroes lee-adult stand 1.gif]
 	.c create image $x $y -image heroi -tag heroi
 	.c raise heroi
 }
@@ -585,7 +606,7 @@ proc lee-adult_3 {x y} {
 #enemy
 proc lumber {x y} {
 	global mydir enemy
-	image create photo enemy$enemy -file [file join $mydir images heroes lumber stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes lumber stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 }
@@ -593,7 +614,7 @@ proc genin_from_robber {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes genin-robber stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes genin-robber stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-robber" $slide
@@ -602,7 +623,7 @@ proc genin_from_sound {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes genin-sound stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes genin-sound stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-sound" $slide
@@ -611,7 +632,7 @@ proc genin_armmaster_from_robber {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes genin-robber-armmaster stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes genin-robber-armmaster stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-robber-armmaster" $slide
@@ -620,7 +641,7 @@ proc genin_armmaster_from_sound {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes genin-sound-armmaster stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes genin-sound-armmaster stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-sound-armmaster" $slide
@@ -629,7 +650,7 @@ proc chunin_from_sound {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes chunin-sound stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes chunin-sound stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "chunin-sound" $slide
@@ -639,7 +660,7 @@ proc genin_tenten {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes tenten stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes tenten stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "tenten" $slide
@@ -648,7 +669,7 @@ proc chunin_tenten {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes tenten-adult stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes tenten-adult stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "tenten-adult" $slide
@@ -657,7 +678,7 @@ proc jonin_might_guy {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
 	set enemy[set enemy]_ancof 1
-	image create photo enemy$enemy -file [file join $mydir images heroes gui stand 1.gif]
+	get_image enemy$enemy [file join $mydir images heroes gui stand 1.gif]
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "gui" $slide
@@ -665,7 +686,7 @@ proc jonin_might_guy {x y} {
 #tech
 proc suiken_not_message {} {
 	global mydir
-	image create photo no_mess -file [file join $mydir images skills information suiken_not.gif]
+	get_image no_mess [file join $mydir images skills information suiken_not.gif]
 	catch {
 		destroy .s
 	}
@@ -685,7 +706,7 @@ proc suiken_not_message {} {
 }
 proc omote_not_message {} {
 	global mydir
-	image create photo no_mess -file [file join $mydir images skills information omote_not.gif]
+	get_image no_mess [file join $mydir images skills information omote_not.gif]
 	catch {
 		destroy .s
 	}
@@ -705,7 +726,7 @@ proc omote_not_message {} {
 }
 proc no_chakra_message {} {
 	global mydir
-	image create photo no_mess -file [file join $mydir images skills information no_chakra.gif]
+	get_image no_mess [file join $mydir images skills information no_chakra.gif]
 	catch {
 		destroy .s
 	}
@@ -725,13 +746,13 @@ proc no_chakra_message {} {
 }
 proc gen_minus {num} {
 	global mydir
-	image create photo min -file [file join $mydir images heroes minus.gif]
+	get_image min [file join $mydir images heroes minus.gif]
 	.c create image 725 [expr 26 + 51*($num-1)] -image min -tag panelenemy$num
 	.c raise panelenemy$num
 }
 proc gen_plus {num} {
 	global mydir
-	image create photo plus -file [file join $mydir images heroes plus.gif]
+	get_image plus [file join $mydir images heroes plus.gif]
 	.c create image 725 [expr 26 + 51*($num-1)] -image plus -tag panelenemy$num
 	.c raise panelenemy$num
 }

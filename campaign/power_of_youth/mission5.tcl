@@ -13,7 +13,7 @@ proc slide_1 {} {
 	set bonus 0
 	phon 1
 	set locations [list 1 1 1 1]
-	genin_sound 1000 520 2 1 2 1 {"futon-zankuha" "kawarimi"}
+	genin_sound 1000 520 2 2 2 1 {"futon-zankuha" "kawarimi"}
 }
 proc slide_2 {} {
 	global locations
@@ -64,7 +64,7 @@ proc slide_8 {} {
 	global locations ai_type
 	set locations [list 1 3 2 3]
 	phon 8
-	chunin_sound 1000 320 3 3 3 3 {"futon-zankuha" "kawarimi"}
+	chunin_sound 1000 320 3 3 3 3 {"futon-zankukyokuha" "shoshitsu" "kawarimi"}
 }
 proc slide_9 {} {
 	set ai_type "special"
