@@ -61,10 +61,11 @@ proc slide_7 {} {
 	genin_sound_armmaster 700 520 2 2 2 4 {"raiko-kenka" "futon-zankuha" "kawarimi"}
 }
 proc slide_8 {} {
-	global locations ai_type
+	global locations ai_type effects
 	set locations [list 1 3 2 3]
 	phon 8
-	chunin_sound 1000 320 3 3 3 3 {"futon-zankukyokuha" "shoshitsu" "kawarimi"}
+	lappend effects [list "shadow-clon" enemy1 -1]
+	chunin_sound 1000 320 3 3 3 3 {"futon-zankukyokuha" "hosho" "shoshitsu" "kawarimi"}
 }
 proc slide_9 {} {
 	set ai_type "special"

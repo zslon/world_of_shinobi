@@ -860,6 +860,10 @@ proc melee_tech {from to name par ans par2} {
 			if {$n == 2 && [is_in "shoshitsu" $sk] && $dam > 0 && [get_hitpoints $to] < $h11} {
 				incr num2 -1
 			}
+#hosho effect
+			if {$n == $num && $name == "attack" && [is_in "hosho" $sk] && $dam > 0} {
+				tech_hosho $from $to [expr $mt*($n-1)] $ti $dam
+			}
 		}
 		if {[get_status $to] == "cast" && $n <= $num2} {
 #konoha_senpu effect
@@ -886,6 +890,10 @@ proc melee_tech {from to name par ans par2} {
 			}
 			if {$n == 2 && [is_in "shoshitsu" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12} {
 				incr num -1
+			}
+#hosho effect
+			if {$n == $num2 && $ans == "attack" && [is_in "hosho" $sk2] && $dam2 > 0} {
+				tech_hosho $to $from [expr $mt2*($n-1)] $ti2 $dam2 
 			}
 		}	
 		incr n

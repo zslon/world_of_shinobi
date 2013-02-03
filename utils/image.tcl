@@ -364,7 +364,7 @@ proc block_animation {tag im} {
 	after 800 "get_image $tag [file join $mydir images heroes $im block 4.gif]"
 	after 900 "get_image $tag [file join $mydir images heroes $im stand 1.gif]"
 }
-proc wound_animation {tag im} {
+proc wound_animation {tag im {type "normal"}} {
 	global mydir hero_ancof
 	if {$tag == "heroi"} {
 		set hero_ancof 0
@@ -374,21 +374,34 @@ proc wound_animation {tag im} {
 	}
 	set i 1
 	set t 0
-	while {$t < 800} {
+	while {$t < 800 && ($type != "fast" || $t < 400)} {
 		after $t "get_image $tag [file join $mydir images heroes $im wound $i.gif]"
-		incr t 100
+		if {$type == "fast"} {
+			incr t 50
+		} else {
+			incr t 100
+		}
 		incr i
 	}
 }
 proc concentrate_chakra {tag im} {
 	global mydir hero_ancof
-	set hero_ancof 0
 	set t 0
 	set i 1
 	while {$t < 1000} {
 		after $t "get_image $tag [file join $mydir images heroes $im chakra $i.gif]"	
 		incr t 100
 		incr i 
+	}
+}
+proc clon-pufff {tag im} {
+	global mydir
+	set t 100
+	set i 1
+	while {$t < 1000} {
+		after $t "get_image $tag [file join $mydir images heroes $im clon-pufff $i.gif]"	
+		incr t 100
+		incr i 1
 	}
 }
 proc die {class} {
@@ -579,6 +592,24 @@ proc kawarimi_teleport {tag im} {
 		incr i 
 	}
 }
+proc teleport {who x y} {
+	if {$who == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $who
+	}
+	set xx [getx $tag]
+	set yy [gety $tag]
+	after 100 ".c move $tag [expr $x - $xx] [expr $y - $yy]"
+	set im [get_name $who]
+	set t 100
+	set i 11
+	while {$i <= 15} {
+		after $t "get_image $tag [file join $mydir images heroes $im kawarimi $i.gif]"	
+		incr t 100
+		incr i 
+	}
+}
 #heroes
 proc rock_lee {x y} {
 	global mydir hero_ancof
@@ -732,6 +763,26 @@ proc no_chakra_message {} {
 	}
 	toplevel .s
 	wm title .s {You have`nt chakra!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc clon_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information clon_was.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {It`s was a shadow clone!}
 	wm geometry .s 400x300
 	wm maxsize .s 400 300
 	wm minsize .s 400 300

@@ -6,7 +6,7 @@ set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "hachimon-5" "hachimo
 set ninjitsu [list "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set taijitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
 set genjitsu [list "kawarimi"]
-set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "shoshitsu" "konoha-senpu" "shofu" "attack"]
+set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "raiko-kenka" "kunai"]
 set futonjitsu [list "futon-zankukyokuha" "futon-zankuha"]
 proc enciclopedia_search {testskill testobj skill name damage number chakra} {

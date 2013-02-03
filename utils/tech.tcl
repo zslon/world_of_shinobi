@@ -24,10 +24,10 @@ proc effect_work {} {
 	}
 }
 proc effect {name owner what} {
-	global used campdir
+	global used campdir enemy $owner slide mydir
 	source [file join $campdir personstat.tcl]
 	if {$what == "do"} {
-		if {$name == "suiken"} {
+		if {$name == "suiken" && $owner == "hero"} {
 			hero_ai_agressive
 		}
 	}
@@ -35,51 +35,92 @@ proc effect {name owner what} {
 		if {$name == "suiken"} {
 			set_speed $owner [expr [get_speed $owner] - 2]
 		}
+		if {$name == "shadow-clon" && [get_hitpoints $owner] > 0} {
+			set_hitpoints $owner 0
+			clon-pufff $owner [get_name $owner]
+			set x [getx original_$owner]
+			set y [gety original_$owner]
+			if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
+				after 1100 "teleport $owner $x $y"
+			} else {
+				after 1100 "get_image die$owner [file join $mydir images heroes [get_name $owner] clon-pufff 10.gif]
+				.c itemconfigure $owner -image die$owner
+				die $owner
+				clon_message
+				replace"
+				if {$owner != "enemy$enemy"} {
+					#last enemy to empty place
+					set xa [getx panel$owner]
+					set ya [gety panel$owner]
+					set xe [getx panelenemy$enemy]
+					set ye [gety panelenemy$enemy]
+					.c move panelenemy$enemy [expr $xa - $xe] [expr $ya - $ye]
+					set [set owner] [set enemy$enemy]
+					after 2000 "
+					.c addtag $owner withtag enemy$enemy
+					.c dtag enemy$enemy
+					.c itemconfigure $owner -image $owner
+					$owner copy enemy$enemy
+					stand_animation $owner [get_name $owner] $slide"
+				}
+				set enemy [expr $enemy - 1]
+			}
+		}
 		if {$name == "hachimon-1"} {
 			set_tai $owner [expr [get_tai $owner] - 1]
 			remove_form $owner
-			set u 0
-			set i 0
-			foreach s $used {
-				if {$s == "hachimon-1"} {
-					set i $u
-				}
-				incr u
-			} 
-			set used [lreplace $used $i $i]
 		}
 		if {$name == "hachimon-2"} {
-			set u 0
-			set i 0
-			foreach s $used {
-				if {$s == "hachimon-2"} {
-					set i $u
-				}
-				incr u
-			} 
-			set used [lreplace $used $i $i]
 		}
 		if {$name == "hachimon-3"} {
 			set_speed $owner [expr [get_speed $owner] - 1]
-			set u 0
-			set i 0
-			foreach s $used {
-				if {$s == "hachimon-2"} {
-					set i $u
-				}
-				incr u
-			} 
-			set used [lreplace $used $i $i]
 		}
 		if {$name == "kuchiese-meisu"} {
 			set s [expr $speed - 1]
 			set_speed $owner [expr [get_speed $owner] + $s]
 			set_tai $owner [expr [get_tai $owner] - $s]
 		}
+		if {$owner == "hero" && $name != "suiken"} {
+			set u 0
+			set i -1
+			foreach s $used {
+				if {$s == $name} {
+					set i $u
+				}
+				incr u
+			} 
+			if {$i >= 0} {
+				set used [lreplace $used $i $i]
+			}
+		}
 	}
 }
 proc take_damage {p d t} {
+	global effects
+	if {[get_hitpoints $p] > 0 && $d > 0} {
 	set_hitpoints $p [expr [get_hitpoints $p] - $d]
+		set k -1
+		while {$k <= 5} {
+			if {[is_in [list "shadow-clon" $p $k] $effects]} {
+				after 900 "effect shadow-clon $p remove"
+				#remove damage
+				set_hitpoints $p [expr [get_hitpoints $p] + $d]
+				set u 0
+				set i -1
+				foreach s $effects {
+					if {$s == [list "shadow-clon" $p $k]} {
+						set i $u
+					}
+					incr u
+				} 
+				if {$i >= 0} {
+					set effects [lreplace $effects $i $i]
+				}
+
+			}
+			incr k 1
+		}
+	}
 }
 #techincs
 #Taijitsu
@@ -278,34 +319,6 @@ get_image $tag [file join $mydir images heroes $user soshuga $i.gif]"
 		take_damage $p $d "soshuga"
 	}
 }
-proc tech_shoshitsu {u p {timestart 0} interval d} {
-	global mydir
-	if {$u == "hero"} {
-		set tag "heroi"
-	} else {
-		set tag $u
-	}
-	set randomnumber [expr 100*rand()]
-	set user [get_name $u]
-	set t $timestart
-	set i 1
-	while {$i <= 5} {
-		set t [expr $t + $interval]
-		after $t ".c raise $tag
-get_image $tag [file join $mydir images heroes $user shoshitsu $i.gif]"
-		incr i
-	}
-	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
-	replace"
-	#damage
-	set s1 [get_speed $u]
-	set s2 [get_speed $p]	
-	set chance [expr 50 - ($s2-$s1)*10]
-	if {$randomnumber < $chance} {
-		#hit
-		take_damage $p $d "shoshitsu"
-	}
-}
 proc tech_konoha-senpu {u p {timestart 0} interval d {type "begin"} {strikes 0}} {
 	global mydir
 	if {$u == "hero"} {
@@ -447,8 +460,73 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		#hit
 		take_damage $p $d "shofu"
 		set_speed $p 0
-		after [expr $t + 900] "set_speed $p $s2"
+		after [expr $t + 900] "set_speed $p $s2
+		replace"
 		after [expr $t - 100] "nokout $p"
+	}
+}
+proc tech_shoshitsu {u p {timestart 0} interval d} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set randomnumber [expr 100*rand()]
+	set user [get_name $u]
+	set t $timestart
+	set i 1
+	while {$i <= 5} {
+		set t [expr $t + $interval]
+		after $t ".c raise $tag
+get_image $tag [file join $mydir images heroes $user shoshitsu $i.gif]"
+		incr i
+	}
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]
+	replace"
+	#damage
+	set s1 [get_speed $u]
+	set s2 [get_speed $p]	
+	set chance [expr 50 - ($s2-$s1)*10]
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "shoshitsu"
+	}
+}
+proc tech_hosho {u p {timestart 0} interval d} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+		set tag2 $p
+	} else {
+		set tag $u
+		set tag2 "heroi"
+	}
+	.c raise $tag
+	set randomnumber [expr 100*rand()]
+	set user [get_name $u]
+	set t $timestart
+	set i 1
+	while {$i <= 7} {
+		set t [expr $t + $interval]
+		after $t ".c raise $tag
+get_image $tag [file join $mydir images heroes $user attack 1-$i.gif]"
+		incr i
+	}
+	set t [expr $t + $interval]
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+	after $t "replace"
+	#damage
+	set s1 [get_speed $u]
+	set s2 [get_speed $p]	
+	set chance [expr 50 - ($s2-$s1)*10]
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "hosho"
+		set_speed $p 0
+		after [expr $t - 300] "wound_animation $tag2 [get_name $p] fast"
+		after [expr $t + 100] "set_speed $p $s2
+		replace"
 	}
 }
 proc tech_omote-renge {u p {timestart 0} interval d} {
@@ -764,16 +842,20 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	}
 	set t $timestart
 	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	#damage (very mark)
+	set s [get_speed $p]
+	set chance [expr 100 - $s*5]
 	while {$t < [expr $timestart + 500]} {
-		after $t "if_delete t_$randomnumber $u
+		if {$randomnumber < $chance} {
+			after $t "if_delete t_$randomnumber $u
 .c move t_$randomnumber [expr $r / 25] 0"
+		} else {
+			after $t ".c move t_$randomnumber [expr $r / 25] 0"
+		}
 		incr t 20	
 	}
 	after $t ".c delete t_$randomnumber
 	replace"
-	#damage (very mark)
-	set s [get_speed $p]
-	set chance [expr 100 - $s*5]
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "futon-zankuha"
@@ -802,16 +884,20 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	}
 	set t $timestart
 	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	#damage (very very mark - minimal chance is 70% vs naruto in fox-mode)
+	set s [get_speed $p]
+	set chance [expr 100 - $s*3]
 	while {$t < [expr $timestart + 500]} {
-		after $t "if_delete t_$randomnumber $u
+		if {$randomnumber < $chance} {
+			after $t "if_delete t_$randomnumber $u
 .c move t_$randomnumber [expr $r / 25] 0"
+		} else {
+			after $t ".c move t_$randomnumber [expr $r / 25] 0"
+		}
 		incr t 20	
 	}
 	after $t ".c delete t_$randomnumber
 	replace"
-	#damage (very very mark - minimal chance is 70% vs naruto in fox-mode)
-	set s [get_speed $p]
-	set chance [expr 100 - $s*3]
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "futon-zankukyokuha"
