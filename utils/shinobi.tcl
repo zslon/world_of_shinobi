@@ -24,6 +24,13 @@ proc kunai_trap {x} {
 	get_image enemy$enemy [file join $mydir images attacks kunai 1.gif]
 	.c create image $x 700 -image enemy$enemy -tag enemy$enemy 
 }
+proc kubakufuda_trap {x} {
+	global enemy mydir
+	incr enemy 1
+	trap "kubakufuda"
+	get_image enemy$enemy [file join $mydir images attacks kunai 1.gif]
+	.c create image $x 700 -image enemy$enemy -tag enemy$enemy 
+}
 #bonuses
 proc medpack {x y} {
 	global mydir
@@ -442,14 +449,17 @@ proc fighting_sensor {} {
 			set t "trap"
 			break
 		} elseif {$eh == $h} {
-			if {$el == $l} {
+			if {$el == $l && $t == "none"} {
 				set t "melee"
-				break
+				set ea $e
 			}			
 		} else {
 			
 		}
 		incr e
+	}
+	if {$t == "melee"} {
+		set e $ea
 	}
 	if {$e > $enemy} {
 		set e 1

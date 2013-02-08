@@ -154,6 +154,53 @@ proc tech_kunai {x y r p {timestart 0} d {type "little"}} {
 		}
 	}
 }
+proc tech_kubakufuda {x y r p {timestart 0} d} {
+	global mydir enemy
+	if {$p == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $p
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	set randomnumber [expr 100*rand()]
+	get_image i_$randomnumber [file join $mydir images attacks kubakufuda 1.gif]
+	set t $timestart
+	set i 1
+	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	while {$t < [expr $timestart + 500]} {
+		after $t "get_image i_$randomnumber [file join $mydir images attacks kubakufuda $i.gif]"
+		incr t 50
+		incr i 1
+	}
+	after $t ".c delete t_$randomnumber
+	replace"
+	#damage (very mark)
+	set e 1
+	set enemylist [list]
+	while {$e <= $enemy} {
+		lappend enemylist enemy$e
+		incr e
+	}
+	lappend enemylist "hero"
+	foreach purpose $enemylist {
+		if {[get_location $purpose] == [get_location $p] && [get_height $purpose] == [get_height $p]} {
+			set s [get_speed $purpose]
+			set randomnumber [expr 100*rand()]
+			set chance [expr 100 - $s*5]
+			if {$randomnumber < $chance} {
+				#hit
+				take_damage $purpose $d "kubakufuda"
+				after [expr $t - 100] "set_speed $p 0"
+				after [expr $t + 900] "set_speed $p $s"
+				after [expr $t - 150] "nokout $purpose"
+				if {[get_chakra $purpose] == 0} {
+					set_hitpoints $purpose 0
+				}
+			}
+		}
+	}
+}
 proc tech_suriken {x y r p {timestart 0} d} {
 	global mydir effects
 	set randomnumber [expr 100*rand()]
@@ -690,7 +737,6 @@ proc tech_soshoryu {u r p {timestart 0} d} {
 	set_chakra $u [expr [get_chakra $u] - 25]
 	set x [getx $tag]
 	set y [expr [gety $tag] - 75]
-	set randomnumber [expr 100*rand()]
 	set t $timestart
 	set i 1
 	set name [get_name $u]
@@ -723,6 +769,7 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 	foreach purpose $enemylist {
 		if {[get_height $purpose] == $h && [get_location $purpose] != $l} {
 			set s [get_speed $purpose]	
+			set randomnumber [expr 100*rand()]
 			set miss_chance [expr $s*15]
 			if {$randomnumber > $miss_chance} {
 				#full hit

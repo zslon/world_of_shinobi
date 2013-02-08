@@ -6,7 +6,7 @@ set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "hachimon-5" "hachimo
 set ninjitsu [list "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set taijitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
 set genjitsu [list "kawarimi"]
-set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "attack"]
+set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "raiko-kenka" "kunai"]
 set futonjitsu [list "futon-zankukyokuha" "futon-zankuha"]
 proc enciclopedia_search {testskill testobj skill name damage number chakra} {
@@ -50,6 +50,7 @@ proc enciclopedia {skill obj {par "0"}} {
 	lappend cyclo [list "soshoryu" "Soshoryu" [expr 10*$par] 1 25]
 	lappend cyclo [list "sofusha-san-no-tachi" "Sofusha San no Tachi" 7 $par 10]
 	lappend cyclo [list "sogu-tensasai" "Sogu: Tensasai" [expr 15*$par] 1 50]
+	lappend cyclo [list "kubakufuda" "Kubakufuda" 50 1 0]
 	foreach el $cyclo {
 		set r [enciclopedia_search $skill $obj [lindex $el 0] [lindex $el 1] [lindex $el 2] [lindex $el 3] [lindex $el 4]]
 		if {$r != "null"} {

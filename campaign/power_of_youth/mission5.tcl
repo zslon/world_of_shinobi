@@ -66,6 +66,8 @@ proc slide_8 {} {
 	phon 8
 	lappend effects [list "shadow-clon" enemy1 -1]
 	chunin_sound 1000 320 3 3 3 3 {"futon-zankukyokuha" "hosho" "shoshitsu" "kawarimi"}
+	kubakufuda_trap 350
+	kubakufuda_trap 650
 }
 proc slide_9 {} {
 	set ai_type "special"

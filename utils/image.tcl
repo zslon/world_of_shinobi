@@ -399,7 +399,7 @@ proc clon-pufff {tag im} {
 	set t 100
 	set i 1
 	while {$t < 1000} {
-		after $t "get_image $tag [file join $mydir images heroes $im clon-pufff $i.gif]"	
+		after $t "get_image $tag [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
 		incr t 100
 		incr i 1
 	}
