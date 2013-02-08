@@ -32,6 +32,9 @@ proc effect {name owner what} {
 		}
 	}
 	if {$what == "remove"} {
+		if {$name == "kibakufuda"} {
+			detonation $owner
+		}
 		if {$name == "suiken"} {
 			set_speed $owner [expr [get_speed $owner] - 2]
 		}
@@ -43,7 +46,7 @@ proc effect {name owner what} {
 			if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
 				after 1100 "teleport $owner $x $y"
 			} else {
-				after 1100 "get_image die$owner [file join $mydir images heroes [get_name $owner] clon-pufff 10.gif]
+				after 1100 "get_image die$owner [file join $mydir images heroes [get_name $owner] clon-pufff 10.gif] run $owner
 				.c itemconfigure $owner -image die$owner
 				die $owner
 				clon_message
@@ -192,7 +195,9 @@ proc tech_kubakufuda {x y r p {timestart 0} d} {
 				#hit
 				take_damage $purpose $d "kubakufuda"
 				after [expr $t - 100] "set_speed $p 0"
-				after [expr $t + 900] "set_speed $p $s"
+				if {[get_hitpoints $purpose] > 0} {
+					after [expr $t + 900] "set_speed $p $s"
+				}
 				after [expr $t - 150] "nokout $purpose"
 				if {[get_chakra $purpose] == 0} {
 					set_hitpoints $purpose 0
@@ -269,7 +274,9 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 		#hit
 		take_damage $p $d "kuchiese-kusarigama"
 		set_speed $p 0
-		after [expr $t + 1100] "set_speed $p $s"
+		if {[get_hitpoints $p] > 0} {
+			after [expr $t + 1100] "set_speed $p $s"
+		}
 	}
 }
 proc tech_attack {u p {timestart 0} interval d} {
@@ -409,7 +416,9 @@ replace"
 			set_speed $p 0
 			set_speed $u 0 
 			after [expr $t + 900] "set_speed $u $s1"
-			after [expr $t + 900] "set_speed $p $s2"
+			if {[get_hitpoints $p] > 0} {
+				after [expr $t + 900] "set_speed $p $s2"
+			}
 			if {$strikes > 0} {
 				tech_final-konoha-senpu $u $p $t $interval $d $strikes
 			}
@@ -445,7 +454,7 @@ get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 		set randomnumber [expr 100*rand()]
 		if {$randomnumber < $chance} {
 			#hit
-			take_damage $p $d "omote-renge"
+			take_damage $p $d "konoha-senpu"
 		}
 		incr strikes -1
 	}
@@ -507,8 +516,10 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		#hit
 		take_damage $p $d "shofu"
 		set_speed $p 0
-		after [expr $t + 900] "set_speed $p $s2
-		replace"
+		if {[get_hitpoints $p] > 0} {
+			after [expr $t + 900] "set_speed $p $s2
+			replace"
+		}
 		after [expr $t - 100] "nokout $p"
 	}
 }
@@ -572,8 +583,10 @@ get_image $tag [file join $mydir images heroes $user attack 1-$i.gif]"
 		take_damage $p $d "hosho"
 		set_speed $p 0
 		after [expr $t - 300] "wound_animation $tag2 [get_name $p] fast"
-		after [expr $t + 100] "set_speed $p $s2
-		replace"
+		if {[get_hitpoints $p] > 0} {
+			after [expr $t + 100] "set_speed $p $s2
+			replace"
+		}
 	}
 }
 proc tech_omote-renge {u p {timestart 0} interval d} {
@@ -647,7 +660,9 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		#hit
 		take_damage $p $d "omote-renge"
 		set_speed $p 0
-		after [expr $t + 1000] "set_speed $p $s2"
+		if {[get_hitpoints $p] > 0} {
+			after [expr $t + 1000] "set_speed $p $s2"
+		}
 		after [expr $t - 100] "passive_fly $p 1700"
 		set i 1
 		set t2 $t
@@ -953,7 +968,9 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 		}
 		#throws enemy
 		after [expr $t - 100] "set_speed $p 0"
-		after [expr $t + 900] "set_speed $p $s"
+		if {[get_hitpoints $p] > 0} {
+			after [expr $t + 900] "set_speed $p $s"
+		}
 		after [expr $t - 100] "nokout $p"
 	}
 }
@@ -1195,6 +1212,70 @@ proc tech_kuchiese-meisu {u} {
 	after $t "get_image $tag [file join $mydir images heroes $user kuchiese meisu.gif]"
 	after [expr $t + 100] "get_image $tag [file join $mydir images heroes $user kuchiese meisu.gif]"
 	after $t "replace"
+}
+proc tech_kibakufuda {u} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	get_image kibakufuda_$u [file join $mydir images attacks kubakufuda 1.gif]
+	set_nin $u 0
+	set_chakra $u [expr [get_chakra $u] - 10]
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 5} {
+		after $t "get_image $tag [file join $mydir images heroes $user kibakufuda $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+	after $t ".c create image $x $y -image kibakufuda_$u -tag kibakufuda_$u"
+}
+proc detonation {u} {
+	global mydir enemy
+	set x [getx kibakufuda_$u]
+	set y [gety kibakufuda_$u]
+	set enemylist [list]
+	set e 1
+	while {$e <= $enemy} {
+		lappend enemylist enemy$e
+		incr e
+	}
+	lappend enemylist "heroi"
+	set p "none"
+	foreach purpose $enemylist {
+		if {$x > [expr [getx $purpose] - 100] && $x < [expr [getx $purpose] + 100] && $y < [expr [gety $purpose] + 100] && $y > [expr [gety $purpose] - 100]} {
+			set p $purpose
+			if {$purpose == "heroi"} {
+				set p "hero"
+				block_animation "heroi" [get_name "hero"]
+			}
+			break
+		} 
+	}
+	if {$p == "none"} {
+		set randomnumber [expr rand()*100]
+		get_image i_$randomnumber [file join $mydir images attacks kubakufuda 1.gif]
+		.c create image $x $y -image i_$randomnumber -tag t_$randomnumber
+		set t 0
+		set i 1
+		while {$t < 500} {
+			after $t "get_image i_$randomnumber [file join $mydir images attacks kubakufuda $i.gif]"
+			incr t 50
+			incr i 1
+		}
+		after $t ".c delete t_$randomnumber"
+	} else {
+		tech_kubakufuda $x $y 0 $p 0 50
+		block_battlepanel
+		after 1000 {unblock_battlepanel}
+	}
+	.c delete kibakufuda_$u
 }
 #genjitsu bonus
 proc tech_kawarimi {u} {

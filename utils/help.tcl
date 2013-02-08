@@ -2,10 +2,10 @@
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu
 set meleelist [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
 set rangedlist [list "hirudora" "asakujaku" "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
-set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "hachimon-2" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kawarimi"]
+set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda" "hachimon-2" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kawarimi" "kai"]
 set ninjitsu [list "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set taijitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
-set genjitsu [list "kawarimi"]
+set genjitsu [list "kawarimi" "kai"]
 set physicjitsu [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "raiko-kenka" "kunai"]
 set futonjitsu [list "futon-zankukyokuha" "futon-zankuha"]
@@ -50,7 +50,9 @@ proc enciclopedia {skill obj {par "0"}} {
 	lappend cyclo [list "soshoryu" "Soshoryu" [expr 10*$par] 1 25]
 	lappend cyclo [list "sofusha-san-no-tachi" "Sofusha San no Tachi" 7 $par 10]
 	lappend cyclo [list "sogu-tensasai" "Sogu: Tensasai" [expr 15*$par] 1 50]
-	lappend cyclo [list "kubakufuda" "Kubakufuda" 50 1 0]
+	lappend cyclo [list "kai" "Kai" $par 1 10]
+	lappend cyclo [list "kubakufuda" "Kibakufuda" 50 1 0]
+	lappend cyclo [list "kibakufuda" "Kibakufuda" 0 2 10]
 	foreach el $cyclo {
 		set r [enciclopedia_search $skill $obj [lindex $el 0] [lindex $el 1] [lindex $el 2] [lindex $el 3] [lindex $el 4]]
 		if {$r != "null"} {

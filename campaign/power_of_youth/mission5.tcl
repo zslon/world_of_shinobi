@@ -54,7 +54,7 @@ proc slide_6 {} {
 	genin_sound_armmaster 700 520 1 1 2 4 {"kuchiese-meisu"}
 }
 proc slide_7 {} {
-	global locations ai_type
+	global locations
 	phon 7
 	set locations [list 1 1 1 1]
 	green_table 950 520
@@ -70,11 +70,11 @@ proc slide_8 {} {
 	kubakufuda_trap 650
 }
 proc slide_9 {} {
+	global locations ai_type
 	set ai_type "special"
-	set locations [list 3 1 1 1]
+	set locations [list 3 2 1 1]
 	phon 9
-	ten_ten 100 320 {"raiko-kenka"}
-	might_guy 1000 520 {"shofu"}
+	chunin_sound 400 420 3 3 3 3 {"futon-zankukyokuha" "kibakufuda" "hosho" "shoshitsu" "shofu" "kawarimi"}
 }
 proc special_tenten_ai {n tech p} {
 	bonus_tech_ai 1
