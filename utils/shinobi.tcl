@@ -313,7 +313,10 @@ proc move {class d} {
 		set u [expr $u * -1]
 		#jump up to next floor
 		if {($p > 0 && $p > $h) || ($p < 0 && ([expr $p * -1] > $h))} {
+			#momental jump to leave from enemy attack
+			.c move $tag 0 10
 			set u [expr $u - 5]
+			after $t ".c move $tag 0 -10"
 		}
 		#
 		while {$t <= 1000} {
@@ -350,7 +353,10 @@ proc move {class d} {
 					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] run $class" 
 					incr t 50
 					incr e
-				}		
+				}
+				#momental jump to leave from enemy attack
+				.c move $tag 0 10
+				after [expr $t - 160] ".c move $tag 0 -10"		
 			} else {
 				set u 0
 				set t 0
@@ -384,6 +390,9 @@ proc move {class d} {
 					incr t 50
 					incr e
 				}	
+				#momental jump to leave from enemy attack
+				.c move $tag 0 10
+				after [expr $t - 160] ".c move $tag 0 -10"	
 			} else {
 				set u 0
 				set t 0
@@ -567,22 +576,49 @@ proc fighting_sensor {} {
 	}
 }
 proc dies {} {
-	global enemy bonus herolevel slide
+	global enemy bonus herolevel slide effects mydir
 	if {$enemy > 0} {
 		global enemy$enemy
 	}
 	set h [get_hitpoints hero]
 	set c [get_chakra hero]
 	if {$h < 1 || $c < 1} {
-		die hero
+		set x [getx original_hero]
+		set y [gety original_hero]
+		if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
+			#clon-pufff
+		} else {
+			die hero
+		}
 	}
 	set e 1
 	set f 0
 	while {$e <= $enemy} {
-	global enemy$e
-	set h [get_hitpoints enemy$e]
-	set c [get_chakra enemy$e]
-		if {$h < 1} {
+		global enemy$e
+		set h [get_hitpoints enemy$e]
+		set c [get_chakra enemy$e]
+		set x [getx original_enemy$e]
+		set y [gety original_enemy$e]
+		if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
+			#clon-pufff
+		} elseif {$h < 1} {
+			if {[is_in [list "shadow-clon" enemy$e -1] $effects]} {
+				after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] clon-pufff 10.gif] run enemy$e
+				.c itemconfigure enemy$e -image dieenemy$e
+				clon_message
+				replace"
+				set u 0
+				set i -1
+				foreach s $effects {
+					if {$s == [list "shadow-clon" enemy$e -1]} {
+						set i $u
+					}
+					incr u
+				} 
+				if {$i >= 0} {
+					set effects [lreplace $effects $i $i]
+				}
+			}
 			set f 1
 			die enemy$e
 			if {$e != $enemy} {
@@ -595,6 +631,7 @@ proc dies {} {
 				.c itemconfigure enemy$e -image enemy$e
 				enemy$e copy enemy$enemy
 				stand_animation enemy$e [get_name enemy$e] $slide"
+				incr e -1
 			}
 			.c delete panelenemy$e
 			.c addtag panelenemy$e withtag panelenemy$enemy
@@ -648,6 +685,10 @@ proc ranged_tech {from to name par ans par2} {
 	}
 	if {$ans == "none"} {
 		set num2 0
+		if {[gety $tag2] > [expr [gety $tag] + 5]} {
+			#jump and leave from attack
+			set dam 0
+		}
 	} else {
 		set nin2 [get_nin $to]
 		set_nin $to 0

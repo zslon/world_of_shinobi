@@ -38,35 +38,14 @@ proc effect {name owner what} {
 		if {$name == "suiken"} {
 			set_speed $owner [expr [get_speed $owner] - 2]
 		}
-		if {$name == "shadow-clon" && [get_hitpoints $owner] > 0} {
-			set_hitpoints $owner 0
-			clon-pufff $owner [get_name $owner]
+		if {$name == "shadow-clon"} {
 			set x [getx original_$owner]
 			set y [gety original_$owner]
 			if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
+				clon-pufff $owner [get_name $owner]
 				after 1100 "teleport $owner $x $y"
 			} else {
-				after 1100 "get_image die$owner [file join $mydir images heroes [get_name $owner] clon-pufff 10.gif] run $owner
-				.c itemconfigure $owner -image die$owner
-				die $owner
-				clon_message
-				replace"
-				if {$owner != "enemy$enemy"} {
-					#last enemy to empty place
-					set xa [getx panel$owner]
-					set ya [gety panel$owner]
-					set xe [getx panelenemy$enemy]
-					set ye [gety panelenemy$enemy]
-					.c move panelenemy$enemy [expr $xa - $xe] [expr $ya - $ye]
-					set [set owner] [set enemy$enemy]
-					after 2000 "
-					.c addtag $owner withtag enemy$enemy
-					.c dtag enemy$enemy
-					.c itemconfigure $owner -image $owner
-					$owner copy enemy$enemy
-					stand_animation $owner [get_name $owner] $slide"
-				}
-				set enemy [expr $enemy - 1]
+				#die procedure
 			}
 		}
 		if {$name == "hachimon-1"} {
@@ -107,19 +86,20 @@ proc take_damage {p d t} {
 			if {[is_in [list "shadow-clon" $p $k] $effects]} {
 				after 900 "effect shadow-clon $p remove"
 				#remove damage
-				set_hitpoints $p [expr [get_hitpoints $p] + $d]
-				set u 0
-				set i -1
-				foreach s $effects {
-					if {$s == [list "shadow-clon" $p $k]} {
-						set i $u
+				set_hitpoints $p 0
+				if {$k > 0} {
+					set u 0
+					set i -1
+					foreach s $effects {
+						if {$s == [list "shadow-clon" $p $k]} {
+							set i $u
+						}
+						incr u
+					} 
+					if {$i >= 0} {
+						set effects [lreplace $effects $i $i]
 					}
-					incr u
-				} 
-				if {$i >= 0} {
-					set effects [lreplace $effects $i $i]
 				}
-
 			}
 			incr k 1
 		}
@@ -412,7 +392,7 @@ replace"
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "konoha-senpu"
-		if {$type == "final"} {
+		if {$type == "final" && $d > 0} {
 			set_speed $p 0
 			set_speed $u 0 
 			after [expr $t + 900] "set_speed $u $s1"
@@ -515,12 +495,14 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "shofu"
-		set_speed $p 0
-		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 900] "set_speed $p $s2
-			replace"
+		if {$d > 0} {
+			set_speed $p 0
+			if {[get_hitpoints $p] > 0} {
+				after [expr $t + 900] "set_speed $p $s2
+				replace"
+			}
+			after [expr $t - 100] "nokout $p"
 		}
-		after [expr $t - 100] "nokout $p"
 	}
 }
 proc tech_shoshitsu {u p {timestart 0} interval d} {
@@ -581,11 +563,13 @@ get_image $tag [file join $mydir images heroes $user attack 1-$i.gif]"
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "hosho"
-		set_speed $p 0
-		after [expr $t - 300] "wound_animation $tag2 [get_name $p] fast"
-		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 100] "set_speed $p $s2
-			replace"
+		if {$d > 0} {
+			set_speed $p 0
+			after [expr $t - 300] "wound_animation $tag2 [get_name $p] fast"
+			if {[get_hitpoints $p] > 0} {
+				after [expr $t + 100] "set_speed $p $s2
+				replace"
+			}
 		}
 	}
 }
@@ -659,6 +643,7 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "omote-renge"
+		if {$d > 0} {	
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
 			after [expr $t + 1000] "set_speed $p $s2"
@@ -736,6 +721,7 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		after $t ".c move $tag [expr $dx*(-10)] [expr $ds*(-100)]"
 		set t [expr $t + $interval]
 		after $t "get_image $tag [file join $mydir images heroes $user omote-renge 14.gif]"
+		}
 	}
 	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after $t "replace"
@@ -967,11 +953,13 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 			set_hitpoints $p 0
 		}
 		#throws enemy
-		after [expr $t - 100] "set_speed $p 0"
-		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 900] "set_speed $p $s"
+		if {$d > 0} {
+			after [expr $t - 100] "set_speed $p 0"
+			if {[get_hitpoints $p] > 0} {
+				after [expr $t + 900] "set_speed $p $s"
+			}
+			after [expr $t - 100] "nokout $p"
 		}
-		after [expr $t - 100] "nokout $p"
 	}
 }
 #bonus

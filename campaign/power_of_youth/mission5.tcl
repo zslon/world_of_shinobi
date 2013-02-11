@@ -57,7 +57,7 @@ proc slide_7 {} {
 	global locations
 	phon 7
 	set locations [list 1 1 1 1]
-	green_table 950 520
+	yellow_table 950 520
 	genin_sound_armmaster 700 520 2 2 2 4 {"raiko-kenka" "futon-zankuha" "kawarimi"}
 }
 proc slide_8 {} {
@@ -76,12 +76,105 @@ proc slide_9 {} {
 	phon 9
 	chunin_sound 400 420 3 3 3 3 {"futon-zankukyokuha" "kibakufuda" "hosho" "shoshitsu" "shofu" "kawarimi"}
 }
-proc special_tenten_ai {n tech p} {
-	bonus_tech_ai 1
-}
-proc special_gui_ai {n tech p} {
-	victory
+global ac
+set ac 0
+proc special_chunin-sound_ai {n tech p} {
+	global ac effects
+	set tag "enemy$n"
+	if {[get_hitpoints $tag] > 75} {
+		if {$ac < 0} {
+			#from first to second, from third to fourth study.
+			set ac [expr -1 * $ac] 
+		}
+		if {$ac == 0} {
+			#first study - hero in (0,3) position
+			if {[is_bonus $tech] || $tech == "none"} {
+				#hero uses suiken or hachimon or simple standing in his place
+				bonus_tech_ai $n
+				set ac -1
+			} else {
+				#hero runs to contact
+				move $tag "right"  
+			}
+		}
+		if {$ac == 1} {
+			#second study - enemy must increase distantion between him and hero
+			if {[get_location $tag] < 3} {
+				move $tag "right" 
+			} else {
+				#momentally to third study
+				set ac 2
+			}
+		}
+		if {$ac == 2} {
+			#third study is first shoot
+			if {[get_height hero] == 1 && [get_location hero] < 3} {
+				#enemy uses futon: zankukyokuha 
+				scenery_message {Chunin of Sound Village!}
+				ranged_tech $tag hero "futon-zankukyokuha" [get_nin $tag] none 0
+				set ac -3
+			} elseif {[get_location hero] == 3} {
+				#enemy uses kawarimi, but this event is imossible in this time
+				tech_kawarimi $tag
+				lappend effects "kawarimi" $tag 1
+				replace
+				set ac -3 
+			} else {
+				#wait
+			}
+		}
+		if {$ac == 3} {
+			#fourth study is ranged fight
+			if {[get_height hero] == 1 && [get_location hero] < [get_location $tag] && [get_chakra $tag] > 25} {
+				#shoot
+				ranged_tech $tag hero "futon-zankukyokuha" [get_nin $tag] none 0
+			} elseif {[get_chakra $tag] < 26} {
+				#momentally to fifth study
+				set ac 4
+			} elseif {[get_height hero] > 1 && [get_location $tag] < 3} {
+				#return to position
+				move $tag "right"
+			} elseif {[get_height hero] > 1 && [get_location $tag] == 3} {
+				#wait
+			} elseif {[get_height hero] == 1 && [get_location hero] == [get_location $tag]} {
+				#you must have chakra to kawarimi, becouse you have chakra to zankukyokuha
+				tech_kawarimi $tag
+				lappend effects "kawarimi" $tag 1
+				replace
+			} elseif {[get_height hero] == 1 && [get_location hero] > [get_location $tag]} {
+				#make trap
+				tech_kibakufuda $tag
+				lappend effects "kibakufuda" $tag 2
+				replace
+			}
+		}
+		if {$ac == 4} {
+			#enemy have no longer chakra to zankukyokuha - melee fight
+			if {[get_height hero] != [get_height hero] || [get_location hero] != [get_location $tag]} {
+				if {$tech == "run" && [get_location hero] < [get_location $tag]} {
+					#wait
+				} else {
+					mov_ai $tag "hero"
+				}
+			} elseif {[get_chakra $tag] > 10 && [get_location hero] == 0} {
+				#enemy and hero is in (0,x) position - make trap or kawarimi (if you have trap) 
+				if {![is_in [list "kibakufuda" $tag 1] $effects]} {
+					tech_kibakufuda $tag
+					lappend effects "kibakufuda" $tag 2
+					replace
+				} else {
+					tech_kawarimi $tag
+					lappend effects "kawarimi" $tag 1
+					replace
+				}
+			} else {
+				#fight
+			}
+		}
+	} else {
+		#you win
+		puts "win!!!"
+	}
 }
 proc victory_special {} {
-	after 1000 {move enemy1 "right"}
 }

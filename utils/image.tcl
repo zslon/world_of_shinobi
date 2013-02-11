@@ -177,6 +177,9 @@ proc create_battlepanel {} {
 	bind . <Up> {
 		.jump invoke
 	}
+	bind . <space> {
+		.stand invoke
+	}
 	if {$slide == 1} {
 		unblock_battlepanel
 	}
