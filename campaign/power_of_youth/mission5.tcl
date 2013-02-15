@@ -61,13 +61,13 @@ proc slide_7 {} {
 	genin_sound_armmaster 700 520 2 2 2 4 {"raiko-kenka" "futon-zankuha" "kawarimi"}
 }
 proc slide_8 {} {
-	global locations ai_type effects
+	global locations effects
 	set locations [list 1 3 2 3]
 	phon 8
 	lappend effects [list "shadow-clon" enemy1 -1]
 	chunin_sound 1000 320 3 3 3 3 {"futon-zankukyokuha" "hosho" "shoshitsu" "kawarimi"}
-	kubakufuda_trap 350
 	kubakufuda_trap 650
+	kubakufuda_trap 350
 }
 proc slide_9 {} {
 	global locations ai_type
@@ -81,6 +81,8 @@ set ac 0
 proc special_chunin-sound_ai {n tech p} {
 	global ac effects
 	set tag "enemy$n"
+	puts "$tag tech: $tech $p ac: $ac"
+	set ans "none"
 	if {[get_hitpoints $tag] > 75} {
 		if {$ac < 0} {
 			#from first to second, from third to fourth study.
@@ -174,6 +176,13 @@ proc special_chunin-sound_ai {n tech p} {
 	} else {
 		#you win
 		puts "win!!!"
+	}
+	if {$tech != "run" && $tech != "none"} {
+		if {[get_location hero] == [get_location $tag] && [get_height hero] == [get_height $tag] && [is_melee $tech]} {
+			melee_tech "hero" $tag $tech $p "attack" [get_tai $tag]
+		} elseif {[get_location hero] < [get_location $tag] && [get_height hero] == [get_height $tag] && [is_ranged $tech]} {
+			ranged_tech "hero" $tag $tech $p "kunai" [get_speed $tag]
+		}
 	}
 }
 proc victory_special {} {

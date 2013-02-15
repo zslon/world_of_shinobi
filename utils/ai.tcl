@@ -4,7 +4,7 @@ proc hero_ai_agressive {} {
 	set d 3000
 	set n 1
 	while {$e <= $enemy} {
-		if {[dist "heroi" enemt$e] < $d} {
+		if {[dist "heroi" enemy$e] < $d} {
 			set d [dist "heroi" enemy$e]
 			set n $e
 		}
@@ -73,6 +73,7 @@ proc mov_ai {who to} {
 		}
 		if {$l1 == $l2} {
 			if {$h1 == $h2} {
+				set k -1
 			} elseif {([lindex $locations $l1] != $h1) && ([lindex $locations $l1] != -$h1)} {
 				move $who "up"		
 				set k 2
@@ -103,7 +104,11 @@ proc mov_ai {who to} {
 			}
 		}
 		if {$who == "hero"} {
-			end_turn "run" $k
+			if {$k < 0} {
+				end_turn
+			} else {
+				end_turn "run" $k
+			}
 		} 
 	}
 }

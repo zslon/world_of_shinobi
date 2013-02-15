@@ -621,6 +621,8 @@ proc dies {} {
 			}
 			set f 1
 			die enemy$e
+			.c delete panelenemy$e
+			.c addtag panelenemy$e withtag panelenemy$enemy
 			if {$e != $enemy} {
 #last enemy to empty place
 				.c move panelenemy$enemy 0 [expr -51*($enemy - $e)]
@@ -633,8 +635,6 @@ proc dies {} {
 				stand_animation enemy$e [get_name enemy$e] $slide"
 				incr e -1
 			}
-			.c delete panelenemy$e
-			.c addtag panelenemy$e withtag panelenemy$enemy
 			incr enemy -1
 			if {$enemy == 0 && [get_hitpoints "hero"] > 0} {
 				set level $herolevel

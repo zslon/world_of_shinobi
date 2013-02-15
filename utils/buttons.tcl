@@ -152,6 +152,11 @@ proc next_slide {} {
 	set effects [lreplace $effects 0 [expr [llength $effects] - 1]]
 	set h [get_hitpoints "hero"]
 	set c [get_chakra "hero"]
+	set e 1
+	while {$e <= 3} {
+		.c delete enemy$e
+		incr e 1
+	}
 	.c delete heroi
 	.c delete panel
 	.c delete medic

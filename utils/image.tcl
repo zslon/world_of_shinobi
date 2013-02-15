@@ -557,7 +557,13 @@ proc kawarimi_teleport {tag im} {
 			if {$h < [lindex $locations $l]} {
 				after 600 ".c move $tag 0 -100"
 			} else {
-				after 600 ".c move $tag 300 0"
+				set le [lindex $locations [expr $l + 1]]
+				if {abs($le) == $h || ($h < $le)} {
+					after 600 ".c move $tag 300 0"
+				} else {
+					set d [expr ($h - $le) * 100]
+					after 600 ".c move $tag 300 $d"
+				}
 			}
 		}
 	} else {
@@ -587,7 +593,13 @@ proc kawarimi_teleport {tag im} {
 			if {$h < [lindex $locations $l]} {
 				after 600 ".c move $tag 0 -100"
 			} else {
-				after 600 ".c move $tag -300 0"
+				set le [lindex $locations [expr $l - 1]]
+				if {abs($le) == $h || ($h < $le)} {
+					after 600 ".c move $tag -300 0"
+				} else {
+					set d [expr ($h - $le) * 100]
+					after 600 ".c move $tag -300 $d"
+				}
 			}
 		}
 	}
