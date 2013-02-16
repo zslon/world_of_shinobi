@@ -11,10 +11,14 @@ proc hero_ai_agressive {} {
 		incr e
 	}
 	if {$enemy == 0} {
-		mov_ai "hero" "out"
+		if {[get_speed "hero"] > 0} {
+			mov_ai "hero" "out"
+		}
 	} else {
 		#n is closet enemy
-		mov_ai "hero" enemy$n
+		if {[get_speed "hero"] > 0} {
+			mov_ai "hero" enemy$n
+		}
 	}
 }
 proc dist {from to} {

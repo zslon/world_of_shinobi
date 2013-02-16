@@ -214,8 +214,12 @@ proc get_status {class} {
 	return $a
 }
 proc get_name {class} {
-	global [set class]
-	return [lindex [set [set class]] 0]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 0]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 0]
+	}
 }
 proc set_form {class form} {
 	global $class
@@ -229,59 +233,92 @@ proc remove_form {class} {
 	lset $class 0 $name
 }
 proc get_hitpoints {class} {
-	global [set class]
-	return [lindex [set [set class]] 1]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 1]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 1]
+	}
 }
 proc set_hitpoints {class n} {
 	global $class
 	lset $class 1 $n
 }
 proc get_chakra {class} {
-	global [set class]
-	return [lindex [set [set class]] 2]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 2]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 2]
+	}
 }
 proc set_chakra {class n} {
 	global $class
 	lset $class 2 $n
 }
 proc get_tai {class} {
-	global [set class]
-	return [lindex [set [set class]] 3]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 3]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 3]
+	}
 }
 proc set_tai {class n} {
 	global $class
 	lset $class 3 $n
 }
 proc get_nin {class} {
-	global [set class]
-	return [lindex [set [set class]] 4]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 4]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 4]
+	}
 }
 proc set_nin {class n} {
 	global $class
 	lset $class 4 $n
 }
 proc get_gen {class} {
-	global [set class]
-	return [lindex [set [set class]] 5]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 5]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 5]
+	}
 }
 proc set_gen {class n} {
 	global $class
 	lset $class 5 $n
 }
 proc get_speed {class} {
-	global [set class]
-	return [lindex [set [set class]] 6]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 6]
+	} else {
+		global [set class]
+		return [lindex [set [set class]] 6]
+	}
 }
 proc set_speed {class n} {
 	global $class
 	lset $class 6 $n
 }
 proc get_skills {class} {
-	global [set class]
-	return [lindex [set [set class]] 7]
+	if {[llength $class] > 1} {
+		return [lindex [set class] 7]
+	} else {	
+		global [set class]
+		return [lindex [set [set class]] 7]
+	}
 }
-proc move {class d} {
+proc move {class d {type "fight"}} {
 	global mydir heroname locations hero_ancof
+	if {$type == "fight"} {
+		set s "run"
+	} elseif {$type == "scenery"} {
+		set s "norm"
+	}
 	if {$class == "hero"} {
 		set tag "heroi"
 		set hero_ancof 0
@@ -301,10 +338,10 @@ proc move {class d} {
 		set u -10
 		set m 0
 		set e 1
-		get_image $tag [file join $mydir images heroes $name jump 1.gif] "run" $class
-		after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] run $class"
-		after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] run $class"
-		after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] run $class"
+		get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
+		after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
+		after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
+		after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
 		set t 25		
 		while {$t <= 500} {
 			after $t ".c move $tag $m $u" 
@@ -326,7 +363,7 @@ proc move {class d} {
 		set t 1000
 		set e 6
 		while {$t <= 1150} {
-			after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] run $class" 
+			after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
 			incr t 50
 			incr e
 		}
@@ -343,14 +380,14 @@ proc move {class d} {
 			if {(abs($p) < $h) && $p != 0} {
 				set ex [expr $h - abs($p)]
 				set u [expr -10 * $ex]
-				get_image $tag [file join $mydir images heroes $name jump 1.gif] run $class
-				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] run $class"
-				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] run $class"
-				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] run $class"
+				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
+				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
+				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
+				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
 				set t 1000
 				set e 6
 				while {$t <= 1150} {
-					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] run $class" 
+					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
 					incr t 50
 					incr e
 				}
@@ -362,7 +399,7 @@ proc move {class d} {
 				set t 0
 				set e 1
 				while {$t <= 1000} {
-					after $t "get_image $tag [file join $mydir images heroes $name $rrun $e.gif] run $class"
+					after $t "get_image $tag [file join $mydir images heroes $name $rrun $e.gif] $s $class"
 					incr e 1
 					if {$e == 7} {
 						set e 1
@@ -379,14 +416,14 @@ proc move {class d} {
 			if {(abs($p) < $h)} {
 				set ex [expr $h - abs($p)]
 				set u [expr -10 * $ex]
-				get_image $tag [file join $mydir images heroes $name jump 1.gif] run $class
-				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] run $class"
-				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] run $class"
-				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] run $class"
+				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
+				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
+				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
+				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
 				set t 1000
 				set e 6
 				while {$t <= 1150} {
-					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] run $class" 
+					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
 					incr t 50
 					incr e
 				}	
@@ -398,7 +435,7 @@ proc move {class d} {
 				set t 0
 				set e 1
 				while {$t <= 1000} {
-					after $t "get_image $tag [file join $mydir images heroes $name $lrun $e.gif] run $class"
+					after $t "get_image $tag [file join $mydir images heroes $name $lrun $e.gif] $s $class"
 					incr e 1
 					if {$e == 7} {
 						set e 1
@@ -418,7 +455,7 @@ proc move {class d} {
 			incr t 50
 		}
 	}
-	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] run $class"
+	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] $s $class"
 }
 proc end_turn {{tech "none"} {p 0}} {
 	block_battlepanel

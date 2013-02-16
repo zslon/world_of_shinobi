@@ -12,7 +12,7 @@ if {$m == 1} {
 	puts $f "set gen 1"
 	puts $f "set nin 1"
 	puts $f "set speed 2"
-	puts $f "set skills \{suiken hachimon-1\}" 
+	puts $f "set skills \{suiken hachimon-1}" 
 	close $f 
 }
 #window

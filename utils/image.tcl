@@ -12,6 +12,14 @@ set leeskillist [list "konoha-senpu" "shofu" "konoha-dai-senpu" "omote-renge" "u
 foreach s $leeskillist {
 	get_image skill_$s [file join $mydir images skills lee $s.gif]
 }
+set tentenskillist [list "kawarimi" "kuchiese-kusarigama" "soshuga" "raiko-kenka" "kuchiese-meisu" "soshoryu"]
+foreach s $tentenskillist {
+	get_image skill_$s [file join $mydir images skills tenten $s.gif]
+}
+set guiskillist [list "kai" "kibakufuda" "kage-bunshin" "kuchiese-ninkame" "tengoku-no-kuchiese"]
+foreach s $guiskillist {
+	get_image skill_$s [file join $mydir images skills gui $s.gif]
+}
 get_image cross [file join $mydir images skills cross.gif]
 get_image aceptbutton [file join $mydir images skills acept.gif]
 proc create_skillpanel {} {
@@ -124,6 +132,12 @@ proc scenery_message {str} {
 			destroy .m
 		}			
 	}	
+}
+proc replic {name {t 2000}} {
+	global campdir missionnumber
+	get_image rep [file join $campdir messages $missionnumber-$name.gif]
+	.c create image 512 225 -image rep -tag rep
+	after $t ".c delete rep"
 }
 proc phon {number} {
 	global campdir missionnumber
@@ -825,4 +839,157 @@ proc gen_plus {num} {
 	get_image plus [file join $mydir images heroes plus.gif]
 	.c create image 725 [expr 26 + 51*($num-1)] -image plus -tag panelenemy$num
 	.c raise panelenemy$num
+}
+proc rolic {name} {
+	global enemy skills
+	block_battlepanel
+	destroy .jump
+	button .jump -state disabled -command {}
+	destroy .right
+	button .right -state disabled -command {}
+	destroy .left
+	button .left -state disabled -command {}
+	destroy .stand
+	button .stand -state disabled -command {}
+	foreach s $skills {
+		if {[enciclopedia $s chakra] != 0} {
+			destroy .button_$s
+			button .button_$s -state disabled -command {}
+		}
+	}
+	set e 1
+	while {$e <= $enemy} {
+		set_speed "enemy$e" 0
+		incr e
+	}
+	set_speed "hero" 0
+	replace
+	animation_$name
+}
+proc end_panel {h1 h2 h3} {
+	global campdir
+	.c delete all
+	get_image endpanel [file join $campdir end.gif]
+	.c create image 512 289 -image endpanel -tag endpanel
+	set n1 [lindex $h1 0]
+	set x 476
+	set y 87
+	foreach n $h1 {
+		if {$n != $n1} {
+			.c create image $x $y -image skill_$n -tag endpanel
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	set n2 [lindex $h2 0]
+	set x 476
+	set y 243
+	foreach n $h2 {
+		if {$n != $n2} {
+			.c create image $x $y -image skill_$n -tag endpanel
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	set n3 [lindex $h3 0]
+	set x 476
+	set y 400
+	foreach n $h3 {
+		if {$n != $n3} {
+			.c create image $x $y -image skill_$n -tag endpanel
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	bind .c <ButtonPress> "
+		click_end %x %y {$h1} {$h2} {$h3}
+	"
+}
+proc click_end {ex ey h1 h2 h3} {
+	global mydir
+	set n1 [lindex $h1 0]
+	set x 476
+	set y 87
+	foreach n $h1 {
+		if {$n != $n1} {
+			if {[object_in $ex $ey $x $y 50 50]} {
+				if {[is_ninjitsu $n]} {
+					set par [get_nin $n1]
+				} elseif {[is_genjitsu $n]} {
+					set par [get_gen $n1]
+				} elseif {[is_taijitsu $n]} {
+					set par [get_tai $n1]
+				} else {	
+					set par 0
+				}
+ 				skillinfo [enciclopedia $n "name" $par] $n [enciclopedia $n "damage" $par] [enciclopedia $n "number" $par]
+			}
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	set n2 [lindex $h2 0]
+	set x 476
+	set y 243
+	foreach n $h2 {
+		if {$n != $n2} {
+			if {[object_in $ex $ey $x $y 50 50]} {
+				if {[is_ninjitsu $n]} {
+					set par [get_nin $n2]
+				} elseif {[is_genjitsu $n]} {
+					set par [get_gen $n2]
+				} elseif {[is_taijitsu $n]} {
+					set par [get_tai $n2]
+				} else {	
+					set par 0
+				}
+ 				skillinfo [enciclopedia $n "name" $par] $n [enciclopedia $n "damage" $par] [enciclopedia $n "number" $par]
+			}
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	set n3 [lindex $h3 0]
+	set x 476
+	set y 400
+	foreach n $h3 {
+		if {$n != $n3} {
+			if {[object_in $ex $ey $x $y 50 50]} {
+				if {[is_ninjitsu $n]} {
+					set par [get_nin $n3]
+				} elseif {[is_genjitsu $n]} {
+					set par [get_gen $n3]
+				} elseif {[is_taijitsu $n]} {
+					set par [get_tai $n3]
+				} else {	
+					set par 0
+				}
+ 				skillinfo [enciclopedia $n "name" $par] $n [enciclopedia $n "damage" $par] [enciclopedia $n "number" $par]
+			}
+			incr x 50
+			if {$x > 900} {
+				set x 476
+				incr y 50
+			}
+		}
+	}
+	if {[object_in $ex $ey 817 537 125 25]} {
+		exec [file join $mydir menu.tcl] &
+		exit
+	}
 }

@@ -1,0 +1,85 @@
+#!/usr/bin/wish8.5
+source [file join $mydir utils shinobi.tcl]
+source [file join $mydir utils buttons.tcl]
+global missionnumber heroname herolevel ai_type
+set missionnumber 1
+set heroname "lee"
+set herolevel 1
+set ai_type "special"
+autosave 1 1
+breefing
+proc slide_1 {} {
+	global locations bonus
+	set bonus 0
+	phon 1
+	set locations [list 1 1 1 1]
+	scenery_message {Lesson 1: Moving}
+}
+proc slide_2 {} {
+	global locations
+	phon 2
+	set locations [list 3 -3 2 1]
+	scenery_message {Lesson 2: Jumping}
+}
+proc slide_3 {} {
+	global locations
+	phon 3
+	set locations [list 1 1 1 1]
+	training_lumber 700 520
+	training_lumber 1000 520
+	scenery_message {Lesson 3: Kunai Throwing}
+}
+proc slide_4 {} {
+	global locations
+	phon 4 
+	set locations [list 1 1 1 3]
+	training_lumber 1000 320
+	scenery_message {Lesson 4: Melee}	
+}
+proc slide_5 {} {
+	global locations
+	phon 5
+	set locations [list 3 3 3 1]
+	scenery_message {Lesson 5: Traps}	
+	kunai_trap 350
+	kunai_trap 650
+	kunai_trap 950
+}
+proc slide_6 {} {
+	global locations
+	phon 6
+	set locations [list 1 1 1 3]
+	scenery_message {Last Lesson}	
+	might_guy 1000 320 {"shofu"}
+}
+proc special_gui_ai {n tech p} {
+	if {[is_bonus $tech]} {
+		set tech "run"
+		set p 2
+	}
+	set ln [get_location enemy$n]
+	set lh [get_location hero]
+	set hn [get_height enemy$n]
+	set hh [get_height hero]	
+	if {$ln == $lh && $hn == $hh} {
+		set s [get_status hero]
+		set tn [get_tai enemy$n]
+		set th [get_tai hero]
+		if {$tech == "run"} {
+		} elseif {$tech == "none"} {
+			melee_tech enemy$n "hero" "shofu" $tn "attack" $th
+		} else {
+			melee_tech enemy$n "hero" "shofu" $tn $tech $p
+		}
+	} else {
+	}
+	set li [get_hitpoints "hero"]
+	set guy [get_hitpoints enemy$n]
+	if {$li > 0 && $guy < 244} {
+		victory
+	}
+}
+proc victory_special {} {
+	.c raise panel
+	after 1000 {move enemy1 "left"}
+}
