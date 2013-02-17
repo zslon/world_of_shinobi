@@ -1087,6 +1087,21 @@ proc victory {} {
 	victory_image
 	victory_special
 	set m [expr $missionnumber + 1]
-	after 5000 "exec [file join $campdir start.tcl] $m 1 &
-	exit"
+	after 5000 "next_mission $m"
+}
+proc clear {} {
+	global allbuttonskills
+	.c delete all
+	destroy .right .left .jump .stand
+	foreach s $allbuttonskills {
+		if {[enciclopedia $s chakra] != 0} {
+			destroy .button_$s
+		}
+	}
+}
+proc next_mission {n} {
+	global m ar
+	set m $n
+	set ar 1
+	source [file join $campdir start.tcl]
 }

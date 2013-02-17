@@ -1,15 +1,17 @@
 #!/usr/bin/wish8.5
 #directory
+catch {
 set mydir [file normalize [file dirname $argv0]]
+}
 #window
 wm geometry . 1024x576
 wm maxsize . 1024 576
 wm minsize . 1024 576
 wm title . {World of Shinobi}
-canvas .c -height 576 -width 1024 -bg black
+canvas .z -height 576 -width 1024 -bg black
 #menu phone image
 image create photo menuimage -file [file join $mydir images transparent intro.gif]
-.c create image 512 288 -image menuimage -tag phon
+.z create image 512 288 -image menuimage -tag phon
 update
 #math
 source [file join $mydir utils math.tcl]
@@ -34,8 +36,8 @@ proc menupack {number name} {
 		set name "itachi"
 	}
 	image create photo menu_$number -file [file join $mydir images transparent menu $name-1.gif]
-	.c delete menu_$number
-	.c create image 700 [expr 150 + $number * 125] -image menu_$number -tag menu_$number
+	.z delete menu_$number
+	.z create image 700 [expr 150 + $number * 125] -image menu_$number -tag menu_$number
 	set n 2
 	while {$n <= 13} {
 		after [expr 400 + 75 * ($n - 1)] "image create photo menu_$number -file [file join $mydir images transparent menu $name-$n.gif]"
@@ -68,7 +70,7 @@ proc menuunpack {number name} {
 }
 #getcord of click
 
-bind .c <ButtonPress> {
+bind .z <ButtonPress> {
 	set n 0
 	while {$n <= 3} {
 		if {[object_in %x %y 713 [expr 150 + $n * 125] 494 90] && [set but_$n] != ""} {
@@ -83,7 +85,7 @@ image create photo portrait_naruto -file [file join $mydir images transparent na
 image create photo portrait_sasuke -file [file join $mydir images transparent sasuke-portrait.gif]
 image create photo portrait_itachi -file [file join $mydir images transparent itachi-portrait.gif]
 image create photo portrait_lee -file [file join $mydir images transparent lee-portrait.gif]
-bind .c <Motion> {
+bind .z <Motion> {
 	if {$but_3 == "back"} {
 		set n 0
 		set f 0
@@ -102,19 +104,19 @@ bind .c <Motion> {
 				if {[set but_[set n]] == "lee_c"} {
 					set nam "lee"
 				}
-				.c create image 306 416 -image portrait_[set nam] -tag transparent_portrait
+				.z create image 306 416 -image portrait_[set nam] -tag transparent_portrait
 				set f 1
 			}
 			incr n
 		}
 		if {$f == 0} {
-			.c delete transparent_portrait
+			.z delete transparent_portrait
 		}
 	}	
 }
 
 #pack
-pack .c -side top
+pack .z -side top
 #buttons
 set but_0 "naruto"
 set but_1 "new"
@@ -172,7 +174,7 @@ button .continue -state disabled -command {
 }
 button .quit -state disabled -command {exit}
 button .back -state disabled -command {
-	.c delete transparent_portrait
+	.z delete transparent_portrait
 	set n 0
 	while {$n <= 3} {
 		if {[set but_[set n]] != ""} {
@@ -181,7 +183,7 @@ button .back -state disabled -command {
 		incr n
 	}
 	after 1000 {
-		.c delete menu_0
+		.z delete menu_0
 		menupack 1 "new"
 		menupack 2 "continue"
 		menupack 3 "quit"
@@ -190,15 +192,23 @@ button .back -state disabled -command {
 menupack 1 "new"
 menupack 2 "continue"
 menupack 3 "quit"
+proc clear {} {
+	destroy .z .back .quit .continue .new .lee .naruto .sasuke .itachi .lee_c .naruto_c .sasuke_c .itachi_c
+}
 #game statistic
-global camp_0_mission camp_1_mission camp_2_mission
+global camp_0_mission camp_1_mission camp_2_mission m ar
+set m 1
+set ar 0
 source [file join $mydir gamestat.tcl]
 proc new_campaign {name num} {
 	global mydir camp_[set num]_mission
 	proc subproc {} "
 		remove_progress $name
-		exec [file join $mydir campaign $name start.tcl] 1 0 &
-		exit
+		global m ar
+		set m 1
+		set ar 0
+		clear
+		source [file join $mydir campaign $name start.tcl]
 		destroy .w
 	"
 	if {[set camp_[set num]_mission] > 1} {
@@ -211,10 +221,10 @@ proc new_campaign {name num} {
 		wm geometry .w 400x300
 		wm maxsize .w 400 300
 		wm minsize .w 400 300
-		canvas .w.c -height 300 -width 400 -bg black
-		.w.c create image 200 150 -image warning -tag infa
-		pack .w.c -side top
-		bind .w.c <ButtonPress> {
+		canvas .w.z -height 300 -width 400 -bg black
+		.w.z create image 200 150 -image warning -tag infa
+		pack .w.z -side top
+		bind .w.z <ButtonPress> {
 			if {[object_in %x %y 320 272 125 25]} {
 				.back invoke
 				destroy .w
@@ -224,12 +234,18 @@ proc new_campaign {name num} {
 			}			
 		}	
 	} else {
-	exec [file join $mydir campaign $name start.tcl] 1 0 &
-	exit
+	global m ar
+	set m 1
+	set ar 0
+	clear
+	source [file join $mydir campaign $name start.tcl]
 	}
 }
 proc continue_campaign {name num} {
 	global mydir camp_[set num]_mission
-	exec [file join $mydir campaign $name start.tcl] [set camp_[set num]_mission] 0 &
-	exit
+	global m ar
+	set m [set camp_[set num]_mission]
+	set ar 0
+	clear
+	source [file join $mydir campaign $name start.tcl]
 }

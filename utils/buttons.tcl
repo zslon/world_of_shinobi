@@ -96,13 +96,15 @@ proc block_battlepanel {} {
 		set enemy[set e]_ancof 0
 		incr e
 	}
-	.right configure -state disabled
-	.left configure -state disabled
-	.jump configure -state disabled
-	.stand configure -state disabled
-	foreach s $skills {
-		if {[enciclopedia $s chakra] != 0} {
-			.button_$s configure -state disabled
+	catch {
+		.right configure -state disabled
+		.left configure -state disabled
+		.jump configure -state disabled
+		.stand configure -state disabled
+		foreach s $skills {
+			if {[enciclopedia $s chakra] != 0} {
+				.button_$s configure -state disabled
+			}
 		}
 	}
 }
@@ -126,13 +128,15 @@ proc unblock_battlepanel {} {
 			set enemy[set e]_ancof 1
 			incr e
 		}
-		.right configure -state normal
-		.left configure -state normal
-		.jump configure -state normal
-		.stand configure -state normal
-		foreach s $skills {
-			if {[enciclopedia $s chakra] != 0} {
-				.button_$s configure -state normal
+		catch {
+			.right configure -state normal
+			.left configure -state normal
+			.jump configure -state normal
+			.stand configure -state normal
+			foreach s $skills {
+				if {[enciclopedia $s chakra] != 0} {
+					.button_$s configure -state normal
+				}
 			}
 		}
 	}

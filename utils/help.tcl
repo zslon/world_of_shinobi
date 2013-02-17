@@ -1,5 +1,6 @@
 #imageworking
-global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu
+global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills
+set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "shofu" "omote-renge"]
 set meleelist [list "hirudora" "asakujaku" "ura-renge" "omote-renge" "shofu"]
 set rangedlist [list "hirudora" "asakujaku" "sogu-tensasai" "futon-zankukyokuha" "sofusha-san-no-tachi" "soshoryu" "futon-zankuha"]
 set bonuslist [list "hachimon-8" "hachimon-7" "hachimon-6" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda" "hachimon-2" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]

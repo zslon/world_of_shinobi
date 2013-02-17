@@ -1,10 +1,8 @@
 #!/usr/bin/wish8.5
 #directory
-set campdir [file normalize [file dirname $argv0]]
-set mydir [file join $campdir .. ..]
+global campdir st mydir
+set campdir [file join $mydir campaign power_of_youth]
 #mission
-global m
-set m [lindex $argv 0]
 if {$m == 1} {
 	set f [open [file join $campdir personstat.tcl] w]
 	puts $f "set level 1"
@@ -12,18 +10,23 @@ if {$m == 1} {
 	puts $f "set gen 1"
 	puts $f "set nin 1"
 	puts $f "set speed 2"
-	puts $f "set skills \{suiken hachimon-1}" 
+	puts $f "set skills \{suiken hachimon-1\}" 
 	close $f 
 }
+if {$ar == 0} {
+	set st "no skill"
+} else {
+	set st "skill"
+	after 250 {skillmessage}
+}
 #window
-wm geometry . 1024x576
-wm maxsize . 1024 576
-wm minsize . 1024 576
-wm title . {World of Shinobi}
-canvas .c -height 576 -width 1024 -bg black
 source [file join $mydir utils math.tcl]
 source [file join $mydir utils image.tcl]
 source [file join $mydir utils help.tcl]
+catch {
+	canvas .c -height 576 -width 1024 -bg black
+}
+.c delete all
 #Rock Lee statistic 
 proc rock_lee_stats {{type "skill"}} {
 	global campdir mydir skills accessskills tai speed tailist hidenlist nin gen
@@ -107,7 +110,7 @@ proc click_skill {ex ey {status "skill"}} {
 		#go button
 		if {[object_in $ex $ey 817 502 125 25]} {
 			catch {
-				destory .i
+				destroy .i
 				destroy .m
 			}
 			.c delete all
@@ -115,8 +118,9 @@ proc click_skill {ex ey {status "skill"}} {
 		}
 		#exit button
 		if {[object_in $ex $ey 817 537 125 25]} {
-			exec [file join $mydir menu.tcl] &
-			exit
+			.c delete all
+			pack forget .c 
+			source [file join $mydir menu.tcl]
 		}
 	}
 }
@@ -127,12 +131,6 @@ proc begin {} {
 	rock_lee_stats 
 }
 rock_lee_stats 
-if {[lindex $argv 1] == 0} {
-	set st "no skill"
-} else {
-	set st "skill"
-	after 250 {skillmessage}
-}
 bind .c <ButtonPress> {
 	click_skill %x %y $st
 }

@@ -201,8 +201,9 @@ proc create_battlepanel {} {
 proc click_in_game {ex ey} {
 	global mydir skills
 	if {[object_in $ex $ey 625 25 50 50]} {
-		exec [file join $mydir menu.tcl] &
-		exit
+		clear
+		pack forget .c 
+		source [file join $mydir menu.tcl]
 	}
 	if {[object_in $ex $ey 525 25 50 50]} {
 		.stand invoke
@@ -431,8 +432,9 @@ proc die {class} {
 		set tag "heroi"
 		set hero_ancof 0
 		after 2000 "
-			exec [file join $mydir menu.tcl] &
-			exit
+			clear
+			pack forget .c 
+			source [file join $mydir menu.tcl]
 		"
 	} else {
 		set tag $class
@@ -989,7 +991,8 @@ proc click_end {ex ey h1 h2 h3} {
 		}
 	}
 	if {[object_in $ex $ey 817 537 125 25]} {
-		exec [file join $mydir menu.tcl] &
-		exit
+		clear
+		pack forget .c 
+		source [file join $mydir menu.tcl]
 	}
 }
