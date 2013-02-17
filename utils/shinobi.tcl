@@ -1100,7 +1100,8 @@ proc clear {} {
 	}
 }
 proc next_mission {n} {
-	global m ar
+	global m ar campdir
+	clear
 	set m $n
 	set ar 1
 	source [file join $campdir start.tcl]
