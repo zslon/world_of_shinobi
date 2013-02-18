@@ -1093,6 +1093,16 @@ proc clear {} {
 	global allbuttonskills
 	.c delete all
 	destroy .right .left .jump .stand
+	bind .c <ButtonPress> {
+	}
+	bind . <Right> {
+	}
+	bind . <Left> {
+	}
+	bind . <Up> {
+	}
+	bind . <space> {
+	}
 	foreach s $allbuttonskills {
 		if {[enciclopedia $s chakra] != 0} {
 			destroy .button_$s

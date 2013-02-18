@@ -376,7 +376,7 @@ proc ranged_tech_ai {num} {
 		incr i
 	}
 	if {$t == 0} {
-		if {[get_height hero] == [get_height enemy$num] && [dist "heroi" enemy$num] < 360 && [dist "heroi" enemy$num] > 60} {
+		if {[get_height hero] == [get_height enemy$num] && [dist "heroi" enemy$num] < 360 && [dist "heroi" enemy$num] > 60 && [get_location hero] < [get_location enemy$num]} {
 			return [list "kunai" [get_speed enemy$num]]
 		} elseif {[get_height hero] == [get_height enemy$num] && [dist "heroi" enemy$num] < 60} {
 			return [list "attack" [get_tai enemy$num]]

@@ -1,6 +1,6 @@
-set level 1
-set tai 3
-set gen 1
+set level 2
+set tai 4
+set gen 2
 set nin 1
-set speed 2
-set skills {suiken hachimon-1 konoha-senpu}
+set speed 3
+set skills {suiken hachimon-1 konoha-senpu hachimon-2 shofu omote-renge}

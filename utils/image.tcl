@@ -458,7 +458,7 @@ proc die {class} {
 		after 2000 ".c delete $tag"
 	}
 }
-proc teleport {im num} {
+proc teleport_out {im num} {
 	global enemy herolevel mydir bonus
 	set tag "enemy$num"
 	set_hitpoints enemy$num 0

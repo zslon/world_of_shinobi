@@ -21,7 +21,7 @@ proc special_tenten_ai {n tech p} {
 	#ranged battle is always recommended
 	global effects
 	if {[get_hitpoints enemy$n] < 50} {
-		teleport "tenten" $n
+		teleport_out "tenten" $n
 	} elseif {![is_in [list "raiko-kenka" enemy$n -1] $effects] && ![is_in [list "kuchiese-kusarigama" enemy$n -1] $effects] && [dist "heroi" enemy$n] > 300} {
 		#use shooting arm
 		set s [get_chakra enemy$n]
@@ -101,7 +101,7 @@ proc special_gui_ai {n tech p} {
 	global effects
 	set l [list]
 	if {[get_hitpoints enemy$n] < 200} {
-		teleport "gui" $n
+		teleport_out "gui" $n
 	} elseif {[get_height hero] == [get_height enemy$n] && [get_location hero] == [get_location enemy$n]} {
 		if {$tech == "run" && $p == 1} {
 			#stand and wait to kunai
