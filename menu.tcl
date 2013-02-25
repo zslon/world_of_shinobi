@@ -196,7 +196,7 @@ proc clear {} {
 	destroy .z .back .quit .continue .new .lee .naruto .sasuke .itachi .lee_c .naruto_c .sasuke_c .itachi_c
 }
 #game statistic
-global camp_0_mission camp_1_mission camp_2_mission m ar
+global camp_0_mission camp_1_mission camp_2_mission m ar regim
 set m 1
 set ar 0
 source [file join $mydir gamestat.tcl]

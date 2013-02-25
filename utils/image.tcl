@@ -790,6 +790,114 @@ proc omote_not_message {} {
 		}			
 	}	
 }
+proc ura_not_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information ura_not.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t use Ura Renge!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc hachimon_6_not_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information hachimon_6_not.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t release Sixth Sky Gate!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc hachimon_7_not_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information hachimon_7_not.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t release Seventh Sky Gate!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc hachimon_8_not_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information hachimon_8_not.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t release Eighth Sky Gate!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc hachimon_8_really_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information hachimon_8_really.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {Do you really want to do it?}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 83 272 125 25]} {
+			tech_hachimon-8 "hero"
+			lappend effects [list "hachimon-8" "hero" -1]
+			lappend used "hachimon-8"
+			replace
+			end_turn "hachimon-8"
+			destroy .s
+		}	
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}		
+	}	
+}
 proc no_chakra_message {} {
 	global mydir
 	get_image no_mess [file join $mydir images skills information no_chakra.gif]

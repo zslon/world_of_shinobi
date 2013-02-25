@@ -12,7 +12,7 @@ proc slide_1 {} {
 	global locations bonus
 	set bonus 0
 	phon 1
-	set locations [list 3 2 1 1]
+	set locations [list 1 1 1 1]
 	genin_sound 1000 520 2 2 2 1 {"futon-zankuha" "kawarimi"}
 }
 proc slide_2 {} {
@@ -336,6 +336,8 @@ get_image $vrag [file join $mydir images heroes $purpose wound 5.gif]"
 	after $t "replic lee-1 3000"
 	after [expr $t + 3100] "replic guy-2 3000"
 	after [expr $t + 6150] "campaign_victory"
+}
+proc special_gui_ai {n tech p} {
 }
 proc campaign_victory {} {
 	global mydir effects skills

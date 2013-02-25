@@ -81,7 +81,6 @@ set ac 0
 proc special_chunin-sound_ai {n tech p} {
 	global ac effects
 	set tag "enemy$n"
-	puts "$tag tech: $tech $p ac: $ac"
 	set ans "none"
 	if {[get_hitpoints $tag] > 75} {
 		if {$ac < 0} {
@@ -336,6 +335,8 @@ get_image $vrag [file join $mydir images heroes $purpose wound 5.gif]"
 	after $t "replic lee-1 3000"
 	after [expr $t + 3100] "replic guy-2 3000"
 	after [expr $t + 6150] "campaign_victory"
+}
+proc special_gui_ai {n tech p} {
 }
 proc campaign_victory {} {
 	global mydir effects skills

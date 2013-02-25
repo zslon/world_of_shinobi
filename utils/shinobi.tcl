@@ -930,7 +930,11 @@ proc melee_tech {from to name par ans par2} {
 					incr dam 2
 				}
 				if {[is_in "konoha-congoriki-senpu" $sk]} {
-					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti [expr $dam * 2] "final" [expr $num - $n]
+					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "final" [expr $num - $n]
+					if {[get_hitpoints $to] < $h11} {
+						#bonus damage
+						take_damage $to $dam "konoha-senpu"
+					}
 				} else {
 					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "begin"
 				}
@@ -961,7 +965,11 @@ proc melee_tech {from to name par ans par2} {
 					incr dam2 2
 				}
 				if {[is_in "konoha-congoriki-senpu" $sk2]} {
-					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 [expr $dam2 * 2] "final" [expr $num2 - $n]
+					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 "final" [expr $num2 - $n]
+					if {[get_hitpoints $from] < $h12} {
+						#bonus damage
+						take_damage $from $dam2 "konoha-senpu"
+					}
 				} else {
 					tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 "begin"
 				}

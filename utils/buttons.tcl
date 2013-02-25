@@ -231,6 +231,91 @@ button .button_hachimon-3 -state disabled -command {
 		no_chakra_message
 	}
 }
+button .button_hachimon-4 -state disabled -command {
+	if {([get_chakra "hero"] > 79 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] > 59) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] > 39) || ([is_in "hachimon-3" $used] && [get_chakra "hero"] > 19)) && !([is_in "hachimon-4" $used])} {
+		tech_hachimon-4 "hero"
+		lappend effects [list "hachimon-4" "hero" -1]
+		if {[is_in "hachimon-1" $used]} {
+		} else {
+			lappend used "hachimon-1"
+		}
+		if {[is_in "hachimon-2" $used]} {
+		} else {
+			lappend used "hachimon-2"
+		}
+		if {[is_in "hachimon-3" $used]} {
+		} else {
+			lappend used "hachimon-3"
+		}
+		lappend used "hachimon-4"
+		replace
+		end_turn "hachimon-4"
+	} elseif {[get_chakra "hero"] < 80 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] < 60) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] < 40) || ([is_in "hachimon-3" $used] && [get_chakra "hero"] < 20)} {
+		no_chakra_message
+	}
+}
+button .button_hachimon-5 -state disabled -command {
+	if {([get_chakra "hero"] > 99 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] > 79) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] > 59) || ([is_in "hachimon-3" $used] && [get_chakra "hero"] > 39) || ([is_in "hachimon-4" $used] && [get_chakra "hero"] > 19)) && !([is_in "hachimon-5" $used])} {
+		tech_hachimon-5 "hero"
+		lappend effects [list "hachimon-5" "hero" -1]
+		if {[is_in "hachimon-1" $used]} {
+		} else {
+			lappend used "hachimon-1"
+		}
+		if {[is_in "hachimon-2" $used]} {
+		} else {
+			lappend used "hachimon-2"
+		}
+		if {[is_in "hachimon-3" $used]} {
+		} else {
+			lappend used "hachimon-3"
+		}
+		if {[is_in "hachimon-4" $used]} {
+		} else {
+			lappend used "hachimon-4"
+		}
+		lappend used "hachimon-5"
+		replace
+		end_turn "hachimon-5"
+	} elseif {[get_chakra "hero"] < 100 || ([is_in "hachimon-1" $used] && [get_chakra "hero"] < 80) || ([is_in "hachimon-2" $used] && [get_chakra "hero"] < 60) || ([is_in "hachimon-3" $used] && [get_chakra "hero"] < 40) || ([is_in "hachimon-4" $used] && [get_chakra "hero"] < 20)} {
+		no_chakra_message
+	}
+}
+button .button_hachimon-6 -state disabled -command {
+	if {([get_chakra "hero"] > 24)  && ([is_in "hachimon-5" $used]) && !([is_in "hachimon-6" $used])} {
+		tech_hachimon-6 "hero"
+		lappend effects [list "hachimon-6" "hero" -1]
+		lappend used "hachimon-6"
+		replace
+		end_turn "hachimon-6"
+	} elseif {[get_chakra "hero"] < 25} {
+		no_chakra_message
+	} elseif {![is_in "hachimon-5" $used]} {
+		hachimon_6_not_message
+	}
+}
+button .button_hachimon-7 -state disabled -command {
+	if {([get_chakra "hero"] > 24)  && ([is_in "hachimon-6" $used]) && !([is_in "hachimon-7" $used])} {
+		tech_hachimon-7 "hero"
+		lappend effects [list "hachimon-7" "hero" -1]
+		lappend used "hachimon-7"
+		replace
+		end_turn "hachimon-7"
+	} elseif {[get_chakra "hero"] < 25} {
+		no_chakra_message
+	} elseif {![is_in "hachimon-6" $used]} {
+		hachimon_7_not_message
+	}
+}
+button .button_hachimon-8 -state disabled -command {
+	if {([get_chakra "hero"] > 49)  && ([is_in "hachimon-7" $used]) && !([is_in "hachimon-8" $used])} {
+		hachimon_8_really_message
+	} elseif {[get_chakra "hero"] < 50} {
+		no_chakra_message
+	} elseif {![is_in "hachimon-6" $used]} {
+		hachimon_8_not_message
+	}
+}
 button .button_shofu -state disabled -command {
 	set q 0
 	set l [get_location "hero"]
@@ -265,6 +350,26 @@ button .button_omote-renge -state disabled -command {
 		end_turn "omote-renge" [get_tai "hero"]
 	} elseif {![is_in "hachimon-1" $used]} {
 		omote_not_message
+	} elseif {[get_chakra "hero"] < 25} {
+		no_chakra_message
+	}
+}
+button .button_ura-renge -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] == $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		incr e
+	}
+	if {[get_chakra "hero"] > 24 && ($q > 0) && [is_in "hachimon-3" $used]} {
+		end_turn "ura-renge" [get_tai "hero"]
+	} elseif {![is_in "hachimon-3" $used]} {
+		ura_not_message
 	} elseif {[get_chakra "hero"] < 25} {
 		no_chakra_message
 	}

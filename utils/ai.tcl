@@ -232,11 +232,16 @@ proc standart_ai {num tech p} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
 		}
 	}
+	if {[lindex $l 0] == "kunai" || [lindex $l 0] == "attack"} {
+		set tmo 1000
+	} else {
+		set tmo 0
+	}
 	if {[llength $l] != 0 && $tech == "busy"} {
 		if {[is_ranged [lindex $l 0]]} {
-			ranged_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] "none" 0
+			after $tmo "ranged_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] none 0"
 		} elseif {[is_melee [lindex $l 0]]} {
-			melee_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] "none" 0
+			after $tmo "melee_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] none 0"
 		}
 	} elseif {[llength $l] != 0 && $tech != "run" && $tech != "none"} {
 		if {[is_ranged [lindex $l 0]] && [is_ranged $tech]} {
@@ -258,30 +263,30 @@ proc standart_ai {num tech p} {
 				melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] "attack" [get_tai "hero"]
 				set_nin hero 0
 			} elseif {[get_height hero] == [get_height enemy$num]} {
-				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			}
 		} elseif {$p == 2} {
 		} elseif {$p == 0 && [get_location hero] < [get_location enemy$num]} {
 			if {[dist "heroi" enemy$num] < 360} {
-				after 1000 "melee_tech enemy$num hero attack [get_tai enemy$num] none 0"
+				after $tmo "melee_tech enemy$num hero attack [get_tai enemy$num] none 0"
 			} elseif {[is_ranged [lindex $l 0]] && [dist "heroi" enemy$num] < 660} {
-				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			} elseif {[is_ranged [lindex $l 0]]} {
-				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			}
 		} elseif {$p == 1 && [get_location hero] > [get_location enemy$num]} {
 			if {[dist "heroi" enemy$num] < 360} {
-				after 1000 "melee_tech enemy$num hero attack [get_tai enemy$num] none 0"
+				after $tmo "melee_tech enemy$num hero attack [get_tai enemy$num] none 0"
 			} elseif {[is_ranged [lindex $l 0]] && [dist "heroi" enemy$num] < 660} {
-				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			} elseif {[is_ranged [lindex $l 0]]} {
-				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			}
 		} elseif {[get_location hero] == [get_location enemy$num] && [get_height hero] == [get_height enemy$num]} {
 			if {[is_melee [lindex $l 0]] && [lindex $l 0] != "attack"} {
-				melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0
+				after $tmo "melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			} elseif {[is_melee [lindex $l 0]]} {
-				after 1000 "ranged_tech enemy$num hero kunai [get_speed enemy$num] none 0"
+				after $tmo "ranged_tech enemy$num hero kunai [get_speed enemy$num] none 0"
 			}
 		}
 	}
