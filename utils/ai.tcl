@@ -16,8 +16,10 @@ proc hero_ai_agressive {} {
 		}
 	} else {
 		#n is closet enemy
-		if {[get_speed "hero"] > 0} {
+		if {[get_speed "hero"] > 0 && [dist "heroi" enemy$n] > 0} {
 			mov_ai "hero" enemy$n
+		} elseif {[dist "heroi" enemy$n] < 0 && [get_speed "hero"] > 0 } {
+			mov_ai "hero" "out"
 		}
 	}
 }
@@ -26,7 +28,11 @@ proc dist {from to} {
 	set y1 [gety $from]
 	set x2 [getx $to]
 	set y2 [gety $to]
-	return [expr abs($y2 - $y1) + abs($x2 - $x1)]
+	if {$x1 > 0 && $x1 < 1500 && $x2 > 0 && $x2 < 1500 && $y1 > 0 && $y1 < 800 && $y2 > 0 && $y2 < 1500} {
+		return [expr abs($y2 - $y1) + abs($x2 - $x1)]
+	} else {
+		return -1
+	}
 }
 proc mov_ai {who to} {
 	global locations
