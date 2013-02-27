@@ -472,7 +472,7 @@ proc teleport_out {im num} {
 		incr t 100
 		incr i
 	}
-	after $t {unblock_battlepanel}
+	after 2000 {unblock_battlepanel}
 	after $t ".c delete $tag
 	.c delete panel$tag"
 	if {$num != $enemy} {

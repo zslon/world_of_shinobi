@@ -272,7 +272,7 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 		take_damage $p $d "kuchiese-kusarigama"
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 1100] "set_speed $p $s"
+			after [expr $t + 900] "set_speed $p $s"
 		}
 	}
 }
