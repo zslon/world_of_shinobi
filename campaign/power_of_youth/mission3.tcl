@@ -17,11 +17,13 @@ proc slide_1 {} {
 	genin_sound_armmaster 1000 520
 }
 proc slide_2 {} {
-	global locations
+	global locations skills
 	phon 2
 	set locations [list 1 1 1 1]
 	genin_sound 1000 520 1 1 2 1
-	medpack 950 520
+	if {![is_in "hachimon-2" $skills]} {
+		medpack 950 520
+	}
 }
 proc slide_3 {} {
 	global locations

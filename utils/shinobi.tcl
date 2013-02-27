@@ -1099,9 +1099,9 @@ proc victory {} {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
 		effect $do $owner "remove"
-		set effects [lreplace $effects $i $i]
 		incr i
 	}
+	set effects [list ]
 	set hero_ancof 1
 	stand_animation "heroi" [get_name "hero"]
 	lappend effects [list "endgame" "hero" 0]
