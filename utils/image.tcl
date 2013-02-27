@@ -870,6 +870,26 @@ proc hachimon_8_not_message {} {
 		}			
 	}	
 }
+proc asakujaku_not_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information asakujaku_not.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t use Asakujaku!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
 proc hachimon_8_really_message {} {
 	global mydir
 	get_image no_mess [file join $mydir images skills information hachimon_8_really.gif]

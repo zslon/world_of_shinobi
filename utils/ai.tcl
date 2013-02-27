@@ -245,9 +245,9 @@ proc standart_ai {num tech p} {
 	}
 	if {[llength $l] != 0 && $tech == "busy"} {
 		if {[is_ranged [lindex $l 0]]} {
-			after $tmo "ranged_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] none 0"
+			after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 		} elseif {[is_melee [lindex $l 0]]} {
-			after $tmo "melee_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] none 0"
+			after $tmo "melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 		}
 	} elseif {[llength $l] != 0 && $tech != "run" && $tech != "none"} {
 		if {[is_ranged [lindex $l 0]] && [is_ranged $tech]} {

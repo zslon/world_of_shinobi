@@ -673,7 +673,7 @@ proc dies {} {
 				incr e -1
 			}
 			incr enemy -1
-			if {$enemy == 0 && [get_hitpoints "hero"] > 0} {
+			if {$enemy == 0 && [get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
 				set level $herolevel
 				if {[get_chakra "hero"] < [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
 					if {[expr [get_chakra "hero"] + $bonus] > [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
@@ -917,6 +917,19 @@ proc melee_tech {from to name par ans par2} {
 	}
 	if {$mt < 200} {
 		set ti 15
+	}
+	if {$from == "hero"} {
+		set dd 50
+	} else {
+		set dd -50
+	}	
+	if {[have_special_animate $name]} {
+		tech_$name $from $dd $to 0 $dam
+		set num 0
+	}
+	if {[have_special_animate $ans]} {
+		tech_$ans $to [expr -1*$dd] $from 0 $dam2
+		set num2 0
 	}
 	set n 1
 	set h11 [get_hitpoints $to]

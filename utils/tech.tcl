@@ -893,6 +893,101 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after $t "replace"
 }
+proc tech_asakujaku {u r p {timestart 0} d} {
+	global mydir enemy
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	#strikes number is (damage - 3 + 4)/ distantion is full
+	set s [expr $d - 3  + 4]
+	set r 1000
+	set interval [expr 120 / $s]
+	.c raise $tag
+	set_chakra $u [expr [get_chakra $u] - 100]
+	set user [get_name $u]
+	set t $timestart
+	while {$s > 0} {
+		set randomnumber [expr 100*rand()]
+		set h [expr 3*rand()]
+		if {$h < 1} {
+			set v 1
+		}
+		if {$h > 1 && $h < 2} {
+			set v 2
+		}
+		if {$h > 2} {
+			set v 3
+		}
+		set i 1
+		while {$i <= 7} {
+			set t [expr $t + $interval]
+			after $t ".c raise $tag
+			get_image $tag [file join $mydir images heroes $user asakujaku $v-$i.gif]"
+			incr i
+		}
+		set t [expr $t + $interval]
+		after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+		after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+		after $t "replace"
+		if {$u == "hero"} {
+			set e 1
+			set min 1000
+			set p "enemy0"
+			while {$e <= $enemy} {
+				if {[dist "heroi" enemy$e] < $min && [get_height enemy$e] == [get_height "heroi"] && [get_location enemy$e] >= [get_location "heroi"]} {
+					set min [dist "heroi" enemy$e]
+					if {[get_hitpoints enemy$e] > 0} {
+						set p "enemy$e"
+					} elseif {$p != "enemy0"} {
+						
+					} else {
+						set p "enemy$e"
+					}
+				} 
+				incr e
+			}
+			get_image i_$randomnumber [file join $mydir images attacks asakujaku 1.gif]
+		} else {
+			if {[dist $u enemy$e] < $min && [get_height enemy$e] == [get_height "heroi"] && [get_location enemy$e] >= [get_location "heroi"]} {
+				set p "hero"
+			}
+			get_image i_$randomnumber [file join $mydir images attacks asakujaku 2.gif]
+		}
+		set ta $t
+		set s1 [get_speed $u]
+		set s2 [get_speed $p]	
+		set chance [expr 50 - ($s2-$s1)*10]
+		while {$t < [expr $ta + 250]} {
+			if {$randomnumber < $chance} {
+				after $t "if_delete t_$randomnumber $u
+.c move t_$randomnumber [expr $r / 25] 0"
+			} else {
+				after $t ".c move t_$randomnumber [expr $r / 25] 0"
+			}
+			incr t 10	
+		}
+		after $t ".c delete t_$randomnumber"
+		set t $ta
+		#damage
+		if {$randomnumber < $chance} {
+			#hit
+			take_damage $p $d "asakujaku"
+			if {$d > 0 && $s2 > 0 && [get_location $p] == [get_location $u]} {
+				set_speed $p 0
+				if {[get_hitpoints $p] > 0} {
+					after [expr $timestart + 900] "set_speed $p $s2
+					replace"
+				}
+				after [expr $t + 150] "nokout $p"
+			}
+		}
+		incr s -1
+	}
+}
 #ranged 
 #ninjitsu
 proc tech_soshoryu {u r p {timestart 0} d} {

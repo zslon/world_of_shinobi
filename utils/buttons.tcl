@@ -374,3 +374,23 @@ button .button_ura-renge -state disabled -command {
 		no_chakra_message
 	}
 }
+button .button_asakujaku -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] >= $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		incr e
+	}
+	if {[get_chakra "hero"] > 99 && ($q > 0) && [is_in "hachimon-6" $used]} {
+		end_turn "asakujaku" [get_tai "hero"]
+	} elseif {![is_in "hachimon-6" $used]} {
+		asakujaku_not_message
+	} elseif {[get_chakra "hero"] < 100} {
+		no_chakra_message
+	}
+}
