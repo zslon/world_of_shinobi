@@ -13,7 +13,7 @@ proc slide_1 {} {
 	set bonus 0
 	phon 1
 	set locations [list 1 1 1 1]
-	genin_sound 1000 520 2 2 2 1 {"futon-zankuha" "kawarimi"}
+	genin_sound 1000 520 2 2 2 1 {"futon-zankukyokuha" "kawarimi"}
 }
 proc slide_2 {} {
 	global locations
@@ -81,7 +81,6 @@ set ac 0
 proc special_chunin-sound_ai {n tech p} {
 	global ac effects
 	set tag "enemy$n"
-	puts "$tag tech: $tech $p ac: $ac"
 	set ans "none"
 	if {[get_hitpoints $tag] > 75} {
 		if {$ac < 0} {

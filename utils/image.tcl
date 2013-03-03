@@ -544,6 +544,20 @@ proc if_delete {tag owner} {
 		.c delete $tag
 	}
 }
+proc if_contact_nokout {tag purpose} {
+	global enemy
+	if {$purpose == "hero"} {
+		set ptag "heroi"
+	} else {
+		set ptag $purpose
+	}
+	if {[object_in [getx $tag] [gety $tag] [getx $ptag] [gety $ptag] 50 200]} {
+		if {[get_speed $purpose] > 0} {
+			set_speed $purpose 0
+			nokout $purpose
+		}
+	}
+}
 proc kawarimi_teleport {tag im} {
 	global locations mydir
 	if {$tag == "heroi"} {

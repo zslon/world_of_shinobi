@@ -129,7 +129,7 @@ proc major_ai {tech p} {
 		while {$e <= $enemy} {
 			set n [get_name enemy$e]
 			set c [get_chakra enemy$e]
-			if {$c > 0} {
+			if {$c > 0 && ([get_status enemy$e] == "free" || [get_status enemy$e] == "passive")} {
 				.c move enemy$e [expr -10*($enemy - 2)] 0
 				if {$ai_type == "special"} {
 					special_[set n]_ai $e $tech $p

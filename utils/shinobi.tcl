@@ -629,9 +629,13 @@ proc dies {} {
 		}
 	}
 	set e 1
-	set f 0
 	while {$e <= $enemy} {
 		global enemy$e
+		incr e 1
+	}
+	set e 1
+	set f 0
+	while {$e <= $enemy} {
 		set h [get_hitpoints enemy$e]
 		set c [get_chakra enemy$e]
 		set x [getx original_enemy$e]
@@ -708,20 +712,40 @@ proc ranged_tech {from to name par ans par2} {
 	}
 	set dam [enciclopedia $name "damage" $par]
 	set num [enciclopedia $name "number" $par]
-#kusarigama
-	if {$name == "kunai" && [is_in [list "kuchiese-kusarigama" $from -1] $effects]} {
-		set dam [expr $dam*$num]
-		set num 1
-		set name "kusarigama"
-	}
-#raiko kenka
-	if {$name == "kunai" && [is_in [list "raiko-kenka" $from -1] $effects]} {
-		set num [expr 1+[get_speed $from]/2]
-		set dam 7
-		set name "suriken"
+	if {$num > 0} {
+	#kusarigama
+		if {$name == "kunai" && [is_in [list "kuchiese-kusarigama" $from -1] $effects]} {
+			set dam [expr $dam*$num]
+			set num 1
+			set name "kusarigama"
+		}
+	#raiko kenka
+		if {$name == "kunai" && [is_in [list "raiko-kenka" $from -1] $effects]} {
+			set num [expr 1+[get_speed $from]/2]
+			set dam 7
+			set name "suriken"
+		}
+		set mt [expr 900 / $num]
+		#speed
+		set ti 100
+		if {$mt < 800 && $mt > 400} {
+			set ti 100
+		}
+		if {$mt < 400 && $mt > 200} {
+			set ti 50
+		}
+		if {$mt < 200} {
+			set ti 20
+		}
+		set x [getx $tag]
+		set y [gety $tag]
+		set x2 [getx $tag2]
+		set y2 [gety $tag2]
+		set r [expr $x2 - $x]
 	}
 	if {$ans == "none"} {
 		set num2 0
+		set dum2 0
 		if {[gety $tag2] > [expr [gety $tag] + 5]} {
 			#jump and leave from attack
 			set dam 0
@@ -731,64 +755,53 @@ proc ranged_tech {from to name par ans par2} {
 		set_nin $to 0
 		set dam2 [enciclopedia $ans "damage" $par2]
 		set num2 [enciclopedia $ans "number" $par2]
-#kusarigama
-		if {$ans == "kunai" && [is_in [list "kuchiese-kusarigama" $to -1] $effects]} {
-			set dam2 [expr $dam2*$num2]	
-			set num2 1
-			set ans "kusarigama"
-		}
-#raiko kenka
-		if {$ans == "kunai" && [is_in [list "raiko-kenka" $to -1] $effects]} {
-			set num2 [expr 1+[get_speed $to]/2]
-			set dam2 7
-			set ans "suriken"
-		}
-		set user2 [get_name $to]
-		set mt2 [expr 900 / $num2]
-		set ti2 100
-		if {$mt2 < 800 && $mt2 > 400} {
+		if {$num2 > 0} {
+	#kusarigama
+			if {$ans == "kunai" && [is_in [list "kuchiese-kusarigama" $to -1] $effects]} {
+				set dam2 [expr $dam2*$num2]	
+				set num2 1
+				set ans "kusarigama"
+			}
+	#raiko kenka
+			if {$ans == "kunai" && [is_in [list "raiko-kenka" $to -1] $effects]} {
+				set num2 [expr 1+[get_speed $to]/2]
+				set dam2 7
+				set ans "suriken"
+				}
+			set user2 [get_name $to]
+			set mt2 [expr 900 / $num2]
 			set ti2 100
+			if {$mt2 < 800 && $mt2 > 400} {
+				set ti2 100
+			}
+			if {$mt2 < 400 && $mt2 > 200} {
+				set ti2 50
+			}
+			if {$mt2 < 200} {
+				set ti2 20
+			}
 		}
-		if {$mt2 < 400 && $mt2 > 200} {
-			set ti2 50
+	}
+	if {$num > 0} {
+		if {[have_special_animate $name]} {
+			tech_$name $from $r $to 0 $dam
+			set num 0
 		}
-		if {$mt2 < 200} {
-			set ti2 20
+	}
+	if {$num2 > 0} {
+		if {[have_special_animate $ans]} {
+			tech_$ans $to [expr -1*$r] $from 0 $dam2
+			set num2 0
 		}
 	}
 #futon: zankuha
-	if {$name == "futon-zankuha" && [is_kunai_based $ans]} {
+	if {($name == "futon-zankuha" || $name == "futon-zankukyokuha") && [is_kunai_based $ans]} {
 		set dam2 [expr $dam2 / 2]
 	} 
-	if {$ans == "futon-zankuha" && [is_kunai_based $name]} {
+	if {($ans == "futon-zankuha" || $ans == "futon-zankukyokuha") && [is_kunai_based $name]} {
 		set dam [expr $dam / 2]
 	} 
-	set x [getx $tag]
-	set y [gety $tag]
-	set x2 [getx $tag2]
-	set y2 [gety $tag2]
-	set r [expr $x2 - $x]
-	set mt [expr 900 / $num]
-#speed
-	set ti 100
-	if {$mt < 800 && $mt > 400} {
-		set ti 100
-	}
-	if {$mt < 400 && $mt > 200} {
-		set ti 50
-	}
-	if {$mt < 200} {
-		set ti 20
-	}
 	set n 1
-	if {[have_special_animate $name]} {
-		tech_$name $from $r $to 0 $dam
-		set num 0
-	}
-	if {[have_special_animate $ans]} {
-		tech_$ans $to [expr -1*$r] $from 0 $dam2
-		set num2 0
-	}
 	while {$n <= $num || $n <= $num2} {		
 		if {[get_status $from] == "cast" && $n <= $num} {
 			set i 1
@@ -858,18 +871,45 @@ proc melee_tech {from to name par ans par2} {
 		set ans "attack"
 		set par2 [get_tai $to]
 	}
-#kuchiese meisu effect
-	if {$name == "attack" && [is_in [list "kuchiese-meisu" $from -1] $effects]} {
-		set name "meisu"
-		set dam [expr $dam * 2]
-		set num [expr $num / 2]
-	}
-#soshuga effect
-	if {$name == "attack" && [is_in [list "soshuga" $from -1] $effects]} {
-		set name "nunchaka"
-		if {[is_taijitsu $ans]} {
-			set dam2 [enciclopedia $ans "damage" [expr $par2 - 1]]
-			set num2 [enciclopedia $ans "number" [expr $par2 - 1]]
+	if {$num > 0} {
+	#kuchiese meisu effect
+		if {$name == "attack" && [is_in [list "kuchiese-meisu" $from -1] $effects]} {
+			set name "meisu"
+			set dam [expr $dam * 2]
+			set num [expr $num / 2]
+		}
+	#soshuga effect
+		if {$name == "attack" && [is_in [list "soshuga" $from -1] $effects]} {
+			set name "nunchaka"
+			if {[is_taijitsu $ans]} {
+				set dam2 [enciclopedia $ans "damage" [expr $par2 - 1]]
+				set num2 [enciclopedia $ans "number" [expr $par2 - 1]]
+			}
+		}
+		set mt [expr 900 / $num]
+		#speed (maximum strikes is 2+10/2=7, minimum mt is 128)
+		set ti 50
+		if {$mt < 600 && $mt > 400} {
+			set ti 50
+		}
+		if {$mt < 400 && $mt > 200} {
+			set ti 25
+		}
+		if {$mt < 200} {
+			set ti 15
+		}
+		if {$from == "hero"} {
+			set dd 50
+		} else {
+			set dd -50
+		}	
+		if {[have_special_animate $name]} {
+			tech_$name $from $dd $to 0 $dam
+			set num 0
+		}
+		if {[have_special_animate $ans]} {
+			tech_$ans $to [expr -1*$dd] $from 0 $dam2
+			set num2 0
 		}
 	}
 	if {$ans == "none"} {
@@ -879,57 +919,34 @@ proc melee_tech {from to name par ans par2} {
 		set_nin $to 0
 		set dam2 [enciclopedia $ans "damage" $par2]
 		set num2 [enciclopedia $ans "number" $par2]
-		set sk2 [get_skills $to]
+		if {$num2 > 0} {
+			set sk2 [get_skills $to]
 #meisu
-		if {$ans == "attack" && [is_in [list "kuchiese-meisu" $to -1] $effects]} {
-			set ans "meisu"
-			set dam2 [expr $dam2 * 2]
-			set num2 [expr $num2 / 2]
-		}
+			if {$ans == "attack" && [is_in [list "kuchiese-meisu" $to -1] $effects]} {
+				set ans "meisu"
+				set dam2 [expr $dam2 * 2]
+				set num2 [expr $num2 / 2]
+			}
 #soshuga
-		if {$ans == "attack" && [is_in [list "soshuga" $to -1] $effects]} {
-			set ans "nunchaka"
-			if {[is_taijitsu $name]} {
-				set dam [enciclopedia $name "damage" [expr $par - 1]]
-				set num [enciclopedia $name "number" [expr $par - 1]]
+			if {$ans == "attack" && [is_in [list "soshuga" $to -1] $effects]} {
+				set ans "nunchaka"
+				if {[is_taijitsu $name]} {
+					set dam [enciclopedia $name "damage" [expr $par - 1]]
+					set num [enciclopedia $name "number" [expr $par - 1]]
+				}
+			}
+			set mt2 [expr 900 / $num2]
+			set ti2 50
+			if {$mt2 < 800 && $mt2 > 400} {
+				set ti2 50
+			}
+			if {$mt2 < 400 && $mt2 > 200} {
+				set ti2 25
+			}
+			if {$mt2 < 200} {
+				set ti2 15
 			}
 		}
-		set mt2 [expr 900 / $num2]
-		set ti2 50
-		if {$mt2 < 800 && $mt2 > 400} {
-			set ti2 50
-		}
-		if {$mt2 < 400 && $mt2 > 200} {
-			set ti2 25
-		}
-		if {$mt2 < 200} {
-			set ti2 15
-		}
-	}
-	set mt [expr 900 / $num]
-#speed (maximum strikes is 2+10/2=7, minimum mt is 128)
-	set ti 50
-	if {$mt < 600 && $mt > 400} {
-		set ti 50
-	}
-	if {$mt < 400 && $mt > 200} {
-		set ti 25
-	}
-	if {$mt < 200} {
-		set ti 15
-	}
-	if {$from == "hero"} {
-		set dd 50
-	} else {
-		set dd -50
-	}	
-	if {[have_special_animate $name]} {
-		tech_$name $from $dd $to 0 $dam
-		set num 0
-	}
-	if {[have_special_animate $ans]} {
-		tech_$ans $to [expr -1*$dd] $from 0 $dam2
-		set num2 0
 	}
 	set n 1
 	set h11 [get_hitpoints $to]

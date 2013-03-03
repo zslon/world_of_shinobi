@@ -435,22 +435,29 @@ proc tech_final-konoha-senpu {u p {timestart 0} interval d strikes} {
 	set user [get_name $u]
 	set purpose [get_name $p]
 	set t $timestart
+#two strikes from dai senpu our one double strike from congoriki senpu
+	set summary_d [expr $d * 2]
 	while {$strikes > 0} {
 		set i 2
 		while {$i <= 7} {
 			set t [expr $t + $interval]
-			after $t ".c raise $tag
+			if {[is_in "tsuten-kyaku" [get_skills $u]] && $t > 300} {
+				#stop animate - tsuten kyaku
+				
+			} else {
+				after $t ".c raise $tag
 get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
+			}
 			incr i
 		}
 		set t [expr $t + $interval]
-		#damage
 		set s1 [get_speed $u]
 		set s2 [get_speed $p]
 		set chance [expr 50 - ($s2-$s1)*10]
 		set randomnumber [expr 100*rand()]
 		if {$randomnumber < $chance} {
 			#hit
+			incr summary_d $d
 			take_damage $p $d "konoha-senpu"
 		}
 		incr strikes -1
@@ -461,11 +468,34 @@ get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 .c move $tag 0 -10"
 		incr tincr 25
 	}
-	while {$tincr < 600} {
+	if {[is_in "tsuten-kyaku" [get_skills $u]] && [get_chakra $u] > 25} {
+		set s1 [get_speed $u]
+		set s2 [get_speed $p]
+		set chance [expr 50 - ($s2-$s1)*10]
+		set randomnumber [expr 100*rand()]
+		if {$randomnumber < $chance} {
+			#not need chakra to try strike - only to take damage
+			set_chakra $u [expr [get_chakra $u] - 25]
+			take_damage $p $summary_d "tsuten-kyaku"
+		}
+		set addt [expr $interval * 8]
+		set i 1
+		while {$i <= 7} {
+			after [expr $timestart + $tincr] "get_image $tag [file join $mydir images heroes $user tsuten-kyaku $i.gif]"
+			set tincr [expr $tincr + $interval]
+			incr i
+		}
+		set tincr [expr $tincr + $interval]
+		after [expr $timestart + $tincr] "get_image $tag [file join $mydir images heroes $user jump 3.gif]"
+	} else {
+		set addt 0
+	}
+	while {$tincr < [expr 600 + $addt]} {
 		after [expr $timestart + $tincr] ".c move $tag2 0 8
 .c move $tag 0 10"
 		incr tincr 25
 	}
+	after [expr $timestart + $tincr] "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 	after [expr $timestart + 75] "get_image $tag2 [file join $mydir images heroes $purpose wound 2.gif]"
 	after [expr $timestart + $tincr] ".c move $tag2 0 -10
 	get_image $tag2 [file join $mydir images heroes $purpose wound 3.gif]"
@@ -489,6 +519,9 @@ proc tech_shofu {u p {timestart 0} interval d} {
 		set tag "heroi"
 	} else {
 		set tag $u
+	}
+	if {[is_in "tsuten-kyaku" [get_skills $u]]} {
+		set interval [expr $interval / 2]
 	}
 	.c raise $tag
 	set_chakra $u [expr [get_chakra $u] - 10]
@@ -518,7 +551,11 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 				after [expr $t + 900] "set_speed $p $s2
 				replace"
 			}
-			after [expr $t - 100] "nokout $p"
+			if {[is_in "tsuten-kyaku" [get_skills $u]] && [get_chakra $u] > 25} {
+				tech_final-konoha-senpu $u $p $t $interval [expr $d / 2] 0
+			} else {
+				after [expr $t - 100] "nokout $p"
+			}
 		}
 	}
 }
@@ -903,9 +940,15 @@ proc tech_asakujaku {u r p {timestart 0} d} {
 	set x [getx $tag]
 	set y [gety $tag]
 	#strikes number is (damage - 3 + 4)/ distantion is full
-	set s [expr $d - 3  + 4]
-	set r 1000
-	set interval [expr 120 / $s]
+	if {$d > 0} {
+		set s [expr $d - 3  + 4]
+		set r 1000
+		set interval [expr 120 / $s]
+	} else {
+		set s 0
+		set r 1000
+		set interval 50
+	}
 	.c raise $tag
 	set_chakra $u [expr [get_chakra $u] - 100]
 	set user [get_name $u]
@@ -931,6 +974,8 @@ proc tech_asakujaku {u r p {timestart 0} d} {
 		}
 		set t [expr $t + $interval]
 		after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+		after [expr $t + 20] ".c create image $x $y -image i_$randomnumber -tag t2_$randomnumber"
+		after [expr $t + 40] ".c create image $x $y -image i_$randomnumber -tag t3_$randomnumber"
 		after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 		after $t "replace"
 		if {$u == "hero"} {
@@ -964,13 +1009,21 @@ proc tech_asakujaku {u r p {timestart 0} d} {
 		while {$t < [expr $ta + 250]} {
 			if {$randomnumber < $chance} {
 				after $t "if_delete t_$randomnumber $u
-.c move t_$randomnumber [expr $r / 25] 0"
+if_delete t2_$randomnumber $u
+if_delete t3_$randomnumber $u
+.c move t_$randomnumber [expr $r / 25] 0
+.c move t2_$randomnumber [expr $r / 25] 2
+.c move t3_$randomnumber [expr $r / 25] -2"
 			} else {
-				after $t ".c move t_$randomnumber [expr $r / 25] 0"
+				after $t ".c move t_$randomnumber [expr $r / 25] 0
+.c move t2_$randomnumber [expr $r / 25] 2
+.c move t3_$randomnumber [expr $r / 25] -2"
 			}
 			incr t 10	
 		}
-		after $t ".c delete t_$randomnumber"
+		after $t ".c delete t_$randomnumber
+.c delete t2_$randomnumber
+.c delete t3_$randomnumber"
 		set t $ta
 		#damage
 		if {$randomnumber < $chance} {
@@ -988,12 +1041,146 @@ proc tech_asakujaku {u r p {timestart 0} d} {
 		incr s -1
 	}
 }
+proc tech_hirudora {u r p {timestart 0} d} {
+	global mydir enemy
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	set randomnumber [expr 100*rand()]
+	.c raise $tag
+	set_chakra $u [expr [get_chakra $u] - 200]
+	set user [get_name $u]
+	set t $timestart
+	set h [expr 3*rand()]
+	if {$h < 1} {
+		set v 1
+	}
+	if {$h > 1 && $h < 2} {
+		set v 2
+	}
+	if {$h > 2} {
+		set v 3
+	}
+	set i 1
+	while {$i <= 7} {
+		set t [expr $t + 50]
+		after $t ".c raise $tag
+		get_image $tag [file join $mydir images heroes $user hirudora $i.gif]"
+		incr i 1
+	}
+	set t [expr $t + 100]
+	get_image c_1 [file join $mydir images attacks hirudora 1.gif]
+	get_image c_2 [file join $mydir images attacks hirudora 2.gif]
+	get_image c_3 [file join $mydir images attacks hirudora 3.gif]
+	get_image c_4 [file join $mydir images attacks hirudora 4.gif]
+	get_image c_5 [file join $mydir images attacks hirudora 5.gif]
+	get_image c_6 [file join $mydir images attacks hirudora 6.gif]
+	get_image c_7 [file join $mydir images attacks hirudora 7.gif]
+	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	if {$u == "hero"} {
+		get_image i_$randomnumber [file join $mydir images attacks hirudora main1.gif]
+		set i 1
+		set c -1
+		set dx $x
+		set dt $t
+		while {$i <= 21} {
+			after $dt ".c move t_$randomnumber 50 0"
+			if {$c > 0} {
+				after $dt ".c create image [expr $dx - 25] [expr $y - 20] -image c_1 -tag tc"
+				after $dt ".c create image [expr $dx - 50] [expr $y - 20] -image c_1 -tag tc"
+			}
+			set dx [expr $dx + 50]
+			incr i 1
+			incr c 1
+			incr dt 50
+		}
+		after $dt ".c delete t_$randomnumber"
+		set c 2
+		while {$i <= 27} {	
+			after $dt ".c itemconfigure tc -image c_$c"
+			incr c 1
+			incr i 1
+			incr dt 25
+		}
+		after $dt ".c delete tc"
+	} else {
+		get_image i_$randomnumber [file join $mydir images attacks hirudora main2.gif]
+		set i 1
+		set c -1
+		set dx $x
+		set dt $t
+		while {$i <= 21} {
+			after $dt ".c move t_$randomnumber -50 0"
+			if {$c > 0} {
+				after $dt ".c create image [expr $dx + 25] [expr $y - 20] -image c_1 -tag tc"
+				after $dt ".c create image [expr $dx + 50] [expr $y - 20] -image c_1 -tag tc"
+			}
+			set dx [expr $dx - 50]
+			incr i 1
+			incr c 1
+			incr dt 50
+		}
+		after $dt ".c delete t_$randomnumber"
+		set c 2
+		while {$i <= 27} {	
+			after $dt ".c itemconfigure tc -image c_$c"
+			incr c 1
+			incr i 1
+			incr dt 25
+		}
+		after $dt ".c delete tc"
+	}
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+	after $t "replace"
+	set ll [list "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		lappend ll "enemy$e"
+		incr e 1
+	}
+	foreach p $ll {
+		if {$p == "hero"} {
+			set ptag "heroi"
+		} else {
+			set ptag $p
+		}
+		if {[get_height $ptag] == [get_height $tag] && [get_location $ptag] >= [get_location $tag] && $ptag != $tag} {
+			set random [expr 100*rand()]
+			set s1 [get_speed $u]
+			set s2 [get_speed $p]	
+			set chance [expr 100 - ($s2-$s1)*10]
+			#damage
+			if {$random < $chance} {
+				#hit
+				take_damage $p $d "hirudora"
+				if {$d > 0 && $s2 > 0} {
+					if {[get_hitpoints $p] > 0} {
+						after [expr $t + 1800] "set_speed $p $s2
+						replace"
+					}
+					set dt $t
+					set i 1
+					while {$i <= 21} {
+						after $dt "if_contact_nokout t_$randomnumber $p"
+						incr i 1
+						incr dt 50
+					}
+				}
+			}
+		}
+	}
+}
 #ranged 
 #ninjitsu
 proc tech_soshoryu {u r p {timestart 0} d} {
 	global mydir enemy locations
 	if {$u == "hero"} {
-		set tag "heroi"
+		set tag "heroi"damage
+		s
 	} else {
 		set tag $u
 	}
@@ -1216,11 +1403,15 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 		}
 		#throws enemy
 		if {$d > 0} {
-			after [expr $t - 100] "set_speed $p 0"
 			if {[get_hitpoints $p] > 0} {
 				after [expr $t + 900] "set_speed $p $s"
 			}
-			after [expr $t - 100] "nokout $p"
+			set dt $timestart
+			set i 1
+			while {$dt <= [expr $timestart + 500]} {
+				after $dt "if_contact_nokout t_$randomnumber $p"
+				incr dt 20
+			}
 		}
 	}
 }
@@ -1330,7 +1521,7 @@ proc tech_hachimon-2 {u} {
 	} else {
 		set tag $u
 #not exact
-		set level [expr $bonus / ($enemy/20) - 1]
+		set level [expr $bonus/(20*$enemy) - 1]
 	}
 	if {[is_in [list "hachimon-1" $u -1] $effects]} {
 
@@ -1367,7 +1558,7 @@ proc tech_hachimon-3 {u} {
 	} else {
 		set tag $u
 #not exact
-		set level [expr $bonus / ($enemy/20) - 1]
+		set level [expr $bonus/(20*$enemy) - 1]
 	}
 	if {[is_in [list "hachimon-1" $u -1] $effects]} {
 
@@ -1410,7 +1601,7 @@ proc tech_hachimon-4 {u} {
 	} else {
 		set tag $u
 #not exact
-		set level [expr $bonus / ($enemy/20) - 1]
+		set level [expr $bonus/(20*$enemy) - 1]
 	}
 	if {[is_in [list "hachimon-1" $u -1] $effects]} {
 
@@ -1462,7 +1653,7 @@ proc tech_hachimon-5 {u} {
 	} else {
 		set tag $u
 #not exact
-		set level [expr $bonus / ($enemy/20) - 1]
+		set level [expr $bonus/(20*$enemy) - 1]
 	}
 	if {[is_in [list "hachimon-1" $u -1] $effects]} {
 
