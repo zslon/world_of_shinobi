@@ -123,11 +123,11 @@ set but_1 "new"
 set but_2 "continue"
 set but_3 "quit"
 button .lee -state disabled -command {new_campaign "power_of_youth" 1}
-button .naruto -state disabled -command {new_campaign "naruto" 0}
+button .naruto -state disabled -command {new_campaign "tale_of_fearless_ninja" 0}
 button .sasuke -state disabled -command {new_campaign "sasuke" 1}
 button .itachi -state disabled -command {new_campaign "itachi" 2}
 button .lee_c -state disabled -command {continue_campaign "power_of_youth" 1}
-button .naruto_c -state disabled -command {continue_campaign "naruto" 0}
+button .naruto_c -state disabled -command {continue_campaign "tale_of_fearless_ninja" 0}
 button .sasuke_c -state disabled -command {continue_campaign "sasuke" 1}
 button .itachi_c -state disabled -command {continue_campaign "itachi" 2}
 button .new -state disabled -command {

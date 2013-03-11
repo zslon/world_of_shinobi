@@ -19,26 +19,31 @@ proc object_in {ox oy x y w h} {
 }
 #skills list working
 proc list_info {l ex ey x y {status "skill"} {par ""}} {
-	global skills accessskills
+	global skills accessskills tai gen nin
 	if {$par != ""} {
 		global [set par]
 	} else {
 		set par "a"
 		set a 0
 	}
+	set par2 "b"
+	set b 0
 	foreach j $l {
+		if {$j == "naruto-nisen-rendan" || $j == "naruto-yonsen-rendan"} {
+			set b $nin
+		}
 		if {[is_in $j $skills] && [object_in $ex $ey $x $y 45 45]} {
-		skillinfo [enciclopedia $j "name" [set $par]] $j [enciclopedia $j "damage" [set $par]] [enciclopedia $j "number" [set $par]]
+		skillinfo [enciclopedia $j "name" [set $par] [set $par2]] $j [enciclopedia $j "damage" [set $par] [set $par2]] [enciclopedia $j "number" [set $par] [set $par2]]
 		}
 		if {[is_in $j $accessskills] && [object_in $ex $ey $x $y 45 45]} {
 		if {$status == "no skill"} {
-			skillinfo [enciclopedia $j "name" [set $par]] $j [enciclopedia $j "damage" [set $par]] [enciclopedia $j "number" [set $par]]
+			skillinfo [enciclopedia $j "name" [set $par] [set $par2]] $j [enciclopedia $j "damage" [set $par] [set $par2]] [enciclopedia $j "number" [set $par] [set $par2]]
 		} else {
-			skillinfo [enciclopedia $j "name" [set $par]] $j [enciclopedia $j "damage" [set $par]] [enciclopedia $j "number" [set $par]] 1
+			skillinfo [enciclopedia $j "name" [set $par] [set $par2]] $j [enciclopedia $j "damage" [set $par] [set $par2]] [enciclopedia $j "number" [set $par] [set $par2]] 1
 		}
 		}
 		if {!([is_in $j $accessskills]) && !([is_in $j $skills]) && [object_in $ex $ey $x $y 45 45]} {
-			skillinfo [enciclopedia $j "name" [set $par]] $j 0 0 -1
+			skillinfo [enciclopedia $j "name" [set $par] [set $par2]] $j 0 0 -1
 		}
 		incr y 50
 	}

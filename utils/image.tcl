@@ -20,6 +20,10 @@ set guiskillist [list "kai" "kibakufuda" "kage-bunshin" "kuchiese-ninkame" "teng
 foreach s $guiskillist {
 	get_image skill_$s [file join $mydir images skills gui $s.gif]
 }
+set narutoskillist [list "nine-tails" "taju-kage-bunshin"]
+foreach s $narutoskillist {
+	get_image skill_$s [file join $mydir images skills naruto $s.gif]
+}
 get_image cross [file join $mydir images skills cross.gif]
 get_image aceptbutton [file join $mydir images skills acept.gif]
 proc create_skillpanel {} {
@@ -63,11 +67,18 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	}
 	toplevel .i
 	wm title .i $title
-	wm geometry .i 400x300
-	wm maxsize .i 400 300
-	wm minsize .i 400 300
-	canvas .i.c -height 300 -width 400 -bg black
-	.i.c create image 200 150 -image infa -tag infa
+	if {$image != "nine-tails" && $image != "susanoo" && $image != "sennin-mode"} {
+		set y1 300
+		set y2 272
+	} else {
+		set y1 600
+		set y2 572
+	}
+	wm geometry .i 400x$y1
+	wm maxsize .i 400 $y1
+	wm minsize .i 400 $y1
+	canvas .i.c -height $y1 -width 400 -bg black
+	.i.c create image 200 [expr $y1 / 2] -image infa -tag infa
 	pack .i.c -side top
 	if {$dam != 0} {
 		.i.c create text 317 10 -text $dam -tag infa
@@ -75,22 +86,45 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	}
 	if {$access > 0} {
 		.i.c create image 335 40 -image aceptbutton -tag infa
-		bind .i.c <ButtonPress> {
-			if {[object_in %x %y 320 272 125 25]} {
-				destroy .i
+		if {$y2 == 572} {
+			bind .i.c <ButtonPress> {
+				if {[object_in %x %y 320 572 125 25]} {
+					destroy .i
+				}
+				if {[object_in %x %y 335 40 125 25]} {
+					addskill
+					.c delete phon
+					.c delete skills
+					begin
+					destroy .i
+				}			
 			}
-			if {[object_in %x %y 335 40 125 25]} {
-				addskill
-				.c delete phon
-				.c delete skills
-				begin
-				destroy .i
-			}			
+		} else {
+			bind .i.c <ButtonPress> {
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .i
+				}
+				if {[object_in %x %y 335 40 125 25]} {
+					addskill
+					.c delete phon
+					.c delete skills
+					begin
+					destroy .i
+				}			
+			}
 		}
 	} else {
-		bind .i.c <ButtonPress> {
-			if {[object_in %x %y 320 272 125 25]} {
-				destroy .i
+		if {$y2 == 572} {
+			bind .i.c <ButtonPress> {
+				if {[object_in %x %y 320 572 125 25]} {
+					destroy .i
+				}
+			}
+		} else {
+			bind .i.c <ButtonPress> {
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .i
+				}
 			}
 		}
 	}	
@@ -682,6 +716,48 @@ proc chunin_rock_lee {x y} {
 }
 proc lee-adult_3 {x y} {
 	chunin_rock_lee $x $y
+}
+proc naruto_uzumaki {x y} {
+	global mydir hero_ancof
+	set hero_ancof 1
+	get_image heroi [file join $mydir images heroes naruto stand 1.gif]
+	.c create image $x $y -image heroi -tag heroi
+	.c raise heroi
+}
+proc naruto_1 {x y} {
+	naruto_uzumaki $x $y
+}
+proc naruto_2 {x y} {
+	naruto_uzumaki $x $y
+}
+proc naruto_3 {x y} {
+	naruto_uzumaki $x $y
+}
+proc shippuden_naruto_uzumaki {x y} {
+	global mydir hero_ancof
+	set hero_ancof 1
+	get_image heroi [file join $mydir images heroes naruto-adult stand 1.gif]
+	.c create image $x $y -image heroi -tag heroi
+	.c raise heroi
+}
+proc naruto-adult_3 {x y} {
+	shippuden_naruto_uzumaki $x $y
+}
+proc naruto-adult_4 {x y} {
+	shippuden_naruto_uzumaki $x $y
+}
+proc sennin_naruto_uzumaki {x y} {
+	global mydir hero_ancof
+	set hero_ancof 1
+	get_image heroi [file join $mydir images heroes naruto-sennin stand 1.gif]
+	.c create image $x $y -image heroi -tag heroi
+	.c raise heroi
+}
+proc naruto-sennin_4 {x y} {
+	sennin_naruto_uzumaki $x $y
+}
+proc naruto_3 {x y} {
+	naruto_uzumaki $x $y
 }
 #enemy
 proc lumber {x y} {
