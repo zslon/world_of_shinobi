@@ -173,6 +173,7 @@ proc next_slide {} {
 	create_battlepanel
 }
 #skills
+#Rock 
 button .button_suiken -state disabled -command {
 	if {[get_chakra "hero"] > 24 && !([is_in "hachimon-1" $used]) && !([is_in "suiken" $used])} {
 		tech_suiken "hero"
@@ -411,6 +412,18 @@ button .button_hirudora -state disabled -command {
 	} elseif {![is_in "hachimon-7" $used]} {
 		asakujaku_not_message
 	} elseif {[get_chakra "hero"] < 200} {
+		no_chakra_message
+	}
+}
+#Naruto
+button .button_taju-kage-bunshin -state disabled -command {
+	if {[get_chakra "hero"] > 49 && !([is_in "taju-kage-bunshin" $used])} {
+		tech_taju-kage-bunshin "hero"
+		lappend effects [list "taju-kage-bunshin" "hero" [expr [get_nin "hero"] * 2]]
+		lappend used "taju-kage-bunshin"
+		replace
+		end_turn "taju-kage-bunshin"
+	} elseif {[get_chakra "hero"] < 51} {
 		no_chakra_message
 	}
 }

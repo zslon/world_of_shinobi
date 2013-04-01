@@ -1,12 +1,26 @@
 #imageworking
-proc get_image {im from {class "norm"} {tag "hero"}} {
-	if {$class == "run"} {
-		if {[get_speed $tag] > 0} {
-			image create photo $im -file $from
+proc get_image {im from {arg1 "norm"} {arg2 "hero"} {arg3 "none"}} {
+	set num 0
+	if {$arg1 == "clones" || $arg3 == "clones"} {
+		#get this image to all clones of unit, too
+		set num [clones_interface $arg2 "get_number"]
+	}
+	set i 0
+	while {$i <= $num} {
+		if {$i > 0} {
+			set im2 "clon-$i-$im"
+		} else {
+			set im2 $im
 		}
-	} else {
-		image create photo $im -file $from
-	} 
+		if {$arg1 == "run"} {
+			if {[get_speed $arg2] > 0} {
+				image create photo $im2 -file $from
+			}
+		} else {
+			image create photo $im2 -file $from
+		}
+		incr i 1
+	}
 }
 set leeskillist [list "konoha-senpu" "shofu" "konoha-dai-senpu" "omote-renge" "ura-renge" "konoha-goriki-senpu" "tsuten-kyaku" "asakujaku" "hirudora" "konoha-congoriki-senpu" "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8"]
 foreach s $leeskillist {
@@ -384,10 +398,10 @@ proc stand_animation {tag im {s 0}} {
 			if {$hero_ancof == 5} {
 				set hero_ancof 1
 			}
-			get_image heroi [file join $mydir images heroes $im stand $hero_ancof.gif]
+			get_image heroi [file join $mydir images heroes $im stand $hero_ancof.gif] clones hero
 			after 150 "stand_animation $tag $im $s"			
 		} else {
-			get_image heroi [file join $mydir images heroes $im stand 1.gif]
+			get_image heroi [file join $mydir images heroes $im stand 1.gif] clones hero
 		}
 	} else {
 		global [set tag]_ancof
@@ -396,7 +410,7 @@ proc stand_animation {tag im {s 0}} {
 			if {[set [set tag]_ancof] == 5} {
 				set [set tag]_ancof 1
 			}
-			get_image [set tag] [file join $mydir images heroes $im stand [set [set tag]_ancof].gif]
+			get_image [set tag] [file join $mydir images heroes $im stand [set [set tag]_ancof].gif] clones [set tag]
 			if {$s == $slide} {
 				after 150 "stand_animation $tag $im $s"	
 			}		
@@ -693,6 +707,190 @@ proc teleport {who x y} {
 		incr i 
 	}
 }
+proc clones_interface {who type} {
+	global mydir effects
+	if {$who == "hero"} {
+		set tag "heroi"
+		set dx 30
+	} else {
+		set tag $who
+		set dx -30
+	}
+	if {[llength [split $type -]] > 1} {
+		set postfix [lindex [split $type -] 1] 
+		set type [lindex [split $type -] 0]
+	}
+        set im [get_name $who]
+	if {$type == "create"} {
+		set number [expr [get_nin $who] * 2]
+		set n $number
+		set x [expr [getx $tag] + $dx]
+		set y [gety $tag]
+		while {$n >= 1} {
+			get_image clon-$n-$tag [file join $mydir images heroes empty.gif]
+			after 400 ".c create image $x $y -image clon-$n-$tag -tag clon-$n-$tag"
+			set t 400
+			set i 1
+			while {$i <= 6} {
+				after $t "get_image clon-$n-$tag [file join $mydir images heroes $im clon-create $i.gif]"	
+				incr t 100
+				incr i 
+			}
+			if {$n % 2} {
+				set x [expr $x - $dx*2]
+			} else {
+				set x [expr $x - $dx/2]
+			}
+			incr n -1
+		}
+	}
+	if {$type == "get_number"} {
+		set i 0
+		set r 0
+		foreach e $effects {
+			set do [lindex $e 0]
+			set holder [lindex $e 1]
+			set t [lindex $e 2]
+			if {$do == "taju-kage-bunshin" && $holder == $who} {
+				set r [expr $r + $t]
+			}
+			incr i
+		}
+		return $r
+	}
+	if {$type == "attack" && $postfix > 0} {
+		set n $postfix
+		while {$n >= 1} {
+			set tag2 clon-$n-$tag
+			set xx [getx clon-$n-$tag]
+			set yy [gety clon-$n-$tag]
+			set x [getx $tag]
+			#if clone in the first row it will be melee attack. else - ranged attack
+			if {!($xx > -1000)} {
+				#clone is destroed - melee attack
+				set i 1
+				set t 0
+				while {$i <= 7} {
+					after $t "get_image $tag2 [file join $mydir images heroes $im attack 4-$i.gif]"	
+					incr t 25
+					incr i 
+				}
+				after [expr $t + 25] "get_image $tag2 [file join $mydir images heroes $im stand 1.gif]"	
+			} elseif {([expr $xx - $x] > 0 && $dx > 0) || ([expr $xx - $x] < 0 && $dx < 0)} {
+				set i 1
+				set t 0
+				while {$i <= 7} {
+					after $t "get_image $tag2 [file join $mydir images heroes $im attack 4-$i.gif]"	
+					incr t 25
+					incr i 
+				}
+				after [expr $t + 25] "get_image $tag2 [file join $mydir images heroes $im stand 1.gif]"
+			} else {
+				set r [expr -1*($xx - $x)+$dx*2]
+				if {$dx > 0} {
+					get_image i_k_$n [file join $mydir images attacks kunai 1.gif]
+				} else {
+					get_image i_k_$n [file join $mydir images attacks kunai 1.gif]
+				}
+				set t 0
+				after $t ".c create image $xx $yy -image i_k_$n -tag t_k_$n"
+				while {$t < 200} {
+					after $t ".c move t_k_$n [expr $r / 10] 0"
+					incr t 20	
+				}
+				after $t ".c delete t_k_$n
+				replace"
+				set i 1
+				set t 0
+				while {$i <= 4} {
+					after $t "get_image $tag2 [file join $mydir images heroes $im kunai $i.gif]"	
+					incr t 35
+					incr i 
+				}
+				after [expr $t + 35] "get_image $tag2 [file join $mydir images heroes $im stand 1.gif]"
+			}
+			incr n -1
+		}
+	}
+	if {$type == "remove_all"} {
+		set num [clones_interface $who "get_number"] 
+		set n 0
+		while {$n <= $num} {
+			set i 1
+			set t 0
+			while {$i <= 6} {
+				after $t "get_image clon-$n-$tag [file join $mydir images heroes $im clon-pufff $i.gif]"	
+				incr t 100
+				incr i 
+			}
+			after $t ".c delete clon-$n-$tag"
+			incr n 1
+		}
+		set i 0
+		effect "taju-kage-bunshin" $who "remove"
+		foreach e $effects {
+			set do [lindex $e 0]
+			set holder [lindex $e 1]
+			set t [lindex $e 2]
+			if {$do == "taju-kage-bunshin" && $holder == $who} {
+				set effects [lreplace $effects $i $i]
+			}
+			incr i
+		}
+	}
+	if {$type == "remove_one"} {
+		set num [clones_interface $who "get_number"] 
+		set n $num
+		set i 1
+		#if clone in the first row, it will destoyed momentally, if not - it will destroyed later
+		set xx [getx clon-$n-$tag]
+		set x [getx $tag]
+		if {([expr $xx - $x] > 0 && $dx > 0) || ([expr $xx - $x] < 0 && $dx < 0)} {
+			set t 150
+		} else {
+			set t [expr 150+int(((-1*($xx - $x)/$dx) + 1) * 100)]
+		}
+		while {$i <= 6} {
+			after $t "get_image clon-$n-$tag [file join $mydir images heroes $im clon-pufff $i.gif]"	
+			incr t 100
+			incr i 
+		}
+		after $t ".c delete clon-$n-$tag"
+		set num [expr $num - 1]
+		if {$num > 1} {
+			#then you have clon to replace destoryed clone
+			set n2 [expr $num - 1]
+			while {$n2 > 0} {
+				set t 150
+				set i 1
+				while {$i <= 5} {
+					after $t "get_image clon-$n2-$tag [file join $mydir images heroes $im run $i.gif]
+					.c move clon-$n2-$tag [expr $dx / 2] 0"	
+					incr t 50
+					incr i 
+				}
+				after $t "get_image clon-$n2-$tag [file join $mydir images heroes $im stand 1.gif]"
+				incr n2 -2
+			}
+		} else {
+			effect "taju-kage-bunshin" $who "remove"
+		}
+		set i 0
+		foreach e $effects {
+			set do [lindex $e 0]
+			set holder [lindex $e 1]
+			set t [lindex $e 2]
+			if {$do == "taju-kage-bunshin" && $holder == $who} {
+				if {$num > 0} {
+					lset effects $i [list "taju-kage-bunshin" $who $num]
+				} else {
+					lset effects $i [lreplace $effects $i $i]
+				}
+			}
+			incr i
+		}
+	}
+}
 #heroes
 proc rock_lee {x y} {
 	global mydir hero_ancof
@@ -838,6 +1036,24 @@ proc jonin_might_guy {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "gui" $slide
+}
+proc genin_sakura {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes sakura stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "sakura" $slide
+}
+proc chunin_sakura {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes sakura-adult stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "sakura-adult" $slide
 }
 #tech
 proc suiken_not_message {} {

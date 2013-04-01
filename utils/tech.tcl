@@ -9,26 +9,37 @@ proc effect_work {} {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
 		set t [lindex $e 2]
-		effect $do $owner "do"
 		if {$t > 0} {
-			incr t -1
+			lset effects $i [list $do $owner [expr $t - 1]]
 		} else {
 		}
+		effect $do $owner "do"
 		if {$t == 0} {
 			set effects [lreplace $effects $i $i]
 			effect $do $owner "remove"
 		} else {
-			lset effects $i [list $do $owner $t]
 			incr i
 		}
 	}
 }
 proc effect {name owner what} {
-	global used campdir enemy $owner slide mydir
+	global used campdir enemy $owner slide mydir effects
 	source [file join $campdir personstat.tcl]
 	if {$what == "do"} {
 		if {$name == "suiken" && $owner == "hero"} {
 			hero_ai_agressive
+		}
+		if {$name == "taju-kage-bunshin"} {
+			set i 0
+			foreach e $effects {
+				set do [lindex $e 0]
+				set holder [lindex $e 1]
+				set t [lindex $e 2]
+				if {$do == $name && $holder == $owner} {
+					lset effects $i [list $do $owner [expr $t + 1]]
+				}
+				incr i
+			}
 		}
 	}
 	if {$what == "remove"} {
@@ -94,33 +105,42 @@ proc effect {name owner what} {
 		}
 	}
 }
-proc take_damage {p d t} {
+proc take_damage {p d t {tim 0}} {
 	global effects
 	if {[get_hitpoints $p] > 0 && $d > 0} {
-	set_hitpoints $p [expr [get_hitpoints $p] - $d]
-		set k -1
-		while {$k <= 5} {
-			if {[is_in [list "shadow-clon" $p $k] $effects]} {
-				after 900 "effect shadow-clon $p remove"
-				#remove damage
-				set_hitpoints $p 0
-				if {$k > 0} {
-					set u 0
-					set i -1
-					foreach s $effects {
-						if {$s == [list "shadow-clon" $p $k]} {
-							set i $u
+		set_hitpoints $p [expr [get_hitpoints $p] - $d]
+		if {[clones_interface $p "get_number"] > 0} {
+			#remove damage
+			set_hitpoints $p [expr [get_hitpoints $p] + $d]
+			set d 0
+			#remove one clone
+			clones_interface $p "remove_one"
+		} else {
+			set k -1
+			while {$k <= 5} {
+				if {[is_in [list "shadow-clon" $p $k] $effects]} {
+					after 900 "effect shadow-clon $p remove"
+					#remove damage
+					set_hitpoints $p 0
+					if {$k > 0} {
+						set u 0
+						set i -1
+						foreach s $effects {
+							if {$s == [list "shadow-clon" $p $k]} {
+								set i $u
+							}
+							incr u
+						} 
+						if {$i >= 0} {
+							set effects [lreplace $effects $i $i]
 						}
-						incr u
-					} 
-					if {$i >= 0} {
-						set effects [lreplace $effects $i $i]
 					}
 				}
+				incr k 1
 			}
-			incr k 1
 		}
 	}
+	return $d
 }
 #techincs
 #Taijitsu
@@ -190,14 +210,16 @@ proc tech_kubakufuda {x y r p {timestart 0} d} {
 			set chance [expr 100 - $s*5]
 			if {$randomnumber < $chance} {
 				#hit
-				take_damage $purpose $d "kubakufuda"
-				after [expr $t - 100] "set_speed $p 0"
-				if {[get_hitpoints $purpose] > 0} {
-					after [expr $t + 900] "set_speed $p $s"
-				}
-				after [expr $t - 150] "nokout $purpose"
-				if {[get_chakra $purpose] == 0} {
-					set_hitpoints $purpose 0
+				set nd [take_damage $purpose $d "kubakufuda"]
+				if {$nd > 0} {
+					after [expr $t - 100] "set_speed $p 0"
+					if {[get_hitpoints $purpose] > 0} {
+						after [expr $t + 900] "set_speed $p $s"
+					}
+					after [expr $t - 150] "nokout $purpose"
+					if {[get_chakra $purpose] == 0} {
+						set_hitpoints $purpose 0
+					}
 				}
 			}
 		}
@@ -269,11 +291,32 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 	set chance [expr 100 - $s*15]
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "kuchiese-kusarigama"
-		set_speed $p 0
-		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 900] "set_speed $p $s"
+		set nd [take_damage $p $d "kuchiese-kusarigama"]
+		if {$nd > 0} {
+			set_speed $p 0
+			if {[get_hitpoints $p] > 0} {
+				after [expr $t + 900] "set_speed $p $s"
+			}
 		}
+	}
+}
+proc tech_clones-attack {u p {timestart 0} interval d num} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set randomnumber [expr 100*rand()]
+	set t $timestart
+	clones_interface $u "attack-$num"	
+	#damage
+	set s1 [get_speed $u]
+	set s2 [get_speed $p]	
+	set chance [expr 75 - ($s2-$s1)*5]
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "attack"
 	}
 }
 proc tech_attack {u p {timestart 0} interval d} {
@@ -408,8 +451,8 @@ replace"
 	set chance [expr 50 - ($s2-$s1)*10]
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "konoha-senpu"
-		if {$type == "final" && $d > 0} {
+		set nd [take_damage $p $d "konoha-senpu"]
+		if {$type == "final" && $nd > 0} {
 			set_speed $p 0
 			set_speed $u 0 
 			after [expr $t + 500] "set_speed $u $s1"
@@ -443,7 +486,7 @@ proc tech_final-konoha-senpu {u p {timestart 0} interval d strikes} {
 			set t [expr $t + $interval]
 			if {[is_in "tsuten-kyaku" [get_skills $u]] && $t > 300} {
 				#stop animate - tsuten kyaku
-				
+
 			} else {
 				after $t ".c raise $tag
 get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
@@ -544,8 +587,8 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	set chance [expr 50 - ($s2-$s1)*10]
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "shofu"
-		if {$d > 0} {
+		set nd [take_damage $p $d "shofu"]
+		if {$nd > 0} {
 			set_speed $p 0
 			if {[get_hitpoints $p] > 0} {
 				after [expr $t + 900] "set_speed $p $s2
@@ -616,8 +659,8 @@ get_image $tag [file join $mydir images heroes $user attack 1-$i.gif]"
 	set chance [expr 50 - ($s2-$s1)*10]
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "hosho"
-		if {$d > 0} {
+		set nd [take_damage $p $d "hosho"]
+		if {$nd > 0} {
 			set_speed $p 0
 			after [expr $t - 300] "wound_animation $tag2 [get_name $p] fast"
 			if {[get_hitpoints $p] > 0} {
@@ -696,8 +739,8 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	set chance [expr 60 - ($s2-$s1)*10]
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "omote-renge"
-		if {$d > 0} {	
+		set nd [take_damage $p $d "omote-renge"]
+		if {$nd > 0} {	
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
 			after [expr $t + 1000] "set_speed $p $s2"
@@ -849,8 +892,8 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	set chance 100.0
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "ura-renge"
-		if {$d > 0} {	
+		set nd [take_damage $p $d "ura-renge"]
+		if {$nd > 0} {	
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
 			after [expr $t + 1000] "set_speed $p $s2"
@@ -1028,8 +1071,8 @@ if_delete t3_$randomnumber $u
 		#damage
 		if {$randomnumber < $chance} {
 			#hit
-			take_damage $p $d "asakujaku"
-			if {$d > 0 && $s2 > 0 && [get_location $p] == [get_location $u]} {
+			set nd [take_damage $p $d "asakujaku"]
+			if {$nd > 0 && $s2 > 0 && [get_location $p] == [get_location $u]} {
 				set_speed $p 0
 				if {[get_hitpoints $p] > 0} {
 					after [expr $timestart + 900] "set_speed $p $s2
@@ -1156,8 +1199,8 @@ proc tech_hirudora {u r p {timestart 0} d} {
 			#damage
 			if {$random < $chance} {
 				#hit
-				take_damage $p $d "hirudora"
-				if {$d > 0 && $s2 > 0} {
+				set nd [take_damage $p $d "hirudora"]
+				if {$nd > 0 && $s2 > 0} {
 					if {[get_hitpoints $p] > 0} {
 						after [expr $t + 1800] "set_speed $p $s2
 						replace"
@@ -1397,12 +1440,12 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	replace"
 	if {$randomnumber < $chance} {
 		#hit
-		take_damage $p $d "futon-zankukyokuha"
+		set nd [take_damage $p $d "futon-zankukyokuha"]
 		if {[get_chakra $p] == 0} {
 			set_hitpoints $p 0
 		}
 		#throws enemy
-		if {$d > 0} {
+		if {$nd > 0} {
 			if {[get_hitpoints $p] > 0} {
 				after [expr $t + 900] "set_speed $p $s"
 			}
@@ -1884,9 +1927,28 @@ proc detonation {u} {
 	} else {
 		tech_kubakufuda $x $y 0 $p 0 50
 		block_battlepanel
-		after 1000 {unblock_battlepanel}
+		after 2000 {unblock_battlepanel}
 	}
 	.c delete kibakufuda_$u
+}
+proc tech_taju-kage-bunshin {u} {
+	global mydir
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set_chakra $u [expr [get_chakra $u] - 50]
+	clones_interface $u "create"
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 7} {
+		after $t "get_image $tag [file join $mydir images heroes $user kage-bunshin $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
 }
 #genjitsu bonus
 proc tech_kawarimi {u} {

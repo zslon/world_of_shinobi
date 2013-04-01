@@ -5,27 +5,31 @@ global missionnumber heroname herolevel ai_type
 set missionnumber 1
 set heroname "naruto"
 set herolevel 1
-set ai_type "special"
-autosave 1 1
+set ai_type "normal"
+autosave 0 1
 breefing
 proc slide_1 {} {
 	global locations bonus
 	set bonus 0
 	phon 1
-	set locations [list 1 1 1 1]
-
+	set locations [list 1 2 -2 1]
+	training_lumber 1000 520
+	kunai_trap 650
+	kubakufuda_trap 350
+	scenery_message {Training 1: Obstacle Course}
 }
 proc slide_2 {} {
 	global locations
 	phon 2
-	set locations [list 3 -3 2 1]
+	set locations [list 1 1 1 1]
+	sakura 1000 520 {} 1 
 }
 proc slide_3 {} {
 	global locations
 	phon 3
-	set locations [list 1 1 1 1]
-	training_lumber 700 520
-	training_lumber 1000 520
+	set locations [list 3 3 3 3]
+	medpack 950 320
+	scenery_message {Map}
 }
 proc slide_4 {} {
 	global locations

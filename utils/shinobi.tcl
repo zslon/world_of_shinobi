@@ -139,6 +139,23 @@ proc might_guy {x y skills} {
 	shinobi "enemy$enemy" "gui" 4 5 2 2 5 $skills
 	jonin_might_guy $x $y
 }
+proc sakura {x y skills {level 1}} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	if {$level == 1} {
+		shinobi "enemy$enemy" "sakura" 1 1 2 2 1 $skills
+		genin_sakura $x $y
+	}
+	if {$level == 2} {
+		shinobi "enemy$enemy" "sakura" 2 2 2 2 2 $skills
+		genin_sakura $x $y
+	}
+	if {$level == 3} {
+		shinobi "enemy$enemy" "sakura-adult" 3 4 2 2 3 $skills
+		chunin_sakura $x $y
+	}
+}
 ##
 proc getx {tag} {
 	set l [.c coords $tag]
@@ -312,6 +329,20 @@ proc get_skills {class} {
 		return [lindex [set [set class]] 7]
 	}
 }
+proc move_all_clones {class dx dy} {
+	if {$class == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $class
+	}
+	set num [clones_interface $class "get_number"]
+	set i 1
+	while {$i <= $num} {
+		set tag2 "clon-$i-$tag"
+		.c move $tag2 $dx $dy
+		incr i 1
+	}
+}
 proc move {class d {type "fight"}} {
 	global mydir heroname locations hero_ancof
 	if {$type == "fight"} {
@@ -338,13 +369,14 @@ proc move {class d {type "fight"}} {
 		set u -10
 		set m 0
 		set e 1
-		get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
-		after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
-		after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
-		after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
+		get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones
+		after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones"
+		after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class clones"
+		after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class clones"
 		set t 25		
 		while {$t <= 500} {
-			after $t ".c move $tag $m $u" 
+			after $t ".c move $tag $m $u
+move_all_clones $class $m $u" 
 			incr t 25
 		}
 		set u [expr $u * -1]
@@ -352,18 +384,21 @@ proc move {class d {type "fight"}} {
 		if {($p > 0 && $p > $h) || ($p < 0 && ([expr $p * -1] > $h))} {
 			#momental jump to leave from enemy attack
 			.c move $tag 0 10
+move_all_clones $class 0 10
 			set u [expr $u - 5]
-			after $t ".c move $tag 0 -10"
+			after $t ".c move $tag 0 -10
+move_all_clones $class 0 -10"
 		}
 		#
 		while {$t <= 1000} {
-			after $t ".c move $tag $m $u" 
+			after $t ".c move $tag $m $u
+move_all_clones $class $m $u" 
 			incr t 25
 		}
 		set t 1000
 		set e 6
 		while {$t <= 1150} {
-			after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
+			after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class clones" 
 			incr t 50
 			incr e
 		}
@@ -380,26 +415,28 @@ proc move {class d {type "fight"}} {
 			if {(abs($p) < $h) && $p != 0} {
 				set ex [expr $h - abs($p)]
 				set u [expr -10 * $ex]
-				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
-				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
-				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
-				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
+				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones
+				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones"
+				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class clones"
+				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class clones"
 				set t 1000
 				set e 6
 				while {$t <= 1150} {
-					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
+					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class clones" 
 					incr t 50
 					incr e
 				}
 				#momental jump to leave from enemy attack
 				.c move $tag 0 10
-				after [expr $t - 160] ".c move $tag 0 -10"		
+move_all_clones $class 0 10
+				after [expr $t - 160] ".c move $tag 0 -10
+move_all_clones $class 0 -10"		
 			} else {
 				set u 0
 				set t 0
 				set e 1
 				while {$t <= 1000} {
-					after $t "get_image $tag [file join $mydir images heroes $name $rrun $e.gif] $s $class"
+					after $t "get_image $tag [file join $mydir images heroes $name $rrun $e.gif] $s $class clones"
 					incr e 1
 					if {$e == 7} {
 						set e 1
@@ -416,26 +453,28 @@ proc move {class d {type "fight"}} {
 			if {(abs($p) < $h)} {
 				set ex [expr $h - abs($p)]
 				set u [expr -10 * $ex]
-				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class
-				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class"
-				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class"
-				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class"
+				get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones
+				after 100 "get_image $tag [file join $mydir images heroes $name jump 1.gif] $s $class clones"
+				after 300 "get_image $tag [file join $mydir images heroes $name jump 2.gif] $s $class clones"
+				after 500 "get_image $tag [file join $mydir images heroes $name jump 3.gif] $s $class clones"
 				set t 1000
 				set e 6
 				while {$t <= 1150} {
-					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class" 
+					after $t "get_image $tag [file join $mydir images heroes $name jump $e.gif] $s $class clones" 
 					incr t 50
 					incr e
 				}	
 				#momental jump to leave from enemy attack
 				.c move $tag 0 10
-				after [expr $t - 160] ".c move $tag 0 -10"	
+move_all_clones $class 0 10
+				after [expr $t - 160] ".c move $tag 0 -10
+move_all_clones $class 0 -10"	
 			} else {
 				set u 0
 				set t 0
 				set e 1
 				while {$t <= 1000} {
-					after $t "get_image $tag [file join $mydir images heroes $name $lrun $e.gif] $s $class"
+					after $t "get_image $tag [file join $mydir images heroes $name $lrun $e.gif] $s $class clones"
 					incr e 1
 					if {$e == 7} {
 						set e 1
@@ -446,16 +485,18 @@ proc move {class d {type "fight"}} {
 		}
 		set t 50
 		while {$t <= 500} {
-			after $t ".c move $tag $m $u" 
+			after $t ".c move $tag $m $u
+move_all_clones $class $m $u" 
 			incr t 50
 		}
 		set u [expr $u * -2]
 		while {$t <= 1000} {
-			after $t ".c move $tag $m $u" 
+			after $t ".c move $tag $m $u
+move_all_clones $class $m $u" 
 			incr t 50
 		}
 	}
-	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] $s $class"
+	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] $s $class clones"
 }
 proc end_turn {{tech "none"} {p 0}} {
 	block_battlepanel
@@ -680,12 +721,15 @@ proc dies {} {
 			if {$enemy == 0 && [get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
 				set level $herolevel
 				if {[get_chakra "hero"] < [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
-					if {[expr [get_chakra "hero"] + $bonus] > [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
+					if {[expr [get_chakra "hero"] + $bonus] > [expr 50*$level + ($level/3)*50 + ($level/4)*150] && ([get_name "hero"] != "naruto") } {
 						set_chakra "hero" [expr 50*$level + ($level/3)*50 + ($level/4)*150]
+					} elseif {([get_name "hero"] == "naruto") && [expr [get_chakra "hero"] + $bonus] > [expr 3*(50*$level + ($level/3)*50 + ($level/4)*150)/2]} {
+						set_chakra "hero" [expr 3*(50*$level + ($level/3)*50 + ($level/4)*150)/2]
 					} else {
 						set_chakra "hero" [expr [get_chakra "hero"] + $bonus]
 					}
 					concentrate_chakra "heroi" [get_name "hero"]
+					clones_interface "hero" "remove_all"
 				}
 			}
 			replace
@@ -871,6 +915,8 @@ proc melee_tech {from to name par ans par2} {
 		set ans "attack"
 		set par2 [get_tai $to]
 	}
+	set addnum 0
+	set addnum2 0
 	if {$num > 0} {
 	#kuchiese meisu effect
 		if {$name == "attack" && [is_in [list "kuchiese-meisu" $from -1] $effects]} {
@@ -885,6 +931,10 @@ proc melee_tech {from to name par ans par2} {
 				set dam2 [enciclopedia $ans "damage" [expr $par2 - 1]]
 				set num2 [enciclopedia $ans "number" [expr $par2 - 1]]
 			}
+		}
+	#taju kage bunshin effect
+		if {[clones_interface $from "get_number"] > 0 && $name== "attack"} {
+			set addnum [expr [clones_interface $from "get_number"]/2 + [clones_interface $from "get_number"]%2] 
 		}
 		set mt [expr 900 / $num]
 		#speed (maximum strikes is 2+10/2=7, minimum mt is 128)
@@ -935,6 +985,10 @@ proc melee_tech {from to name par ans par2} {
 					set num [enciclopedia $name "number" [expr $par - 1]]
 				}
 			}
+#taju kage bunshin
+			if {[clones_interface $to "get_number"] > 0 && $ans == "attack"} {
+				set addnum2 [expr [clones_interface $to "get_number"]/2 + [clones_interface $to "get_number"]%2] 
+			}
 			set mt2 [expr 900 / $num2]
 			set ti2 50
 			if {$mt2 < 800 && $mt2 > 400} {
@@ -951,7 +1005,14 @@ proc melee_tech {from to name par ans par2} {
 	set n 1
 	set h11 [get_hitpoints $to]
 	set h12 [get_hitpoints $from]
-	while {$n <= $num || $n <= $num2} {		
+	while {$n <= $num || $n <= $num2 || $n <= $addnum || $n <= $addnum2} {
+#bunshin attacks
+		if {[get_status $from] == "cast" && $n <= $addnum} {
+			tech_clones-attack $from $to [expr $mt*($n-1)] $ti $dam [clones_interface $from "get_number"]
+		}	
+		if {[get_status $to] == "cast" && $n <= $addnum2} {
+			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $dam2 [clones_interface $from "get_number"]
+		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
 #konoha_senpu effect
 			if {$n == 1 && $name == "attack" && [is_in "konoha-senpu" $sk] && $dam > 0} {
@@ -1057,26 +1118,33 @@ proc nokout {p} {
 			after 100 "get_image $tag [file join $mydir images heroes $n wound 3.gif]"
 			set t 0
 			.c move $tag $vs -50
-			after 25 ".c move $tag $vs -25"
-			after 50 ".c move $tag $vs -25"
+			block_battlepanel
+			after 25 ".c move $tag $vs -25
+			block_battlepanel"
+			after 50 ".c move $tag $vs -25
+			block_battlepanel"
 			set t 100
 			while {$t < 600} {
-				after $t ".c move $tag $v $g"
+				after $t ".c move $tag $v $g
+				block_battlepanel"
 				incr t 50
 			}
 			set t 600
 			set i 4
 			while {$t <= 800} {
-				after $t "get_image $tag [file join $mydir images heroes $n wound $i.gif]"
+				after $t "get_image $tag [file join $mydir images heroes $n wound $i.gif]
+				block_battlepanel"
 				incr i				
 				incr t 50
 			}
 			set h [get_hitpoints $p]
 			if {$h > 0} {
-				after $t "get_image $tag [file join $mydir images heroes $n stand 1.gif]"
+				after $t "get_image $tag [file join $mydir images heroes $n stand 1.gif]
+				unblock_battlepanel"
 			} else {
 				get_image die$tag [file join $mydir images heroes $n wound 7.gif]
-				after [expr $t - 50] ".c itemconfigure $tag -image die$tag"
+				after [expr $t - 50] ".c itemconfigure $tag -image die$tag
+				unblock_battlepanel"
 			}
 		} else {
 			wound_animation $tag [get_name $p]
