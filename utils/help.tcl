@@ -21,7 +21,7 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	set cyclo [list]
 	lappend cyclo [list "attack" "Shinobi attack" [expr 3 + $par] [expr 2 + ($par/2)] 0]
 	lappend cyclo [list "kunai" "Throw Kunai" 5 $par 0]
-	lappend cyclo [list "suiken" "Suiken" 0 5 25]
+	lappend cyclo [list "suiken" "Suiken" 0 4 25]
 	lappend cyclo [list "hachimon-1" "Kaimon" 0 -1 20]
 	lappend cyclo [list "hachimon-2" "Kyumon" 0 -1 40]
 	lappend cyclo [list "hachimon-3" "Seimon" 0 -1 60]
@@ -81,7 +81,7 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "kuchiese-yatai-kuzushi" "Kuchiese: Yatai Kuzushi no Jutsu" 0 0 100]
 	lappend cyclo [list "kai" "Kai" $par 1 10]
 	lappend cyclo [list "kubakufuda" "Kibakufuda" 50 1 0]
-	lappend cyclo [list "kibakufuda" "Kibakufuda" 0 2 10]
+	lappend cyclo [list "kibakufuda" "Kibakufuda" 0 1 10]
 	foreach el $cyclo {
 		set r [enciclopedia_search $skill $obj [lindex $el 0] [lindex $el 1] [lindex $el 2] [lindex $el 3] [lindex $el 4]]
 		if {$r != "null"} {

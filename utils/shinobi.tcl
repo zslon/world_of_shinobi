@@ -1,9 +1,18 @@
 source [file join $mydir utils tech.tcl]
 source [file join $mydir utils ai.tcl]
 proc shinobi {class name level t n g s skills} {
-	global [set class] bonus
+	global [set class] bonus nins enemy
 	if {$class != "hero"} {
 		set bonus [expr $bonus + 10*($level+1)] 
+		set e 1
+		while {$e <= $enemy} {
+			if {$class == "enemy$e"} {
+				lset nins $e $n
+			}
+			incr e 1
+		}
+	} else {
+		lset nins 0 $n
 	}
 	set hitpoints [expr 50*($level+1)]
 	set chakra [expr 50*$level + ($level/3)*50 + ($level/4)*150]
@@ -30,6 +39,13 @@ proc kubakufuda_trap {x} {
 	trap "kubakufuda"
 	get_image enemy$enemy [file join $mydir images attacks kunai 1.gif]
 	.c create image $x 700 -image enemy$enemy -tag enemy$enemy 
+}
+proc map_trap {map} {
+	global enemy mydir
+	incr enemy 1
+	shinobi "enemy$enemy" "trapmap" 2 1 1 1 3 $map
+	get_image enemy$enemy [file join $mydir images attacks kunai 1.gif]
+	.c create image 1500 1500 -image enemy$enemy -tag enemy$enemy 
 }
 #bonuses
 proc medpack {x y} {
@@ -139,7 +155,7 @@ proc might_guy {x y skills} {
 	shinobi "enemy$enemy" "gui" 4 5 2 2 5 $skills
 	jonin_might_guy $x $y
 }
-proc sakura {x y skills {level 1}} {
+proc haruno_sakura {x y skills {level 1}} {
 	global enemy
 	incr enemy 1
 	set x [expr $x + ($enemy - 2)*10]
@@ -154,6 +170,36 @@ proc sakura {x y skills {level 1}} {
 	if {$level == 3} {
 		shinobi "enemy$enemy" "sakura-adult" 3 4 2 2 3 $skills
 		chunin_sakura $x $y
+	}
+}
+proc uchiha_sasuke {x y skills {level 1}} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	if {$level == 1} {
+		shinobi "enemy$enemy" "sasuke-enemy" 1 2 2 1 1 $skills
+		genin_sasuke $x $y
+	}
+	if {$level == 2} {
+		shinobi "enemy$enemy" "sasuke-enemy" 2 2 3 2 2 $skills
+		genin_sasuke $x $y
+	}
+	if {$level == 3} {
+		shinobi "enemy$enemy" "sasuke-enemy" 3 2 3 3 3 $skills
+		genin_sakuke $x $y
+	}
+}
+proc uchiha_sasuke_nukenin {x y skills {level 3}} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	if {$level == 3} {
+		shinobi "enemy$enemy" "sasuke-enemy-nukenin" 3 2 3 3 3 $skills
+		nukenin_sakuke $x $y
+	}
+	if {$level == 4} {
+		shinobi "enemy$enemy" "sasuke-enemy-nukenin" 4 3 5 3 3 $skills
+		nukenin_sakuke $x $y
 	}
 }
 ##
@@ -185,6 +231,9 @@ proc get_location {class} {
 	if {$x > 750} {
 		set l 3
 	}
+	if {$x > 1200} {
+		set l 4
+	}
 	return $l
 }
 proc get_height {class} {
@@ -203,6 +252,9 @@ proc get_height {class} {
 	}
 	if {$y > 300 && $y < 400} {
 		set h 3
+	}
+	if {$y > 1200} {
+		set h 4
 	}
 	return $h
 }
@@ -500,27 +552,43 @@ move_all_clones $class $m $u"
 }
 proc end_turn {{tech "none"} {p 0}} {
 	block_battlepanel
-	return_nin
+	replace_nin
 	major_ai $tech $p
 	after 1100 {
 		fighting_sensor
 	}
-	after 2000 {
+	after 2100 {
 		unblock_battlepanel
+		return_nin
 		dies
 		#else effect_work
 		replace
 	}
 }
-proc return_nin {} {
-	global enemy
-	set n [get_nin "hero"]
-	after 2000 "set_nin hero $n"
+proc replace_nin {} {
+	global enemy nins
 	set e 1
 	while {$e <= $enemy} {
 		set n$e [get_nin enemy$e]
-		after 2000 "set_nin enemy$e [set n$e]"
-		incr e
+		if {[set n$e] != 0} {
+			lset nins $e [set n$e]
+		}
+		incr e 1
+	}
+}
+proc return_nin {} {
+	global enemy nins
+	set n [get_nin "hero"]
+	if {$n == 0} {
+		set_nin hero [lindex $nins 0]
+	}
+	set e 1
+	while {$e <= $enemy} {
+		set n$e [get_nin enemy$e]
+		if {[set n$e] == 0} {
+			set_nin enemy$e [lindex $nins $e]
+		}
+		incr e 1
 	}
 }
 proc fighting_sensor {} {
@@ -718,7 +786,7 @@ proc dies {} {
 				incr e -1
 			}
 			incr enemy -1
-			if {$enemy == 0 && [get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
+			if {[no_more_enemy] && [get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
 				set level $herolevel
 				if {[get_chakra "hero"] < [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
 					if {[expr [get_chakra "hero"] + $bonus] > [expr 50*$level + ($level/3)*50 + ($level/4)*150] && ([get_name "hero"] != "naruto") } {

@@ -28,13 +28,14 @@ proc slide_3 {} {
 	global locations
 	phon 3
 	set locations [list 3 3 3 3]
-	medpack 1000 320
+	medpack 950 320
+	map_trap "oxkokokkoxko"
 	scenery_message {Map}
 }
 proc slide_4 {} {
 	global locations
 	phon 4 
-	set locations [list 1 1 1 3]
+	set locations [list 3 1 1 1]
 	training_lumber 1000 320
 }
 proc slide_5 {} {

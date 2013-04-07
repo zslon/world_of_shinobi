@@ -17,6 +17,22 @@ proc object_in {ox oy x y w h} {
 		return 0
 	}
 }
+proc no_more_enemy {} {
+	global enemy
+	set e 1
+	set en $enemy
+	while {$e <= $enemy} {
+		if {[get_name enemy$enemy] == "trapmap"} {
+			incr en -1
+		}
+		incr e 1
+	}
+	if {$en < 1} {
+		return 1
+	} else {
+		return 0
+	}
+}
 #skills list working
 proc list_info {l ex ey x y {status "skill"} {par ""}} {
 	global skills accessskills tai gen nin

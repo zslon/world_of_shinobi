@@ -148,7 +148,8 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	
 }
 proc breefing {} {
-	global campdir missionnumber slide enemy
+	global campdir missionnumber slide enemy hero_ancof nins
+	set nins [list 0 0 0 0 0 0 0 0 0 0 0]
 	set slide 1
 	set enemy 0
 	get_image phonimage [file join $campdir breefings $missionnumber.gif]
@@ -157,7 +158,8 @@ proc breefing {} {
 		if {[object_in %x %y 800 50 200 70]} {
 			slide_1
 			major_hero 50 520
-			create_battlepanel
+			set hero_ancof 0
+	 		create_battlepanel
 		}
 	}
 }
@@ -207,7 +209,7 @@ proc create_battlepanel {} {
 	create_chakra "hero"
 	set e 1
 	while {$e <= $enemy} {
-		if {[get_name enemy$e] != "trap"} {
+		if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
 			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
 			.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
 			create_hitpoints enemy$e
@@ -366,7 +368,7 @@ proc replace {} {
 	create_chakra "hero"
 	set e 1
 	while {$e <= $enemy} {
-		if {[get_name enemy$e] != "trap"} {
+		if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
 			create_hitpoints enemy$e
 			create_chakra enemy$e
 			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
@@ -488,7 +490,7 @@ proc die {class} {
 		set tag $class
 		set [set class]_ancof 0
 	}
-	if {[get_name $class] == "trap"} {
+	if {[get_name $class] == "trap" && [get_name $class] == "trapmap"} {
 		.c delete $tag
 	} else {
 		block_battlepanel
@@ -496,7 +498,7 @@ proc die {class} {
 		set i 1
 		set im [get_name $class]
 		while {$t < 700} {
-			if {$im != "trap"} {
+			if {$im != "trap" && $im != "trapmap"} {
 				after $t "get_image [set tag] [file join $mydir images heroes $im wound $i.gif]"
 			}
 			incr t 100
@@ -514,7 +516,7 @@ proc teleport_out {im num} {
 	set t 0
 	set i 1
 	while {$t <= 500} {
-		if {$im != "trap"} {
+		if {$im != "trap" && $im != "trapmap"} {
 			after $t "get_image [set tag] [file join $mydir images heroes $im teleport $i.gif]"
 		}
 		incr t 100
@@ -814,7 +816,7 @@ proc clones_interface {who type} {
 	}
 	if {$type == "remove_all"} {
 		set num [clones_interface $who "get_number"] 
-		set n 0
+		set n 1
 		while {$n <= $num} {
 			set i 1
 			set t 0
@@ -957,6 +959,7 @@ proc naruto-sennin_4 {x y} {
 proc naruto_3 {x y} {
 	naruto_uzumaki $x $y
 }
+
 #enemy
 proc lumber {x y} {
 	global mydir enemy
@@ -1054,6 +1057,15 @@ proc chunin_sakura {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "sakura-adult" $slide
+}
+proc genin_sasuke {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes sasuke-enemy stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "sasuke-enemy" $slide
 }
 #tech
 proc suiken_not_message {} {

@@ -9,17 +9,19 @@ button .right -state disabled -command {
 			if {$tl == $l && $th == $h} {
 				set e 999
 			}
-			incr e
+			incr e 1
 		}
 		set l [expr $l + 1] 
-		set p [lindex $locations $l]
-		if {(abs($p) <= $h || $p > 0) && $e != 1000} {
-			move "hero" "right"
-			end_turn "run" 0
+		if {$l < 4} {
+			set p [lindex $locations $l]
+			if {(abs($p) <= $h || $p > 0) && $e != 1000} {
+				move "hero" "right"
+				end_turn "run" 0
+			}
 		}
 	} else {
 		set h [get_height "hero"]
-		if {$enemy == 0 && ($h == [lindex $locations 3] || -$h == [lindex $locations 3])} {
+		if {[no_more_enemy] && ($h == [lindex $locations 3] || -$h == [lindex $locations 3])} {
 			move "hero" "right"
 			end_turn "run"
 			after 1000 {
@@ -120,8 +122,10 @@ proc unblock_battlepanel {} {
 		incr n
 	}
 	if {$q} {
-		set hero_ancof 1
-		stand_animation "heroi" [get_name "hero"]
+		if {$hero_ancof == 0} {
+			set hero_ancof 1
+			stand_animation "heroi" [get_name "hero"]
+		}
 		set e 1
 		while {$e <= $enemy} {
 			global enemy[set e]_ancof
@@ -142,7 +146,7 @@ proc unblock_battlepanel {} {
 	}
 }
 proc next_slide {} {
-	global slide effects bonus
+	global slide effects bonus enemy hero_ancof
 	set bonus 0
 	set y [gety "heroi"]
 	set slide [expr $slide + 1]
@@ -161,6 +165,7 @@ proc next_slide {} {
 		.c delete enemy$e
 		incr e 1
 	}
+	set enemy 0
 	.c delete heroi
 	.c delete panel
 	.c delete medic
@@ -170,6 +175,7 @@ proc next_slide {} {
 	major_hero 50 $y
 	set_hitpoints "hero" $h
 	set_chakra "hero" $c
+	set hero_ancof 0
 	create_battlepanel
 }
 #skills

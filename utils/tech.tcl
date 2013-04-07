@@ -110,11 +110,41 @@ proc take_damage {p d t {tim 0}} {
 	if {[get_hitpoints $p] > 0 && $d > 0} {
 		set_hitpoints $p [expr [get_hitpoints $p] - $d]
 		if {[clones_interface $p "get_number"] > 0} {
-			#remove damage
-			set_hitpoints $p [expr [get_hitpoints $p] + $d]
-			set d 0
-			#remove one clone
-			clones_interface $p "remove_one"
+			if {$t == "hirudora" || $t == "futon-rasensuriken" || $t == "futon-kiryu-ranbu" || $t == "futon-kazekiri" || $t == "futon-rasengan"} {
+				#save damage and remove all clones
+				clones_interface $p "remove_all" 
+			} elseif {$t == "soshoryu" || $t == "sogu-tensasai" || $t == "futon-shinkuha" || $t == "naruto-nisen-rendan" || $t == "naruto-yonsen-rendan"} {
+				#remove all clones and remove damage
+				set_hitpoints $p [expr [get_hitpoints $p] + $d]
+				set d 0
+				clones_interface $p "remove_all"
+			} elseif {$t == "rasen-cho-tarengan"} {
+				#destroy one clone and chance to destroy all clones and chance to damage original 
+				clones_interface $p "remove_one"
+				set a [clones_interface $p "get_number"]
+				set b 1
+				while {$b <= $a} {
+					set randomnumber [expr rand() * 100]
+					if {$randomnumber <= 25} {
+ 						clones_interface $p "remove_one"
+					}
+					incr b 1
+				}
+				set randomnumber [expr rand() * 100]
+				if {$randomnumber <= 25} {
+ 					#not remove damage
+				} else {
+					#remove damage
+					set_hitpoints $p [expr [get_hitpoints $p] + $d]
+					set d 0
+				}
+			} else {
+				#remove damage
+				set_hitpoints $p [expr [get_hitpoints $p] + $d]
+				set d 0
+				#remove one clone
+				clones_interface $p "remove_one"
+			}
 		} else {
 			set k -1
 			while {$k <= 5} {
@@ -204,7 +234,7 @@ proc tech_kubakufuda {x y r p {timestart 0} d} {
 	}
 	lappend enemylist "hero"
 	foreach purpose $enemylist {
-		if {[get_location $purpose] == [get_location $p] && [get_height $purpose] == [get_height $p]} {
+		if {[get_location $purpose] == [get_location $p] && [get_height $purpose] == [get_height $p] && [get_name $purpose] != "trap"} {
 			set s [get_speed $purpose]
 			set randomnumber [expr 100*rand()]
 			set chance [expr 100 - $s*5]
@@ -294,8 +324,8 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 		set nd [take_damage $p $d "kuchiese-kusarigama"]
 		if {$nd > 0} {
 			set_speed $p 0
-			if {[get_hitpoints $p] > 0} {
-				after [expr $t + 900] "set_speed $p $s"
+			if {[get_hitpoints $p] > 0 && $s != 0} {
+				after [expr $timestart + 900] "set_speed $p $s"
 			}
 		}
 	}

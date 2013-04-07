@@ -129,7 +129,10 @@ proc major_ai {tech p} {
 		while {$e <= $enemy} {
 			set n [get_name enemy$e]
 			set c [get_chakra enemy$e]
-			if {$c > 0 && ([get_status enemy$e] == "free" || [get_status enemy$e] == "passive")} {
+			if {$n == "trapmap"} {
+				set mines [get_skills enemy$e]
+				mine_schema $mines $tech $p
+			} elseif {$c > 0 && ([get_status enemy$e] == "free" || [get_status enemy$e] == "passive")} {
 				.c move enemy$e [expr -10*($enemy - 2)] 0
 				if {$ai_type == "special"} {
 					special_[set n]_ai $e $tech $p
@@ -152,6 +155,33 @@ proc major_ai {tech p} {
 			}
 			incr e
 		}
+	}
+}
+proc mine_schema {mines tech p} {
+	global locations
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	if {$tech == "run"} {
+		if {$p == 0 && $l < 3} {
+			set l [expr $l + 1]
+		}
+		if {$p == 1 && $l > 0} {
+			set l [expr $l - 1]
+		}
+		if {$p == 2 && $h < [lindex $locations $l]} {
+			set h [expr $h + 1]
+		}
+	} 
+	set c [expr $l + 4*($h - 1)]
+	set t [string index $mines $c]
+	if {$t == "o"} {
+		#nonething
+	}
+	if {$t == "k"} {
+		kunai_trap [expr $l * 300 + 50]
+	}
+	if {$t == "x"} {
+		kubakufuda_trap [expr $l * 300 + 50]
 	}
 }
 proc standart_ai {num tech p} {

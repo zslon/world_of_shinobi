@@ -22,20 +22,21 @@ proc slide_2 {} {
 	global locations
 	phon 2
 	set locations [list 1 1 1 1]
-	sakura 1000 520 {} 1 
+	haruno_sakura 1000 520 {} 1 
 }
 proc slide_3 {} {
 	global locations
 	phon 3
 	set locations [list 3 3 3 3]
 	medpack 950 320
+	map_trap "oxkokokkoxko"
 	scenery_message {Map}
 }
 proc slide_4 {} {
 	global locations
 	phon 4 
-	set locations [list 1 1 1 3]
-	training_lumber 1000 320
+	set locations [list 3 1 1 1]
+	uchiha_sasuke 100 420 {} 1
 }
 proc slide_5 {} {
 	global locations
