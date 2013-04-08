@@ -325,7 +325,8 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 		if {$nd > 0} {
 			set_speed $p 0
 			if {[get_hitpoints $p] > 0 && $s != 0} {
-				after [expr $timestart + 900] "set_speed $p $s"
+				after [expr $timestart + 900] "set_speed $p $s
+				replace"
 			}
 		}
 	}
@@ -485,9 +486,11 @@ replace"
 		if {$type == "final" && $nd > 0} {
 			set_speed $p 0
 			set_speed $u 0 
-			after [expr $t + 500] "set_speed $u $s1"
+			after [expr $t + 500] "set_speed $u $s1
+			replace"
 			if {[get_hitpoints $p] > 0} {
-				after [expr $t + 500] "set_speed $p $s2"
+				after [expr $t + 500] "set_speed $p $s2
+				replace"
 			}
 			if {$strikes > 0} {
 				tech_final-konoha-senpu $u $p $t $interval $d $strikes
@@ -773,7 +776,8 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		if {$nd > 0} {	
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 1000] "set_speed $p $s2"
+			after [expr $t + 1000] "set_speed $p $s2
+			replace"
 		}
 		after [expr $t - 100] "passive_fly $p 1700"
 		set i 1
@@ -926,7 +930,8 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 		if {$nd > 0} {	
 		set_speed $p 0
 		if {[get_hitpoints $p] > 0} {
-			after [expr $t + 1000] "set_speed $p $s2"
+			after [expr $t + 1000] "set_speed $p $s2
+			replace"
 		}
 		after [expr $t - 100] "passive_fly $p 1700"
 		set t2 $t
@@ -1477,7 +1482,8 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 		#throws enemy
 		if {$nd > 0} {
 			if {[get_hitpoints $p] > 0} {
-				after [expr $t + 900] "set_speed $p $s"
+				after [expr $t + 900] "set_speed $p $s
+				replace"
 			}
 			set dt $timestart
 			set i 1

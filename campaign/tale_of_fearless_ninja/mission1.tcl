@@ -19,10 +19,20 @@ proc slide_1 {} {
 	scenery_message {Training 1: Obstacle Course}
 }
 proc slide_2 {} {
-	global locations
+	global locations ai_type
 	phon 2
+	set ai_type "special"
 	set locations [list 1 1 1 1]
 	haruno_sakura 1000 520 {} 1 
+}
+proc special_sakura_ai {n tech p} {
+	#ranged battle is always recommended
+	global effects
+	if {[get_hitpoints enemy$n] < 26} {
+		teleport_out "sakura" $n
+	} else {
+		standart_ai $n $tech $p
+	}		
 }
 proc slide_3 {} {
 	global locations

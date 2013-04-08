@@ -456,6 +456,14 @@ proc concentrate_chakra {tag im} {
 	global mydir hero_ancof
 	set t 0
 	set i 1
+	if {$tag == "heroi"} {
+		set s [get_speed "hero"]
+		set_speed "hero" 0
+		if {$s != 0} {
+			after 1000 "set_speed hero $s
+			replace"
+		}
+	}
 	while {$t < 1000} {
 		after $t "get_image $tag [file join $mydir images heroes $im chakra $i.gif]"	
 		incr t 100
