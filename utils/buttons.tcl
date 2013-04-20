@@ -14,16 +14,16 @@ button .right -state disabled -command {
 		set l [expr $l + 1] 
 		if {$l < 4} {
 			set p [lindex $locations $l]
-			if {(abs($p) <= $h || $p > 0) && $e != 1000} {
-				move "hero" "right"
+			if {(abs($p) <= $h || $p > 0) && $e != 1000 && $lever == 0} {
 				end_turn "run" 0
+				move "hero" "right"
 			}
 		}
 	} else {
 		set h [get_height "hero"]
-		if {[no_more_enemy] && ($h == [lindex $locations 3] || -$h == [lindex $locations 3])} {
-			move "hero" "right"
+		if {[no_more_enemy] && ($h == [lindex $locations 3] || -$h == [lindex $locations 3]) && $lever == 0} {
 			end_turn "run"
+			move "hero" "right"
 			after 1000 {
 				next_slide
 			}
@@ -48,15 +48,15 @@ button .left -state disabled -command {
 				}
 				incr e
 			}
-			if {$e != 1000 && [llength $l] != 0} {
+			if {$e != 1000 && [llength $l] != 0 && $lever == 0} {
 				if {[is_melee [lindex $l 0]] && [lindex $l 0] != "attack"} {
 					#have`nt time to run!
 					end_turn
 				} else {
-					move "hero" "left"
 					end_turn "run" 1
+					move "hero" "left"
 				}
-			} else {
+			} elseif {$lever == 0} {
 				move "hero" "left"
 				end_turn "run" 1
 			}
@@ -75,19 +75,21 @@ button .jump -state disabled -command {
 		}
 		incr e
 	}
-	if {$e != 1000} {
+	if {$e != 1000 && $lever == 0} {
 		move "hero" "up"
 		if {$h < [lindex $locations $l]} {
 			end_turn "run" 2
 		} else {
 			end_turn
 		}
-	} else {
+	} elseif {$lever == 0} {
 		end_turn
 	}
 }
 button .stand -state disabled -command {
-	end_turn 
+	if {$lever == 0} {
+		end_turn 
+	}
 }
 proc block_battlepanel {} {
 	global hero_ancof skills enemy
@@ -423,12 +425,14 @@ button .button_hirudora -state disabled -command {
 }
 #Naruto
 button .button_taju-kage-bunshin -state disabled -command {
-	if {[get_chakra "hero"] > 49 && !([is_in "taju-kage-bunshin" $used])} {
+	if {[get_chakra "hero"] > 49 && !([is_in "taju-kage-bunshin" $used]) && ![is_in [list "kyubi-1" "hero" -1] $effects]} {
 		tech_taju-kage-bunshin "hero"
 		lappend effects [list "taju-kage-bunshin" "hero" [expr [get_nin "hero"] * 2]]
 		lappend used "taju-kage-bunshin"
 		replace
 		end_turn "taju-kage-bunshin"
+	} elseif {[is_in [list "kyubi-1" "hero" -1] $effects]} {
+		no_clones_in_kyubi_mode
 	} elseif {[get_chakra "hero"] < 51} {
 		no_chakra_message
 	}

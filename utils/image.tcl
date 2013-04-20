@@ -148,7 +148,7 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	
 }
 proc breefing {} {
-	global campdir missionnumber slide enemy hero_ancof nins
+	global campdir missionnumber slide enemy hero_ancof nins lever
 	set nins [list 0 0 0 0 0 0 0 0 0 0 0]
 	set slide 1
 	set enemy 0
@@ -159,6 +159,7 @@ proc breefing {} {
 			slide_1
 			major_hero 50 520
 			set hero_ancof 0
+			set lever 0
 	 		create_battlepanel
 		}
 	}
@@ -501,7 +502,6 @@ proc die {class} {
 	if {[get_name $class] == "trap" && [get_name $class] == "trapmap"} {
 		.c delete $tag
 	} else {
-		block_battlepanel
 		set t 0
 		set i 1
 		set im [get_name $class]
@@ -512,7 +512,6 @@ proc die {class} {
 			incr t 100
 			incr i
 		}
-		after 2000 {unblock_battlepanel}
 		after 2000 ".c delete $tag"
 	}
 }
@@ -700,6 +699,7 @@ proc kawarimi_teleport {tag im} {
 	}
 }
 proc teleport {who x y} {
+	global mydir
 	if {$who == "hero"} {
 		set tag "heroi"
 	} else {
@@ -1075,6 +1075,15 @@ proc genin_sasuke {x y} {
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "sasuke-enemy" $slide
 }
+proc jonin_hatake_kakashi {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes kakashi stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "kakashi" $slide
+}
 #tech
 proc suiken_not_message {} {
 	global mydir
@@ -1242,6 +1251,123 @@ proc hachimon_8_really_message {} {
 		if {[object_in %x %y 320 272 125 25]} {
 			destroy .s
 		}		
+	}	
+}
+proc kyubi_new_tail_message {n} {
+	global mydir herolevel
+	if {$n <= [expr $herolevel + 1]} {
+		if {$n <= $herolevel} {
+			get_image no_mess [file join $mydir images skills information kyubi_new_tail.gif]
+		} else {
+			get_image no_mess [file join $mydir images skills information kyubi_new_tail_warning.gif]
+		}
+		catch {
+			destroy .s
+		}
+		toplevel .s
+		wm title .s {Do you really want to do it?}
+		wm geometry .s 400x300
+		wm maxsize .s 400 300
+		wm minsize .s 400 300
+		canvas .s.c -height 300 -width 400 -bg black
+		.s.c create image 200 150 -image no_mess -tag infa
+		pack .s.c -side top
+		if {$n == 1} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-1 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+		if {$n == 2} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-2 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+		if {$n == 3} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-3 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+		if {$n == 4} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-4 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+		if {$n == 5} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-5 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+		if {$n == 6} {
+ 			bind .s.c <ButtonPress> {
+				if {[object_in %x %y 83 272 125 25]} {
+					tech_kyubi-6 "hero"
+					replace
+					destroy .s
+				}	
+				if {[object_in %x %y 320 272 125 25]} {
+					destroy .s
+				}		
+			}	
+		}
+	} else {
+		tech_kyubi-$n
+		replace
+		destroy .s
+	}
+}
+proc no_clones_in_kyubi_mode {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information no_clones_in_kyubi_mode.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You can`t create clones in Kyubi no Koromo!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
 	}	
 }
 proc no_chakra_message {} {

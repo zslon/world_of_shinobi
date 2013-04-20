@@ -13,7 +13,7 @@ proc slide_1 {} {
 	set bonus 0
 	phon 1
 	set locations [list 1 1 1 1]
-	genin_sound 1000 520 2 2 2 1 {"futon-zankukyokuha" "kawarimi"}
+	genin_sound 1000 520 2 2 2 1 {"futon-zankuha" "kawarimi"}
 }
 proc slide_2 {} {
 	global locations
@@ -269,7 +269,10 @@ get_image $tag [file join $mydir images heroes gui attack 3-$i.gif]"
 		incr i
 		set t [expr $t + 25]
 	}
-	#gui have taijitsu 5 - 8x4 damage (+1 from konoha senpu and +2 from konoha goriki senpu) = 11x4. first strike - is congoriki senpu with double 		#damage 22. and three strikes in process of konoha senpu (22+ 33 = 55 total). Then, last Tsuten Kyaku strike with 55 damage. It is 110 damage total 		#for only 25 chakra points in process of simple attack!
+	#gui have taijitsu 5 - 8x4 damage (+1 from konoha senpu and +2 from konoha goriki senpu) = 11x4. 
+#first strike - is congoriki senpu with double damage 22. and three strikes in process of konoha senpu 
+#22+ 33 = 55 totally. Then, last Tsuten Kyaku strike with 55 damage. It is 110 damage total 		
+#for only 25 chakra points in process of simple attack!
 	take_damage enemy1 22 "konoha-senpu" 
 	after $t "replace"
 	set purpose "chunin-sound"

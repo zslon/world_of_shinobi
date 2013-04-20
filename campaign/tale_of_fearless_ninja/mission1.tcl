@@ -19,17 +19,33 @@ proc slide_1 {} {
 	scenery_message {Training 1: Obstacle Course}
 }
 proc slide_2 {} {
-	global locations ai_type
+	global locations ai_type sake
 	phon 2
 	set ai_type "special"
+	set sake 0
 	set locations [list 1 1 1 1]
-	haruno_sakura 1000 520 {} 1 
+	haruno_sakura 1000 520 {"kage-bunshin"} 1 
 }
 proc special_sakura_ai {n tech p} {
 	#ranged battle is always recommended
-	global effects
+	global effects sake
+	set nin 2
+	while {$nin >= 0} {
+		if {[is_in [list "kage-bunshin" enemy$n $nin] $effects]} {
+			set sake 2
+		}
+		incr nin -1
+	}
+	if {$sake != 2} {
+		set sake 0
+	} else {
+		set sake 1
+	}
 	if {[get_hitpoints enemy$n] < 26} {
 		teleport_out "sakura" $n
+	} elseif {$sake == 0} {
+		set sake 1
+		set l [bonus_tech_ai $n]
 	} else {
 		standart_ai $n $tech $p
 	}		
@@ -43,53 +59,68 @@ proc slide_3 {} {
 	scenery_message {Map}
 }
 proc slide_4 {} {
-	global locations
+	global locations ai_type etap
+	set etap 1
+	set ai_type "special"
 	phon 4 
 	set locations [list 3 1 1 1]
-	uchiha_sasuke 100 420 {} 1
+	uchiha_sasuke 100 420 {katon-gokakyu} 1
+	set_speed enemy1 2
 }
 proc slide_5 {} {
-	global locations
+	global locations skills bonus 
+	lappend skills "kyubi-enabled"
 	phon 5
-	set locations [list 3 3 3 1]
-	kunai_trap 950
-	kunai_trap 650
-	kunai_trap 350
+	set locations [list 1 1 1 1]
+	uchiha_sasuke 1000 520 {katon-gokakyu} 1
+	kubakufuda_trap 350
 }
-proc slide_6 {} {
-	global locations
-	phon 6
-	set locations [list 1 1 1 3]
-	might_guy 1000 320 {"shofu"}
-}
-proc special_gui_ai {n tech p} {
-	if {[is_bonus $tech]} {
-		set tech "run"
-		set p 2
+proc special_sasuke-enemy_ai {n tech p} {
+	global etap enemy effects
+	set tag enemy$n
+	if {$etap == 3 && [get_location hero] == [get_location $tag]} {
+		set etap 4
 	}
-	set ln [get_location enemy$n]
-	set lh [get_location hero]
-	set hn [get_height enemy$n]
-	set hh [get_height hero]	
-	if {$ln == $lh && $hn == $hh} {
-		set s [get_status hero]
-		set tn [get_tai enemy$n]
-		set th [get_tai hero]
-		if {$tech == "run"} {
-		} elseif {$tech == "none"} {
-			melee_tech enemy$n "hero" "shofu" $tn "attack" $th
+	if {$etap == 4} {
+		if {[get_hitpoints $tag] > 25 && ![is_in [list "kyubi-1" "hero" -1] $effects]} {
+			standart_ai $n $tech $p
 		} else {
-			melee_tech enemy$n "hero" "shofu" $tn $tech $p
+			destroy .s
+			block_battlepanel
+			victory
 		}
-	} else {
 	}
-	set li [get_hitpoints "hero"]
-	set guy [get_hitpoints enemy$n]
-	if {$li > 0 && $guy < 244} {
-		victory
+	if {$etap == 3 && [get_location hero] < [get_location $tag]} {
+		if {[get_chakra $tag] > 15} {
+			ranged_tech $tag "hero" "katon-gokakyu" [get_nin $tag] "none" 0
+		} else {
+			set etap 4
+		}
 	}
+	if {$etap == 2 && ([get_location hero] == [get_location $tag] || ([get_location hero] == [expr [get_location $tag] - 1] && $tech == "run" && $p == 0))} {
+		if {[get_hitpoints $tag] < 20} {
+			teleport_out "sasuke-enemy" $n
+		} elseif {[get_location $tag] < 3} {
+			move $tag "right"
+		} else {
+			set enemy 0
+			move $tag "right"
+			after 2000 ".c delete $tag"
+			set etap 3
+		}
+	} 
+	if {$etap == 1} {
+		move $tag "right"
+		set etap 2
+	}
+}
+proc special_kakashi_ai {n tech p} {
 }
 proc victory_special {} {
 	.c raise panel
-	after 1000 {move enemy1 "left"}
+	hatake_kakashi 1000 1000 {}
+	set x1 [getx enemy1]
+	set x2 [getx heroi]
+	teleport enemy2 [expr ($x1+$x2)/2] 520
+	after 500 {replic kakashi-1 3000}
 }

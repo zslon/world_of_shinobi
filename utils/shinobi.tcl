@@ -202,6 +202,13 @@ proc uchiha_sasuke_nukenin {x y skills {level 3}} {
 		nukenin_sakuke $x $y
 	}
 }
+proc hatake_kakashi {x y skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "kakashi" 4 3 5 2 4 $skills
+	jonin_hatake_kakashi $x $y
+}
 ##
 proc getx {tag} {
 	set l [.c coords $tag]
@@ -551,18 +558,32 @@ move_all_clones $class $m $u"
 	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] $s $class clones"
 }
 proc end_turn {{tech "none"} {p 0}} {
-	block_battlepanel
-	replace_nin
-	major_ai $tech $p
-	after 1100 {
-		fighting_sensor
-	}
-	after 2100 {
-		unblock_battlepanel
-		return_nin
-		dies
-		#else effect_work
-		replace
+	global dclones lever
+	if {$lever == 0} {
+		catch {		
+			destroy .m 
+		}		
+		catch {		
+			destroy .i
+		}		
+		catch {
+			destroy .s
+		} 
+		set lever 1
+		set dclones 0
+		block_battlepanel
+		replace_nin
+		major_ai $tech $p
+		after 1100 {
+			fighting_sensor
+		}
+		after 2100 {
+			unblock_battlepanel
+			return_nin
+			dies
+			#else effect_work
+			replace
+		}
 	}
 }
 proc replace_nin {} {
@@ -695,15 +716,23 @@ proc fighting_sensor {} {
 				if {[get_status enemy$e] == "free"} {
 					melee_tech "hero" enemy$e "attack" $t "attack" $et
 					.c move heroi 10 0
+					#.c move original_hero 10 0
 					.c move enemy$e -10 0
+					#.c move original_enemy$e -10 0
 					after 900 "
 						.c move heroi -10 0
+						#.c move original_hero -10 0
 						.c move enemy$e 10 0
+						#.c move original_enemy$e 10 0
 					"
 				} else {
 					melee_tech "hero" enemy$e "attack" $t "none" $et
 					.c move heroi 10 0
-					after 900 {.c move heroi -10 0}
+					#.c move original_hero 10 0
+					after 900 {
+						.c move heroi -10 0
+						#.c move original_hero -10 0
+					}
 				}
 			}
 		}
@@ -722,7 +751,7 @@ proc fighting_sensor {} {
 	}
 }
 proc dies {} {
-	global enemy bonus herolevel slide effects mydir
+	global enemy bonus herolevel slide effects mydir dclones
 	if {$enemy > 0} {
 		global enemy$enemy
 	}
@@ -804,10 +833,14 @@ proc dies {} {
 		}	
 		incr e
 	}
-	if {$f == 0} {
+	if {$f == 0 && $dclones == 0} {
 		effect_work
 	} else {
-		after 2000 {effect_work}
+		block_battlepanel
+		after 2100 {
+			unblock_battlepanel
+			effect_work
+		}
 	}
 }
 proc ranged_tech {from to name par ans par2} {
@@ -950,7 +983,6 @@ proc ranged_tech {from to name par ans par2} {
 			} else {
 				tech_$ans $x2 $y2 [expr -1*$r] $from $t $dam2
 			}
-			tech_$ans $x2 $y2 [expr -1*$r] $from $t $dam2
 			if {$ans == "kusarigama"} {
 				after [expr $t + 200] "get_image $tag2 [file join $mydir images heroes $user2 $ans 5.gif]"
 				after [expr $t + 400] "get_image $tag2 [file join $mydir images heroes $user2 $ans 6.gif]"

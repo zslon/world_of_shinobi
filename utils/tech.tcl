@@ -3,13 +3,13 @@ global effects used
 set effects [list]
 set used [list]
 proc effect_work {} {
-	global effects
+	global effects lever
 	set i 0
 	foreach e $effects {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
 		set t [lindex $e 2]
-		if {$t > 0} {
+		if {$t > 0 && $i < [llength $effects]} {
 			lset effects $i [list $do $owner [expr $t - 1]]
 		} else {
 		}
@@ -21,13 +21,21 @@ proc effect_work {} {
 			incr i
 		}
 	}
+	set lever 0
 }
 proc effect {name owner what} {
-	global used campdir enemy $owner slide mydir effects
+	global used campdir enemy $owner slide mydir effects herolevel
 	source [file join $campdir personstat.tcl]
 	if {$what == "do"} {
 		if {$name == "suiken" && $owner == "hero"} {
 			hero_ai_agressive
+		}
+		if {$name == "kyubi-1"} {
+			if {[get_chakra $owner] > 20} {
+				set_chakra $owner [expr [get_chakra $owner] - 20]
+			} else {
+				effect "nine-tails" $owner "remove"
+			}
 		}
 		if {$name == "taju-kage-bunshin"} {
 			set i 0
@@ -39,6 +47,33 @@ proc effect {name owner what} {
 					lset effects $i [list $do $owner [expr $t + 1]]
 				}
 				incr i
+			}
+		}
+		if {$name == "kage-bunshin"} {
+			set e 0
+			set k 1
+			while {$k <= 10} {
+				if {[is_in [list "shadow-clon" $owner $k] $effects]} {
+					set e 1
+				}
+				incr k 1
+			}
+			if {$e == 0} {
+				set k 1
+				while {$k <= 10} {
+					set u 0
+					set i -1
+					foreach s $effects {
+						if {$s == [list "kage-bunshin" $owner $k]} {
+							set i $u
+						}
+						incr u
+					} 
+					if {$i >= 0} {
+						set effects [lreplace $effects $i $i]
+					}
+					incr k 1
+				}
 			}
 		}
 	}
@@ -53,11 +88,49 @@ proc effect {name owner what} {
 			set x [getx original_$owner]
 			set y [gety original_$owner]
 			if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
+				block_battlepanel
 				clon-pufff $owner [get_name $owner]
 				after 1100 "teleport $owner $x $y"
+				.c delete original_$owner
+				after 2000 {unblock_battlepanel}
 			} else {
-				#die procedure
+				set_hitpoints $owner 0
+				#die
 			}
+		}
+		if {$name == "nine-tails"} {
+			if {$herolevel == 1 && [is_in [list "kyubi-2" $owner -1] $effects] && [get_chakra $owner] > 20} {
+				#nonthing becouse it`s maximum taillevel for first herolevel
+			} elseif {$herolevel == 2 && [is_in [list "kyubi-4" $owner -1] $effects] && [get_chakra $owner] > 20} {
+				#nonthing becouse it`s maximum taillevel for second herolevel
+			} elseif {$herolevel == 3 && [is_in [list "kyubi-6" $owner -1] $effects] && [get_chakra $owner] > 20} {
+				#nonthing becouse it`s maximum taillevel for third herolevel
+			} elseif {[is_in [list "kyubi-8" $owner -1] $effects] && [get_chakra $owner] > 20} {
+				#nonthing becouse it`s maximum taillevel
+			} else {
+				#next taillevel
+				set e 1
+				set nt 1
+				while {$e < 9} {
+					if {[is_in [list "kyubi-$e" $owner -1] $effects]} {
+						incr nt 1
+						set it [lsearch $effects [list "kyubi-$e" $owner -1]]
+						set effects [lreplace $effects $it $it]
+						effect "kyubi-$e" $owner "remove"
+					}
+					incr e 1			
+				}
+				if {[get_chakra $owner] > 20} {
+					kyubi_new_tail_message $nt
+				}
+			}
+		}
+		if {$name == "kyubi-1"} {
+			remove_form $owner
+		}
+		if {$name == "kyubi-2"} {
+			set_tai $owner [expr [get_tai $owner] - 1]
+			set_speed $owner [expr [get_speed $owner] - 1]
 		}
 		if {$name == "hachimon-1"} {
 			set_tai $owner [expr [get_tai $owner] - 1]
@@ -106,7 +179,7 @@ proc effect {name owner what} {
 	}
 }
 proc take_damage {p d t {tim 0}} {
-	global effects
+	global effects dclones herolevel skills
 	if {[get_hitpoints $p] > 0 && $d > 0} {
 		set_hitpoints $p [expr [get_hitpoints $p] - $d]
 		if {[clones_interface $p "get_number"] > 0} {
@@ -143,16 +216,19 @@ proc take_damage {p d t {tim 0}} {
 				set_hitpoints $p [expr [get_hitpoints $p] + $d]
 				set d 0
 				#remove one clone
-				clones_interface $p "remove_one"
+				if {[is_ranged $t]} {
+					after 500 "clones_interface $p remove_one"
+				} else {
+					clones_interface $p "remove_one"
+				}
 			}
 		} else {
 			set k -1
-			while {$k <= 5} {
+			while {$k <= 10} {
 				if {[is_in [list "shadow-clon" $p $k] $effects]} {
+					set dclones 1
 					after 900 "effect shadow-clon $p remove"
-					#remove damage
-					set_hitpoints $p 0
-					if {$k > 0} {
+					if {$k >= 0} {
 						set u 0
 						set i -1
 						foreach s $effects {
@@ -166,7 +242,33 @@ proc take_damage {p d t {tim 0}} {
 						}
 					}
 				}
+				if {[is_in [list "kage-bunshin" $p $k] $effects]} {
+					#remove damage
+					set_hitpoints $p [expr [get_hitpoints $p] + $d]
+					set d 0
+				}
 				incr k 1
+			}
+			if {$d >= [get_hitpoints $p]} {
+				#critical damage (above 50%)
+				if {[is_in "nine-tails" [get_skills $p]] && [is_in "kyubi-enabled" $skills]} {
+					#Nine Tails
+					#first_tail - hitpoint and chakra regenerate
+					set skills [lreplace $skills [lsearch $skills kyubi-enabled] [lsearch $skills kyubi-enabled]]
+					puts $skills
+					set_hitpoints $p [expr 50*($herolevel + 1)]
+					set_chakra $p [expr 75*$herolevel + ($herolevel/3)*75 + ($herolevel/4)*225]
+					if {[get_hitpoints $p] < $d && $herolevel > 3} {
+					} elseif {[expr [get_hitpoints $p] / 2] < $d && $herolevel > 2} {
+					} elseif {[expr [get_hitpoints $p] / 2] < $d && $herolevel > 1} {
+					} else {
+						lappend effects [list "nine-tails" $p 2]
+						lappend effects [list "kyubi-1" $p -1]
+						set_form $p "onetail"	
+					}
+				} elseif {[is_in "one-tails" [get_skills $p]] && [is_in "shukaku-enabled" $skills]} {
+				#One Tails
+				}
 			}
 		}
 	}
@@ -1494,6 +1596,67 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 		}
 	}
 }
+#katon
+#futon
+proc tech_katon-gokakyu {x y r p {timestart 0} d} {
+	global mydir effects enemy
+	
+	set randomnumber [expr 100*rand()]
+	if {$p == "hero"} {
+		set tp 2
+		get_image i_$randomnumber [file join $mydir images attacks fireball 2-1.gif]
+		set e 1
+		while {$e <= $enemy} {
+			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
+				set u "enemy$e"
+			}
+			incr e
+		}
+		set_chakra $u [expr [get_chakra $u] - 15]
+	} else {
+		set tp 1
+		get_image i_$randomnumber [file join $mydir images attacks fireball 1-1.gif]
+		set_chakra "hero" [expr [get_chakra "hero"] - 15]
+		set u "hero"
+	}
+	set t $timestart
+	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	set s [get_speed $p]
+	#normal chances
+	set chance [expr 100 - $s*10]
+	while {$t < [expr $timestart + 500]} {
+		if {$randomnumber < $chance} {
+			after $t "if_delete t_$randomnumber $u
+.c move t_$randomnumber [expr $r / 25] 0"
+		} else {
+			after $t ".c move t_$randomnumber [expr $r / 25] 0"
+		}
+		incr t 20	
+	}
+	set t $timestart
+	get_image i_$randomnumber-1 [file join $mydir images attacks fireball [set tp]-1.gif]
+	get_image i_$randomnumber-2 [file join $mydir images attacks fireball [set tp]-2.gif]
+	get_image i_$randomnumber-3 [file join $mydir images attacks fireball [set tp]-3.gif]
+	get_image i_$randomnumber-4 [file join $mydir images attacks fireball [set tp]-4.gif]
+	set k 1
+	while {$t < [expr $timestart + 500]} {
+		after $t ".c itemconfigure t_$randomnumber -image i_$randomnumber-$k"
+		incr k 1
+		if {$k > 4} {
+			set k 1
+		}
+		incr t 50
+	}
+	after $t ".c delete t_$randomnumber
+	replace"
+	if {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "katon-gokakyu"
+		if {[get_chakra $p] == 0} {
+			set_hitpoints $p 0
+		}
+	}
+}
 #bonus
 proc tech_raiko-kenka {u} {
 	global mydir effects
@@ -1842,6 +2005,29 @@ proc tech_hachimon-8 {u} {
 	}
 	after $t "replace"
 }
+proc tech_kyubi-1 {u} {
+	global mydir effects
+	set_form $u "onetail"
+	lappend effects [list kyubi-1 hero -1]
+	lappend effects [list nine-tails hero 1]
+}
+proc tech_kyubi-2 {u} {
+	global mydir effects
+	remove_form $u
+	set_form $u "twotail"
+	lappend effects [list kyubi-2 hero -1]
+	lappend effects [list kyubi-1 hero -1]
+	lappend effects [list nine-tails hero 1]
+	set_tai $u [expr [get_tai $u] + 1]
+	set_speed $u [expr [get_speed $u] + 1]
+}
+proc tech_kyubi-3 {u} {
+	global mydir
+	remove_form $u
+	set_form $u "threetail"
+	set_tai $u [expr [get_tai $u] + 1]
+	set_speed $u [expr [get_speed $u] + 3]
+}
 proc tech_soshuga {u} {
 	global mydir effects
 	if {$u == "hero"} {
@@ -2006,3 +2192,32 @@ proc tech_kawarimi {u} {
 	}
 	after $t "replace"
 } 
+proc tech_kage-bunshin {u} {
+	global mydir effects
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	lappend effects [list "shadow-clon" $u [get_nin $u]]
+	set x [getx $tag]
+	set y [gety $tag]
+	.c create line $x $y $x $y -tag original_$u
+	set_chakra $u [expr [get_chakra $u] - [get_chakra $u]/10]
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 7} {
+		after $t "get_image $tag [file join $mydir images heroes $user kage-bunshin $i.gif] run $u"
+		incr i
+		incr t 70
+	}
+	set i 1
+	while {$i <= 6} {
+		after $t "get_image $tag [file join $mydir images heroes $user clon-create $i.gif] run $u"
+		incr i
+		incr t 70
+	}
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif] run $u"
+	after $t "replace"
+}

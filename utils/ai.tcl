@@ -134,6 +134,7 @@ proc major_ai {tech p} {
 				mine_schema $mines $tech $p
 			} elseif {$c > 0 && ([get_status enemy$e] == "free" || [get_status enemy$e] == "passive")} {
 				.c move enemy$e [expr -10*($enemy - 2)] 0
+				.c move original_enemy$e [expr -10*($enemy - 2)] 0
 				if {$ai_type == "special"} {
 					special_[set n]_ai $e $tech $p
 				}
@@ -152,6 +153,7 @@ proc major_ai {tech p} {
 					}
 				}
 				.c move enemy$e [expr 10*($enemy - 2)] 0
+				.c move original_enemy$e [expr 10*($enemy - 2)] 0
 			}
 			incr e
 		}
@@ -354,11 +356,15 @@ proc bonus_tech_ai {num} {
 		}		
 	} else {
 		incr t -1
+		set x [getx original_enemy$num]
+		set y [gety original_enemy$num]
 		if {[lindex $priory $t] == "kawarimi" && ([get_height hero] > [get_height enemy$num] || ([get_height hero] < [get_height enemy$num] && [get_location hero] != [get_location enemy$num]))} {
 			mov_ai enemy$num "hero"
+		} elseif {[lindex $priory $t] == "kage-bunshin" && ((([get_height hero] == [get_height enemy$num]) && ([get_location hero] == [get_location enemy$num])) || ($x > 0 && $x < 1024 && $y > 0 && $y < 600))} {
+			return [melee_tech_ai $num]
 		} else {
 		tech_[lindex $priory $t] enemy$num
-		lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number"]]
+		lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
 		replace
 		}
 		return [list]
