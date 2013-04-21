@@ -33,10 +33,10 @@ proc rock_lee_stats {{type "skill"}} {
 	global campdir mydir skills accessskills tai speed tailist genlist futonlist fuinlist kuchieselist hidenlist nin gen
 	source [file join $campdir personstat.tcl]
 	set tailist [list "shofu" "konoha-senpu" "bunshin-taiatari" "naruto-rendan" "tsuten-kyaku" "naruto-nisen-rendan" "naruto-yonsen-rendan" "kawazu-kumite"]
-	set genlist [list "kawarimi" "kage-bunshin"]
+	set genlist [list "kawarimi" "kage-bunshin" "kibakufuda-no-kawarimi"]
 	set futonlist [list "futon-shinku-gyoku" "futon-hien" "futon-shinku-dai-gyoku" "futon-shinkuha" "futon-reppusho" "futon-shinku-renpa" "futon-rasengan" "futon-kazekiri" "futon-kiryu-ranbu" "futon-rasensuriken"]
-	set kuchieselist [list "kuchiese-gamabunta" "kuchiese-yatai-kuzushi"]
-	set fuinlist [list "kai" "kibakufuda"]
+	set kuchieselist [list "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "senpo-kawazu-naki"]
+	set fuinlist [list "kai" "kibakufuda" "hakke-fuin-shiki"]
 	set hidenlist [list "nine-tails" "taju-kage-bunshin" "shihohappo-suriken" "bunshin-no-henge" "rasengan" "odama-rasengan" "rasen-cho-tarengan" "sennin-mode"]
 	#kyubi no koromo, kage-bunsin, taju-kage-bunshin, kawarimi, kai, shinku gyoku, hien, shofu and konoha senpu.
 	set accessskills [list "nine-tails" "taju-kage-bunshin" "kawarimi" "kage-bunshin" "kai" "shofu" "konoha-senpu" "futon-shinku-gyoku" "futon-hien"]
@@ -54,6 +54,11 @@ proc rock_lee_stats {{type "skill"}} {
 	if {$level > 1} {
 		lappend accessskills "futon-shinkuha"
 		lappend accessskills "futon-reppusho"
+		lappend accessskills "kibakufuda"
+		lappend accessskills "hakke-fuin-shiki"
+	}
+	if {[is_in "kibakufuda" $skills] && [is_in "kawarimi" $skills]} {
+		lappend accessskills "kibakufuda-no-kawarimi"
 	}
 	if {[is_in "futon-shinku-dai-gyoku" $skills] && $level > 2} {
 		lappend accessskills "futon-shinku-renpa"
@@ -94,6 +99,7 @@ proc rock_lee_stats {{type "skill"}} {
 	}
 	if {[is_in "sennin-mode" $skills] && ($level > 3)} {
 		lappend accessskills "kawazu-kumite"
+		lappend accessskills "senpo-kawazu-naki"
 	}
 	set i 0
 	while {$i < [llength $accessskills]} {
@@ -110,7 +116,7 @@ proc rock_lee_stats {{type "skill"}} {
 	list_placing $genlist 395 98
 	list_placing $futonlist 465 98
 	list_placing $hidenlist 705 98
-	list_placing $kuchieselist 785 598
+	list_placing $kuchieselist 785 548
 	list_placing $fuinlist 865 98
 }
 proc click_skill {ex ey {status "skill"}} {
@@ -119,7 +125,7 @@ proc click_skill {ex ey {status "skill"}} {
 	list_info $genlist $ex $ey 395 98 $status "gen"
 	list_info $futonlist $ex $ey 465 98 $status "nin"
 	list_info $hidenlist $ex $ey 705 98 $status
-	list_info $kuchieselist $ex $ey 785 398 $status "nin"
+	list_info $kuchieselist $ex $ey 785 348 $status "nin"
 	list_info $fuinlist $ex $ey 865 98 $status "gen"
 	#attack button
 	if {[object_in $ex $ey 149 544 45 45]} {

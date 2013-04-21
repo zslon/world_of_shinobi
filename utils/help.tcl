@@ -1,12 +1,12 @@
 #imageworking
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu
 set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin"]
-set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
+set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
 set rangedlist [list "futon-rasensuriken" "hirudora" "futon-kiryu-ranbu" "asakujaku" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "katon-housenka" "futon-shinku-gyoku" "bunshin-no-henge" "katon-gokakyu" "futon-zankuha"]
-set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
+set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
 set ninjitsu [list "futon-rasensuriken" "rasen-cho-tarengan" "futon-kiryu-ranbu" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "odama-rasengan" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "rasengan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "taju-kage-bunshin" "katon-housenka" "katon-gokakyu" "futon-shinku-gyoku" "futon-zankuha" "kage-bunshin"]
 set taijitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
-set genjitsu [list "kawarimi" "kai"]
+set genjitsu [list "senpo-kawazu-naki" "kibakufuda-no-kawarimi" "kawarimi" "kai"]
 set physicjitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "tsuten-kyaku" "ura-renge" "omote-renge" "naruto-rendan" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "bunshin-no-henge" "shihohappo-suriken" "raiko-kenka" "kunai"]
 set futonjitsu [list "futon-rasensuriken" "futon-kiryu-ranbu" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "futon-shinku-gyoku" "futon-zankuha"]
@@ -58,6 +58,7 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "hosho" "Hosho" 0 0 0]
 	lappend cyclo [list "kawarimi" "Kawarimi no Jutsu" 0 1 10]
 	lappend cyclo [list "kage-bunshin" "Kage Bunsin no Jutsu" 0 $par 10]
+	lappend cyclo [list "kibakufuda-no-kawarimi" "Kibakufuda no Kawarimi" 0 1 20]
 	lappend cyclo [list "futon-zankuha" "Futon: Zankuha" [expr 7*$par] 1 15]
 	lappend cyclo [list "futon-zankukyokuha" "Futon: Zankukyokuha" [expr 10*$par] 1 25]
 	lappend cyclo [list "futon-shinku-gyoku" "Futon: Shinku Gyoku" 10 $par 15]
@@ -83,9 +84,11 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "tengoku-no-kuchiese" "Tengoku no Kuchiese" 0 0 75]
 	lappend cyclo [list "kuchiese-gamabunta" "Kuchiese: Gamabunta" [expr $par*3] 0 75]
 	lappend cyclo [list "kuchiese-yatai-kuzushi" "Kuchiese: Yatai Kuzushi no Jutsu" 0 0 100]
+	lappend cyclo [list "senpo-kawazu-naki" "Senpo Kuchiese: Kawazu Naki" 5 1 100]
 	lappend cyclo [list "kai" "Kai" $par 1 10]
 	lappend cyclo [list "kubakufuda" "Kibakufuda" 50 1 0]
 	lappend cyclo [list "kibakufuda" "Kibakufuda" 0 1 10]
+	lappend cyclo [list "hakke-fuin-shiki" "Hakke Fuin Shiki" 0 0 0]
 	foreach el $cyclo {
 		set r [enciclopedia_search $skill $obj [lindex $el 0] [lindex $el 1] [lindex $el 2] [lindex $el 3] [lindex $el 4]]
 		if {$r != "null"} {

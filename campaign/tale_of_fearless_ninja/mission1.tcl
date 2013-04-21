@@ -82,16 +82,20 @@ proc special_sasuke-enemy_ai {n tech p} {
 		set etap 4
 	}
 	if {$etap == 4} {
-		if {[get_hitpoints $tag] > 25 && ![is_in [list "kyubi-1" "hero" -1] $effects]} {
-			standart_ai $n $tech $p
-		} else {
+		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
 			destroy .s
 			block_battlepanel
 			victory
+		} else {
+			standart_ai $n $tech $p
 		}
 	}
 	if {$etap == 3 && [get_location hero] < [get_location $tag]} {
-		if {[get_chakra $tag] > 15} {
+		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
+			destroy .s
+			block_battlepanel
+			victory
+		} elseif {[get_chakra $tag] > 15} {
 			ranged_tech $tag "hero" "katon-gokakyu" [get_nin $tag] "none" 0
 		} else {
 			set etap 4

@@ -19,7 +19,7 @@ source [file join $mydir utils math.tcl]
 proc menupack {number name} {
 	global mydir but_$number
 	set but_$number $name
-	after [expr 400 + 75 * 12] ".$name configure -state normal"
+	.$name configure -state normal
 	if {$name == "back"} {
 		set name "quit"
 	}
@@ -46,8 +46,8 @@ proc menupack {number name} {
 }
 proc menuunpack {number name} {
 	global mydir
-	.$name configure -state disabled
 	set n 12
+	.$name configure -state disabled
 	if {$name == "back"} {
 		set name "quit"
 	}
@@ -134,18 +134,20 @@ button .new -state disabled -command {
 	menuunpack 1 "new"
 	menuunpack 2 "continue"
 	menuunpack 3 "quit"
+	set but_0 ""
+	set but_1 ""
+	set but_2 ""
+	set but_3 ""
 	if {$regim == "learning"} {
 		after 1000 {
 			menupack 1 "lee"
-			set but_0 ""
-			set but_2 ""
 			menupack 3 "back"
 		}
 	} elseif {$regim == "normal"} {
+
 		after 1000 {
 			menupack 0 "naruto"
 			menupack 1 "sasuke"
-			set but_2 ""
 			menupack 3 "back"
 		}
 	} elseif {$regim == "advanced"} {
@@ -162,9 +164,13 @@ button .continue -state disabled -command {
 	menuunpack 2 "continue"
 	menuunpack 3 "quit"
 	set n 0
+	set but_0 ""
+	set but_1 ""
+	set but_2 ""
+	set but_3 ""
 	while {$n < 3} {
 		if {[set camp_[set n]_mission] == 0} {
-			set but_[set n] ""
+			after 1000 {set but_[set n] ""}
 		} else {
 			after 1000 "menupack $n [set camp_[set n]_person]_c"
 		}
