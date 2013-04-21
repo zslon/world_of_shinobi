@@ -76,7 +76,7 @@ proc slide_5 {} {
 	kubakufuda_trap 350
 }
 proc special_sasuke-enemy_ai {n tech p} {
-	global etap enemy effects
+	global etap enemy effects dclones
 	set tag enemy$n
 	if {$etap == 3 && [get_location hero] == [get_location $tag]} {
 		set etap 4
@@ -84,7 +84,8 @@ proc special_sasuke-enemy_ai {n tech p} {
 	if {$etap == 4} {
 		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
 			destroy .s
-			block_battlepanel
+			set dclones 1
+			set_chakra hero 15 
 			victory
 		} else {
 			standart_ai $n $tech $p
@@ -93,7 +94,8 @@ proc special_sasuke-enemy_ai {n tech p} {
 	if {$etap == 3 && [get_location hero] < [get_location $tag]} {
 		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
 			destroy .s
-			block_battlepanel
+			set dclones 1
+			set_chakra hero 15 
 			victory
 		} elseif {[get_chakra $tag] > 15} {
 			ranged_tech $tag "hero" "katon-gokakyu" [get_nin $tag] "none" 0

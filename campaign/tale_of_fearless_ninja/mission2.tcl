@@ -2,13 +2,13 @@
 source [file join $mydir utils shinobi.tcl]
 source [file join $mydir utils buttons.tcl]
 global missionnumber heroname herolevel ai_type
-set missionnumber 1
+set missionnumber 2
 set heroname "naruto"
 set herolevel 1
 set ai_type "normal"
-autosave 0 1
+autosave 0 2
 breefing
-proc slide_1 {} {
+proc slide_5 {} {
 	global locations bonus
 	set bonus 0
 	phon 1
@@ -67,37 +67,26 @@ proc slide_4 {} {
 	uchiha_sasuke 100 420 {katon-gokakyu} 1
 	set_speed enemy1 2
 }
-proc slide_5 {} {
-	global locations skills bonus 
+proc slide_1 {} {
+	global locations skills bonus
+	set bonus 0
 	lappend skills "kyubi-enabled"
 	phon 5
 	set locations [list 1 1 1 1]
 	uchiha_sasuke 1000 520 {katon-gokakyu} 1
-	kubakufuda_trap 350
 }
 proc special_sasuke-enemy_ai {n tech p} {
-	global etap enemy effects dclones
+	global etap enemy effects
 	set tag enemy$n
-	if {$etap == 3 && [get_location hero] == [get_location $tag]} {
-		set etap 4
-	}
 	if {$etap == 4} {
-		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
-			destroy .s
-			set dclones 1
-			set_chakra hero 15 
-			victory
-		} else {
+		if {[get_hitpoints $tag] > 25 && ![is_in [list "kyubi-1" "hero" -1] $effects]} {
 			standart_ai $n $tech $p
+		} else {
+			
 		}
 	}
 	if {$etap == 3 && [get_location hero] < [get_location $tag]} {
-		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
-			destroy .s
-						set dclones 1
-			set_chakra hero 15 
-			victory
-		} elseif {[get_chakra $tag] > 15} {
+		if {[get_chakra $tag] > 15} {
 			ranged_tech $tag "hero" "katon-gokakyu" [get_nin $tag] "none" 0
 		} else {
 			set etap 4
@@ -110,6 +99,7 @@ proc special_sasuke-enemy_ai {n tech p} {
 			move $tag "right"
 		} else {
 			set enemy 0
+			kubakufuda_trap 950
 			move $tag "right"
 			after 2000 ".c delete $tag"
 			set etap 3
@@ -120,13 +110,7 @@ proc special_sasuke-enemy_ai {n tech p} {
 		set etap 2
 	}
 }
-proc special_kakashi_ai {n tech p} {
-}
 proc victory_special {} {
 	.c raise panel
-	hatake_kakashi 1000 1000 {}
-	set x1 [getx enemy1]
-	set x2 [getx heroi]
-	teleport enemy2 [expr ($x1+$x2)/2] 520
-	after 500 {replic kakashi-1 3000}
+	after 1000 {move enemy1 "left"}
 }
