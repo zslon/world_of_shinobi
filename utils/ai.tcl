@@ -1,3 +1,9 @@
+proc hero_ai_fox {n} {
+	global effects
+	if {$n < 5} {
+		hero_ai_agressive
+	}
+}
 proc hero_ai_agressive {} {
 	global enemy hero_ancof
 	set e 1

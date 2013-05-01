@@ -706,7 +706,9 @@ proc fighting_sensor {} {
 					ranged_tech "hero" enemy$e "kunai" $s "none" $es
 				}
 			} else {
-				
+				if {[get_status enemy$e] == "free"} {
+					ranged_tech enemy$e "hero" "kunai" $es "none" $s
+				}
 			}
 		}
 		if {$t == "melee"} {
@@ -733,6 +735,16 @@ proc fighting_sensor {} {
 						.c move heroi -10 0
 						#.c move original_hero -10 0
 					}
+				}
+			} else {
+				if {[get_status enemy$e] == "free"} {
+					melee_tech enemy$e "hero" "attack" $et "none" $t
+					.c move enemy$e -10 0
+					#.c move original_enemy$e -10 0
+					after 900 "
+						.c move enemy$e 10 0
+						#.c move original_enemy$e -10 0
+					"
 				}
 			}
 		}
@@ -815,9 +827,9 @@ proc dies {} {
 				incr e -1
 			}
 			incr enemy -1
-			if {[no_more_enemy] && [get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
+			if {[no_more_enemy] && ([get_hitpoints "hero"] > 0 || [getx original_hero] > 0) && [get_chakra "hero"] > 0} {
 				set level $herolevel
-				if {[get_chakra "hero"] < [expr 50*$level + ($level/3)*50 + ($level/4)*150]} {
+				if {[get_chakra "hero"] < [expr 50*$level + ($level/3)*50 + ($level/4)*150] || ([get_name "hero"] == "naruto") && [get_chakra "hero"] < [expr 3*(50*$level + ($level/3)*50 + ($level/4)*150)/2]} {
 					if {[expr [get_chakra "hero"] + $bonus] > [expr 50*$level + ($level/3)*50 + ($level/4)*150] && ([get_name "hero"] != "naruto") } {
 						set_chakra "hero" [expr 50*$level + ($level/3)*50 + ($level/4)*150]
 					} elseif {([get_name "hero"] == "naruto") && [expr [get_chakra "hero"] + $bonus] > [expr 3*(50*$level + ($level/3)*50 + ($level/4)*150)/2]} {
@@ -854,6 +866,20 @@ proc ranged_tech {from to name par ans par2} {
 	} else {
 		set tag $from
 		set tag2 "heroi"
+	}
+	if {[is_in [list "kawarimi" $to 1] $effects] && [get_gen $from] < [expr 2*[get_gen $to]]} {
+		set ans "none"
+		set par2 "0"
+		set dam 0
+		if {$to == "hero"} {
+			set tak "heroi"
+		} else {
+			set tak $to
+		}
+		kawarimi_teleport $tak [get_name $to]
+	} elseif {[is_in [list "kawarimi" $to 1] $effects] && [expr abs([get_location $from] - [get_location $to])] == 1 && [get_height $from] == [get_height $to]} {
+		set ans "kunai"
+		set par2 [get_speed $to]
 	}
 	set dam [enciclopedia $name "damage" $par]
 	set num [enciclopedia $name "number" $par]
@@ -896,6 +922,7 @@ proc ranged_tech {from to name par ans par2} {
 			set dam 0
 		}
 	} else {
+		
 		set nin2 [get_nin $to]
 		set_nin $to 0
 		set dam2 [enciclopedia $ans "damage" $par2]
@@ -946,6 +973,12 @@ proc ranged_tech {from to name par ans par2} {
 	if {($ans == "futon-zankuha" || $ans == "futon-zankukyokuha") && [is_kunai_based $name]} {
 		set dam [expr $dam / 2]
 	} 
+	if {$name == "futon-shinku-gyoku" && ![is_in [list "kyubi-1" $from -1] $effects]} {
+		set_chakra $from [expr [get_chakra $from] - 20]
+	}
+	if {$ans == "futon-shinku-gyoku" && ![is_in [list "kyubi-1" $to -1] $effects]} {
+		set_chakra $to [expr [get_chakra $to] - 20]
+	}
 	set n 1
 	while {$n <= $num || $n <= $num2} {		
 		if {[get_status $from] == "cast" && $n <= $num} {

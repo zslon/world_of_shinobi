@@ -123,6 +123,8 @@ proc special_sasuke-enemy_ai {n tech p} {
 proc special_kakashi_ai {n tech p} {
 }
 proc victory_special {} {
+	global skills
+	set skills [lreplace $skills [lsearch $skills kyubi-enabled] [lsearch $skills kyubi-enabled]]
 	.c raise panel
 	hatake_kakashi 1000 1000 {}
 	set x1 [getx enemy1]

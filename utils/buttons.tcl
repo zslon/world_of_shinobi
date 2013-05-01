@@ -150,13 +150,18 @@ proc unblock_battlepanel {} {
 proc next_slide {} {
 	global slide effects bonus enemy hero_ancof
 	set bonus 0
+	set xxx [getx original_hero]
+	set yyy [gety original_hero]
 	set y [gety "heroi"]
+	if {$xxx > 0 && $xxx < 2000} {
+		.c move original_hero [expr 50 - $xxx] [expr $y - $yyy]
+	}
 	set slide [expr $slide + 1]
 	set i 0
 	foreach e $effects {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
-		effect $do $owner "remove"
+		effect $do $owner "remove" "nextslide"
 		incr i
 	}
 	set effects [lreplace $effects 0 [expr [llength $effects] - 1]]
@@ -433,7 +438,68 @@ button .button_taju-kage-bunshin -state disabled -command {
 		end_turn "taju-kage-bunshin"
 	} elseif {[is_in [list "kyubi-1" "hero" -1] $effects]} {
 		no_clones_in_kyubi_mode
-	} elseif {[get_chakra "hero"] < 51} {
+	} elseif {[get_chakra "hero"] < 50} {
+		no_chakra_message
+	}
+}
+button .button_kage-bunshin -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] == $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		incr e
+	}
+	if {[get_chakra "hero"] > 9 && !([is_in "kage-bunshin" $used]) && ![is_in [list "kyubi-1" "hero" -1] $effects] && $q == 0} {
+		tech_kage-bunshin "hero"
+		lappend effects [list "kage-bunshin" "hero" [get_nin "hero"]]
+		lappend used "kage-bunshin"
+		replace
+		end_turn "kage-bunshin"
+	} elseif {[is_in [list "kyubi-1" "hero" -1] $effects]} {
+		no_clones_in_kyubi_mode
+	} elseif {[get_chakra "hero"] < 10} {
+		no_chakra_message
+	}
+}
+button .button_kawarimi -state disabled -command {
+	if {[get_chakra "hero"] > 9} {
+		end_turn "kawarimi"
+		tech_kawarimi "hero"
+		lappend effects [list "kawarimi" "hero" 1]
+		replace
+	} elseif {[get_chakra "hero"] < 10} {
+		no_chakra_message
+	}
+}
+button .button_kai -state disabled -command {
+	if {[get_chakra "hero"] > 9} {
+		end_turn "kai"
+		tech_kai "hero"
+		replace
+	} elseif {[get_chakra "hero"] < 10} {
+		no_chakra_message
+	}
+}
+button .button_futon-shinku-gyoku -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] >= $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		incr e
+	}
+	if {[get_chakra "hero"] > 19 && ($q > 0)} {
+		end_turn "futon-shinku-gyoku" [get_nin "hero"]
+	} elseif {[get_chakra "hero"] < 20} {
 		no_chakra_message
 	}
 }

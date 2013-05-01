@@ -1,6 +1,6 @@
 #imageworking
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu
-set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin"]
+set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin" "kage-bunshin" "kawarimi" "kai" "futon-shinku-gyoku"]
 set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
 set rangedlist [list "futon-rasensuriken" "hirudora" "futon-kiryu-ranbu" "asakujaku" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "katon-housenka" "futon-shinku-gyoku" "bunshin-no-henge" "katon-gokakyu" "futon-zankuha"]
 set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]

@@ -34,7 +34,7 @@ set guiskillist [list "kai" "kibakufuda" "kage-bunshin" "kuchiese-ninkame" "teng
 foreach s $guiskillist {
 	get_image skill_$s [file join $mydir images skills gui $s.gif]
 }
-set narutoskillist [list "nine-tails" "taju-kage-bunshin"]
+set narutoskillist [list "nine-tails" "taju-kage-bunshin" "futon-hien" "futon-rasensuriken" "futon-kiryu-ranbu" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "futon-shinkuha" "futon-shinku-dai-gyoku" "futon-shinku-gyoku" "futon-reppusho" "bunshin-taiatari" "naruto-rendan" "naruto-nisen-rendan" "naruto-yonsen-rendan" "kawazu-kumite" "kibakufuda-no-kawarimi" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "senpo-kawazu-naki" "hakke-fuin-shiki" "shihohappo-suriken" "bunshin-no-henge" "rasengan" "odama-rasengan" "rasen-cho-tarengan" "sennin-mode" ]
 foreach s $narutoskillist {
 	get_image skill_$s [file join $mydir images skills naruto $s.gif]
 }
@@ -396,7 +396,7 @@ proc replace {} {
 proc stand_animation {tag im {s 0}} {
 	global hero_ancof mydir slide
 	if {$tag == "heroi"} {
-		if {$hero_ancof} {
+		if {$hero_ancof && [get_name "hero"] == $im} {
 			set hero_ancof [expr $hero_ancof + 1]
 			if {$hero_ancof == 5} {
 				set hero_ancof 1
@@ -475,11 +475,16 @@ proc clon-pufff {tag im} {
 	global mydir
 	set t 100
 	set i 1
+	if {$tag == "hero"} {
+		set tag2 heroi
+	} else {
+		set tag2 $tag
+	}
 	while {$t < 1000} {
 		if {$i < 8} {
-			after $t "get_image $tag [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
+			after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
 		} else {
-			after $t "get_image $tag [file join $mydir images heroes $im clon-pufff $i.gif]"
+			after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif]"
 		}
 		incr t 100
 		incr i 1
@@ -1276,6 +1281,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-1 "hero"
+					hero_ai_fox 1
 					replace
 					destroy .s
 				}	
@@ -1288,6 +1294,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-2 "hero"
+					hero_ai_fox 2
 					replace
 					destroy .s
 				}	
@@ -1300,6 +1307,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-3 "hero"
+					hero_ai_fox 3
 					replace
 					destroy .s
 				}	
@@ -1312,6 +1320,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-4 "hero"
+					hero_ai_fox 4
 					replace
 					destroy .s
 				}	
@@ -1324,6 +1333,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-5 "hero"
+					hero_ai_fox 5
 					replace
 					destroy .s
 				}	
@@ -1336,6 +1346,7 @@ proc kyubi_new_tail_message {n} {
  			bind .s.c <ButtonPress> {
 				if {[object_in %x %y 83 272 125 25]} {
 					tech_kyubi-6 "hero"
+					hero_ai_fox 6
 					replace
 					destroy .s
 				}	
@@ -1346,6 +1357,7 @@ proc kyubi_new_tail_message {n} {
 		}
 	} else {
 		tech_kyubi-$n
+		hero_ai_fox $n
 		replace
 		destroy .s
 	}
@@ -1373,6 +1385,26 @@ proc no_clones_in_kyubi_mode {} {
 proc no_chakra_message {} {
 	global mydir
 	get_image no_mess [file join $mydir images skills information no_chakra.gif]
+	catch {
+		destroy .s
+	}
+	toplevel .s
+	wm title .s {You have`nt chakra!}
+	wm geometry .s 400x300
+	wm maxsize .s 400 300
+	wm minsize .s 400 300
+	canvas .s.c -height 300 -width 400 -bg black
+	.s.c create image 200 150 -image no_mess -tag infa
+	pack .s.c -side top
+	bind .s.c <ButtonPress> {
+		if {[object_in %x %y 320 272 125 25]} {
+			destroy .s
+		}			
+	}	
+}
+proc kyubi_no_chakra_message {} {
+	global mydir
+	get_image no_mess [file join $mydir images skills information kyubi_no_chakra.gif]
 	catch {
 		destroy .s
 	}

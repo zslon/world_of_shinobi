@@ -94,7 +94,7 @@ proc special_sasuke-enemy_ai {n tech p} {
 	if {$etap == 3 && [get_location hero] < [get_location $tag]} {
 		if {[is_in [list "kyubi-1" "hero" -1] $effects] || [get_hitpoints $tag] < 26} {
 			destroy .s
-						set dclones 1
+			set dclones 1
 			set_chakra hero 15 
 			victory
 		} elseif {[get_chakra $tag] > 15} {
@@ -123,6 +123,8 @@ proc special_sasuke-enemy_ai {n tech p} {
 proc special_kakashi_ai {n tech p} {
 }
 proc victory_special {} {
+	global skills
+	
 	.c raise panel
 	hatake_kakashi 1000 1000 {}
 	set x1 [getx enemy1]
