@@ -158,17 +158,36 @@ proc special_sakura_ai {n tech p} {
 }
 proc special_kakashi_ai {n tech p} {
 	global dclones
-	if {[get_location hero] == [get_location enemy$n] && [get_height hero] == [get_height enemy$n]} {
-		set_speed hero 0
+	if {[get_location hero] < [get_location enemy$n] && [get_height hero] == [get_height enemy$n] && $tech == "run" && $p == 0} {
+		after 900 "
+			set_speed hero 0
+			set_speed enemy$n 0
+		"
 		victory
 		set dclones 1
+	} elseif {[get_height hero] == 2 && [get_location hero] == 2 && $tech == "run" && $p == 2} {
+		set s1 [get_speed hero]
+		set s2 [get_speed enemy$n]
+		set_speed hero 0
+		set_speed enemy$n 0
+		if {$s1 != 0} {
+		after 1800 "
+			set_speed hero $s1
+		"
+		}
+		if {$s2 != 0} {
+		after 1800 "
+			set_speed enemy$n $s2
+		"
+		}
 	} else {
 		set s [get_speed enemy$n]
 		set_speed enemy$n 0
-		after 2000 "
+		if {$s != 0} {
+		after 1800 "
 			set_speed enemy$n $s
 		"
-		set_speed enemy$n 0
+		}
 	}
 }
 proc victory_special {} {

@@ -156,6 +156,14 @@ proc effect {name owner what {pr "nextturn"}} {
 					}
 					incr e 1			
 				}
+				set trns 2
+				while {$trns >= 0} {
+					if {[is_in [list "nine-tails" $owner $trns] $effects]} {
+						set it [lsearch $effects [list "nine-tails" $owner $trns]]
+						set effects [lreplace $effects $it $it]
+					}
+					incr trns -1					
+				}
 				if {[get_chakra $owner] > 20} {
 					kyubi_new_tail_message $nt
 				} else {
