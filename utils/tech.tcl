@@ -741,7 +741,7 @@ get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 	after $t "replace"
 }
 proc tech_shofu {u p {timestart 0} interval d} {
-	global mydir
+	global mydir effects
 	if {$u == "hero"} {
 		set tag "heroi"
 	} else {
@@ -2271,25 +2271,6 @@ proc tech_taju-kage-bunshin {u} {
 	after $t "replace"
 }
 #genjitsu bonus
-proc tech_kawarimi {u} {
-	global mydir
-	if {$u == "hero"} {
-		set tag "heroi"
-	} else {
-		set tag $u
-	}
-	set_nin $u 0
-	set_chakra $u [expr [get_chakra $u] - 10]
-	set user [get_name $u]
-	set t 100
-	set i 1
-	while {$i <= 5} {
-		after $t "get_image $tag [file join $mydir images heroes $user kawarimi $i.gif] run $u"
-		incr i
-		incr t 100
-	}
-	after $t "replace"
-} 
 proc tech_kage-bunshin {u} {
 	global mydir effects
 	if {$u == "hero"} {
@@ -2320,7 +2301,7 @@ proc tech_kage-bunshin {u} {
 	after $t "replace"
 }
 proc tech_kawarimi {u} {
-	global mydir
+	global mydir effects
 	if {$u == "hero"} {
 		set tag "heroi"
 	} else {

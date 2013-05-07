@@ -49,8 +49,14 @@ proc slide_5 {} {
 	genin_robber 700 520 1 1 1 1 {}
 }
 proc slide_6 {} {
-	global locations bonus ai_type uplev
+	global locations bonus ai_type uplev skills
 	set uplev 1
+	if {[is_in "kawarimi" $skills]} {
+		lappend skills "kage-bunshin"
+	} else {
+		lappend skills "kawarimi"
+	}
+	replace
 	set ai_type "special"
 	set bonus 0
 	phon 6
