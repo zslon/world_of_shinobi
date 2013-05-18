@@ -686,29 +686,25 @@ proc fighting_sensor {} {
 		if {[getx green_medic] > 0} {
 			if {[object_in [getx heroi] [gety heroi] [getx green_medic] [gety green_medic] 25 25]} {
 				set level $herolevel
-				if {[get_hitpoints "hero"] < [expr 50*($level + 1)]} {
-					set_hitpoints "hero" [expr [get_hitpoints "hero"] + 25]
-					if {[get_hitpoints "hero"] > [expr 50*($level + 1)]} {
-						set_hitpoints "hero" [expr 50*($level + 1)]
-					}
-					set_chakra "hero" [expr [get_chakra "hero"] + 25]
-					concentrate_chakra "heroi" [get_name "hero"]
-					.c delete green_medic				
+				set_hitpoints "hero" [expr [get_hitpoints "hero"] + 25]
+				if {[get_hitpoints "hero"] > [expr 50*($level + 1)]} {
+					set_hitpoints "hero" [expr 50*($level + 1)]
 				}
+				set_chakra "hero" [expr [get_chakra "hero"] + 25]
+				concentrate_chakra "heroi" [get_name "hero"]
+				.c delete green_medic				
 			}
 		}
 		if {[getx yellow_medic] > 0} {
 			if {[object_in [getx heroi] [gety heroi] [getx yellow_medic] [gety yellow_medic] 25 25]} {
 				set level $herolevel
-				if {[get_hitpoints "hero"] < [expr 50*($level + 1)]} {
-					set_hitpoints "hero" [expr [get_hitpoints "hero"] + 50]
-					if {[get_hitpoints "hero"] > [expr 50*($level + 1)]} {
-						set_hitpoints "hero" [expr 50*($level + 1)]
-					}
-					set_chakra "hero" [expr [get_chakra "hero"] + 50]
-					concentrate_chakra "heroi" [get_name "hero"]
-					.c delete yellow_medic				
+				set_hitpoints "hero" [expr [get_hitpoints "hero"] + 50]
+				if {[get_hitpoints "hero"] > [expr 50*($level + 1)]} {
+					set_hitpoints "hero" [expr 50*($level + 1)]
 				}
+				set_chakra "hero" [expr [get_chakra "hero"] + 50]
+				concentrate_chakra "heroi" [get_name "hero"]
+				.c delete yellow_medic				
 			}
 		}
 	} else {
