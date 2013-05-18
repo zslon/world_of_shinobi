@@ -222,6 +222,7 @@ proc create_battlepanel {} {
 	set y 75
 	foreach s $skills {
 		if {[enciclopedia $s chakra] != 0} {
+			#.c create text $x [expr $y - 10] -fill white -text [enciclopedia $s chakra] -tag panel
 			.c create image $x $y -image skill_$s -tag panel
 			incr x 45
 		}
