@@ -1,3 +1,5 @@
+#fonts
+font create Arial -family Courier -size 10
 #imageworking
 proc get_image {im from {arg1 "norm"} {arg2 "hero"} {arg3 "none"}} {
 	set num 0
@@ -222,7 +224,6 @@ proc create_battlepanel {} {
 	set y 75
 	foreach s $skills {
 		if {[enciclopedia $s chakra] != 0} {
-			#.c create text $x [expr $y - 10] -fill white -text [enciclopedia $s chakra] -tag panel
 			.c create image $x $y -image skill_$s -tag panel
 			incr x 45
 		}
@@ -249,6 +250,7 @@ proc create_battlepanel {} {
 	if {$slide == 1} {
 		unblock_battlepanel
 	}
+	replace
 }
 proc click_in_game {ex ey} {
 	global mydir skills
@@ -384,6 +386,14 @@ proc replace {} {
 	foreach s $skills {
 		if {[is_in $s $used]} {
 			.c create image $x $y -image cross -tag cross 
+		} else {
+			set co [enciclopedia $s chakra]
+			if {$s == "kage-bunshin"} {
+				set co [expr [get_chakra hero] / 10]
+			}
+			if {$co != 0} {
+				.c create text [expr $x - 10] [expr $y - 15] -fill white -text $co -tag cross -font Arrial
+			}
 		}
 		if {[enciclopedia $s chakra] != 0} {
 			incr x 45

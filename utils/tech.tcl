@@ -15,8 +15,10 @@ proc effect_work {} {
 		}
 		effect $do $owner "do"
 		if {$t == 0} {
-			set effects [lreplace $effects $i $i]
-			effect $do $owner "remove"
+			if {[llength $effects] > $i} {
+				set effects [lreplace $effects $i $i]
+				effect $do $owner "remove"
+			}
 		} else {
 			incr i
 		}
@@ -329,7 +331,7 @@ proc take_damage {p d t {tim 0}} {
 					}
 				} elseif {[is_in "one-tails" [get_skills $p]] && [is_in "shukaku-enabled" $skills]} {
 				#One Tails
-				} elseif {[is_in "suiton-suika" [get_skills $p]] && [get_hitpoints $p] <= 0 && ([get_chakra $p] > 10 || [is_in [list "suiton-suika" $p 1] $effects])} {
+				} elseif {[is_in "suiton-suika" [get_skills $p]] && [get_hitpoints $p] <= 0 && ([get_chakra $p] > 10 || [is_in [list "suiton-suika" $p 1] $effects]) && ![is_suiton_based $t] && ![is_doton_based $t] && ![is_futon_based $t] && ![is_raiton_based $t]} {
 					#Suika no Jutsu - remove damage
 					set_hitpoints $p [expr [get_hitpoints $p] + $d]
 					set d 0

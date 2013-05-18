@@ -899,7 +899,7 @@ proc ranged_tech {from to name par ans par2} {
 	} elseif {[is_in [list "kawarimi" $to 1] $effects] && [expr abs([get_location $from] - [get_location $to])] == 1 && [get_height $from] == [get_height $to]} {
 		set ans "kunai"
 		set par2 [get_speed $to]
-	} elseif {[is_in [list "suiton-suika" $to 1] $effects] && ![is_suiton_based $tech] && ![is_doton_based $tech] && ![is_futon_based $tech] && ![is_raiton_based $tech]} {
+	} elseif {[is_in [list "suiton-suika" $to 1] $effects] && ![is_suiton_based $name] && ![is_doton_based $name] && ![is_futon_based $name] && ![is_raiton_based $name]} {
 		set ans "none"
 		set par2 "0"
 		set dam 0
