@@ -431,8 +431,8 @@ button .button_hirudora -state disabled -command {
 #Naruto
 button .button_taju-kage-bunshin -state disabled -command {
 	if {[get_chakra "hero"] > 49 && !([is_in "taju-kage-bunshin" $used]) && ![is_in [list "kyubi-1" "hero" -1] $effects]} {
-		tech_taju-kage-bunshin "hero"
 		lappend effects [list "taju-kage-bunshin" "hero" [expr [get_nin "hero"] * 2]]
+		tech_taju-kage-bunshin "hero"
 		lappend used "taju-kage-bunshin"
 		replace
 		end_turn "taju-kage-bunshin"
