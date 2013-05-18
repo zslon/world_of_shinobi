@@ -1,16 +1,19 @@
 #imageworking
-global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu
+global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu futonjitsu katonjitsu suitonjitsu dotonjitsu raitonjitsu
 set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin" "kage-bunshin" "kawarimi" "kai" "futon-shinku-gyoku"]
 set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
 set rangedlist [list "futon-rasensuriken" "hirudora" "futon-kiryu-ranbu" "asakujaku" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "katon-housenka" "futon-shinku-gyoku" "bunshin-no-henge" "katon-gokakyu" "futon-zankuha"]
-set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
-set ninjitsu [list "futon-rasensuriken" "rasen-cho-tarengan" "futon-kiryu-ranbu" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "odama-rasengan" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "rasengan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "taju-kage-bunshin" "katon-housenka" "katon-gokakyu" "futon-shinku-gyoku" "futon-zankuha" "kage-bunshin"]
+set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "hachimon-4" "hachimon-3" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "suiton-kirigakure" "suiton-suika" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
+set ninjitsu [list "futon-rasensuriken" "rasen-cho-tarengan" "futon-kiryu-ranbu" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "odama-rasengan" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "rasengan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "taju-kage-bunshin" "suiton-kirigakure" "suiton-suika" "katon-housenka" "katon-gokakyu" "futon-shinku-gyoku" "futon-zankuha" "kage-bunshin"]
 set taijitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
 set genjitsu [list "senpo-kawazu-naki" "kibakufuda-no-kawarimi" "kawarimi" "kai"]
 set physicjitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "tsuten-kyaku" "ura-renge" "omote-renge" "naruto-rendan" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
 set kunaijitsu [list "sogu-tensasai" "sofusha-san-no-tachi" "soshoryu" "bunshin-no-henge" "shihohappo-suriken" "raiko-kenka" "kunai"]
 set futonjitsu [list "futon-rasensuriken" "futon-kiryu-ranbu" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "futon-shinku-gyoku" "futon-zankuha"]
 set katonjitsu [list "katon-housenka" "katon-gokakyu"]
+set suitonjitsu [list "suiton-kirigakure" "suiton-suika"]
+set dotonjitsu [list ]
+set raitonjitsu [list ]
 proc enciclopedia_search {testskill testobj skill name damage number chakra} {
 	if {$testskill == $skill} {
 		return [set [set testobj]]
@@ -73,6 +76,8 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "futon-rasensuriken" "Futon: Rasensuriken" [expr 40*$par] 1 150]
 	lappend cyclo [list "katon-gokakyu" "Katon: Gokakyu no Jutsu" [expr 10*$par] 1 15]
 	lappend cyclo [list "katon-housenka" "Katon: Housenka no Jutsu" 7 $par 10]
+	lappend cyclo [list "suiton-suika" "Suika no Jutsu" 0 1 10]
+	lappend cyclo [list "suiton-kirigakure" "Kirigakure no Jutsu" 0 -1 15]
 	lappend cyclo [list "raiko-kenka" "Kuchiese: Raiko Kenka" 0 -1 15]
 	lappend cyclo [list "kuchiese-kusarigama" "Kuchiese: Kusarigama" 0 -1 15]
 	lappend cyclo [list "kuchiese-meisu" "Kuchiese: Meisu" 0 -1 25]
@@ -129,11 +134,31 @@ proc is_kunai_based {tech} {
 	global kunaijitsu
 	return [is_in $tech $kunaijitsu]
 }
+proc is_futon_based {tech} {
+	global futonjitsu
+	return [is_in $tech $futonjitsu]
+}
+proc is_katon_based {tech} {
+	global katonjitsu
+	return [is_in $tech $katonjitsu]
+}
+proc is_suiton_based {tech} {
+	global suitonjitsu
+	return [is_in $tech $suitonjitsu]
+}
+proc is_doton_based {tech} {
+	global dotonjitsu
+	return [is_in $tech $dotonjitsu]
+}
+proc is_raiton_based {tech} {
+	global raitonjitsu
+	return [is_in $tech $raitonjitsu]
+}
 proc have_special_animate {tech} {
 #range tech, with have special animate
 	return [is_in $tech [list "hirudora" "asakujaku" "sogu-tensasai" "soshoryu"]]
 }
 proc is_high {name} {
 #hero height for kunai technics
-	return [is_in [get_name $name] [list "gui" "chunin-sound"]]
+	return [is_in [get_name $name] [list "gui" "kakashi" "chunin-sound"]]
 }

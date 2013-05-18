@@ -51,10 +51,10 @@ proc slide_5 {} {
 proc slide_6 {} {
 	global locations bonus ai_type uplev skills
 	set uplev 1
-	if {[is_in "kawarimi" $skills]} {
-		lappend skills "kage-bunshin"
-	} else {
+	if {[is_in "kage-bunshin" $skills]} {
 		lappend skills "kawarimi"
+	} else {
+		lappend skills "kage-bunshin"
 	}
 	replace
 	set ai_type "special"
@@ -69,6 +69,7 @@ proc special_sakura_ai {n tech p} {
 	#ranged battle is always recommended
 	global uplev mydir
 	set tag enemy$n
+	set h 0
 	if {[get_hitpoints enemy$n] < 1} {
 		set hero_ancof 0
 		block_battlepanel
@@ -81,12 +82,16 @@ proc special_sakura_ai {n tech p} {
 	if {$uplev == 3} {
 		if {[get_location hero] == [get_location $tag] && [get_height hero] == [get_height $tag] && ($tech != "run" || $p == 2)} {
 			if {[is_melee $tech] && [get_chakra $tag] > 10} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10 && [get_status hero] == "free"} {
+				set h 1
 				melee_tech "hero" $tag "attack" [get_tai hero] "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10} {
+				set h 1
 				melee_tech $tag "hero" "shofu" [get_tai $tag] "none" 0
 			} elseif {[is_melee $tech] && [get_chakra $tag] < 11} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "attack" [get_tai $tag]
 			} else {
 				#nonething - fighting_sensor
@@ -100,12 +105,16 @@ proc special_sakura_ai {n tech p} {
 			
 		} elseif {[get_location hero] == [get_location $tag] && [get_height hero] == [get_height $tag] && ($tech != "run" || $p == 2)} {
 			if {[is_melee $tech] && [get_chakra $tag] > 10} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10 && [get_status hero] == "free"} {
+				set h 1
 				melee_tech "hero" $tag "attack" [get_tai hero] "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10} {
+				set h 1
 				melee_tech $tag "hero" "shofu" [get_tai $tag] "none" 0
 			} elseif {[is_melee $tech] && [get_chakra $tag] < 11} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "attack" [get_tai $tag]
 			} else {
 				#nonething - fighting_sensor
@@ -146,12 +155,16 @@ proc special_sakura_ai {n tech p} {
 			
 		} elseif {[get_location hero] == [get_location $tag] && [get_height hero] == [get_height $tag] && ($tech != "run" || $p == 2)} {
 			if {[is_melee $tech] && [get_chakra $tag] > 10} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10 && [get_status hero] == "free"} {
+				set h 1
 				melee_tech "hero" $tag "attack" [get_tai hero] "shofu" [get_tai $tag]
 			} elseif {[get_chakra $tag] > 10} {
+				set h 1
 				melee_tech $tag "hero" "shofu" [get_tai $tag] "none" 0
 			} elseif {[is_melee $tech] && [get_chakra $tag] < 11} {
+				set h 1
 				melee_tech "hero" $tag $tech $p "attack" [get_tai $tag]
 			} else {
 				#nonething - fighting_sensor
@@ -159,6 +172,17 @@ proc special_sakura_ai {n tech p} {
 		} elseif {$tech == "run" && $p == 0} {
 			move $tag "up"
 			set uplev 2
+		}
+	}
+	if {$tech != "run" && $tech != "none" && $h == 0} {
+		if {[is_ranged $tech] && [get_height $tag] == [get_height "hero"]} {
+			if {[dist "heroi" $tag] < 360} {
+				ranged_tech "hero" $tag $tech $p "kunai" [get_speed $tag]
+			} else {
+				ranged_tech "hero" $tag $tech $p "none" 0
+			}
+		} elseif {[is_melee $tech] && [get_location $tag] == [get_location "hero"]} {
+			melee_tech "hero" $tag $tech $p "attack" [get_tai $tag]
 		}
 	}
 }
@@ -197,7 +221,20 @@ proc special_kakashi_ai {n tech p} {
 	}
 }
 proc victory_special {} {
-	global skills
-	set skills [lreplace $skills [lsearch $skills kyubi-enabled] [lsearch $skills kyubi-enabled]]
+	global campdir
+	source [file join $campdir personstat.tcl]
+	if {[is_in "kage-bunshin" $skills]} {
+		lappend skills "kawarimi"
+	} else {
+		lappend skills "kage-bunshin"
+	}
+	set f [open [file join $campdir personstat.tcl] w]
+	puts $f "set level $level"
+	puts $f "set tai $tai"
+	puts $f "set gen $gen"
+	puts $f "set nin $nin"
+	puts $f "set speed $speed"
+	puts $f "set skills \{$skills\}" 
+	close $f 
 	.c raise panel
 }

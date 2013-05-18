@@ -121,10 +121,15 @@ proc special_sasuke-enemy_ai {n tech p} {
 	}
 }
 proc special_kakashi_ai {n tech p} {
+	standart_ai $n $tech $p
+	if {} {
+	} else {
+		rolic "naruto_in_a_bridge"
+	}
 }
 proc victory_special {} {
 	global skills
-	
+	set skills [lreplace $skills [lsearch $skills kyubi-enabled] [lsearch $skills kyubi-enabled]]
 	.c raise panel
 	hatake_kakashi 1000 1000 {}
 	set x1 [getx enemy1]

@@ -471,7 +471,7 @@ proc concentrate_chakra {tag im} {
 		incr i 
 	}
 }
-proc clon-pufff {tag im} {
+proc clon-pufff {tag im {type "shadow"}} {
 	global mydir
 	set t 100
 	set i 1
@@ -481,10 +481,19 @@ proc clon-pufff {tag im} {
 		set tag2 $tag
 	}
 	while {$t < 1000} {
-		if {$i < 8} {
-			after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
-		} else {
-			after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif]"
+		if {$type == "shadow"} {
+			if {$i < 8} {
+				after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
+			} else {
+				after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif]"
+			}
+		}
+		if {$type == "water"} {
+			if {$i < 8} {
+				after $t "get_image $tag2 [file join $mydir images heroes $im suiton-suika [expr $i+5].gif] run $tag"	
+			} else {
+				after $t "get_image $tag2 [file join $mydir images heroes $im suiton-suika 12.gif]"
+			}
 		}
 		incr t 100
 		incr i 1
@@ -629,7 +638,7 @@ proc kawarimi_teleport {tag im} {
 			set le [lindex $locations [expr $l - 1]]
 			if {abs($le) == $h || ($h < $le)} {
 				after 600 ".c move $tag -300 0"
-			} elseif {$le < $h} {
+			} elseif {$le < $h && $le > 0} {
 				set d [expr ($h - $le) * 100]
 				after 600 ".c move $tag -300 $d"
 			} else {
@@ -640,8 +649,11 @@ proc kawarimi_teleport {tag im} {
 					if {abs($le) == $h || ($h < $le)} {
 						after 600 ".c move $tag 300 0"
 					} else {
-						set d [expr ($h - $le) * 100]
-						after 600 ".c move $tag 300 $d"
+						if {$le < 0} {
+						} else {
+							set d [expr ($h - $le) * 100]
+							after 600 ".c move $tag 300 $d"
+						}
 					}
 				}
 			}
@@ -653,8 +665,11 @@ proc kawarimi_teleport {tag im} {
 				if {abs($le) == $h || ($h < $le)} {
 					after 600 ".c move $tag 300 0"
 				} else {
-					set d [expr ($h - $le) * 100]
-					after 600 ".c move $tag 300 $d"
+					if {$le < 0} {
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 600 ".c move $tag 300 $d"
+					}
 				}
 			}
 		}
@@ -665,7 +680,7 @@ proc kawarimi_teleport {tag im} {
 			set le [lindex $locations [expr $l + 1]]
 			if {abs($le) == $h || ($h < $le)} {
 				after 600 ".c move $tag 300 0"
-			} elseif {$le < $h} {
+			} elseif {$le < $h && $le > 0} {
 				set d [expr ($h - $le) * 100]
 				after 600 ".c move $tag 300 $d"
 			} else {
@@ -676,8 +691,11 @@ proc kawarimi_teleport {tag im} {
 					if {abs($le) == $h || ($h < $le)} {
 						after 600 ".c move $tag -300 0"
 					} else {
+						if {$le < 0} {
+						} else {
 						set d [expr ($h - $le) * 100]
 						after 600 ".c move $tag -300 $d"
+						}
 					}
 				}
 			}
@@ -689,8 +707,11 @@ proc kawarimi_teleport {tag im} {
 				if {abs($le) == $h || ($h < $le)} {
 					after 600 ".c move $tag -300 0"
 				} else {
-					set d [expr ($h - $le) * 100]
-					after 600 ".c move $tag -300 $d"
+					if {$le < 0} {
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 600 ".c move $tag -300 $d"
+					}
 				}
 			}
 		}
@@ -702,6 +723,22 @@ proc kawarimi_teleport {tag im} {
 		incr t 100
 		incr i 
 	}
+}
+proc suika_no_jutsu {tag im} {
+	global locations mydir
+	set t 100
+	set i 6
+	while {$i <= 12} {
+		after $t "get_image $tag [file join $mydir images heroes $im suiton-suika $i.gif]"	
+		incr t 100
+		incr i 
+	}
+	set i 12
+	while {$i >= 6} {
+		after $t "get_image $tag [file join $mydir images heroes $im suiton-suika $i.gif]"	
+		incr t 100
+		incr i -1 
+	}	
 }
 proc teleport {who x y} {
 	global mydir
@@ -1015,6 +1052,15 @@ proc genin_armmaster_from_sound {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-sound-armmaster" $slide
+}
+proc genin_watermaster_from_mist {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes genin-mist-watermaster stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "genin-mist-watermaster" $slide
 }
 proc chunin_from_sound {x y} {
 	global mydir enemy slide

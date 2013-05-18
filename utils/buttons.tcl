@@ -468,9 +468,9 @@ button .button_kage-bunshin -state disabled -command {
 }
 button .button_kawarimi -state disabled -command {
 	if {[get_chakra "hero"] > 9} {
+		lappend effects [list "kawarimi" "hero" 1]
 		end_turn "kawarimi"
 		tech_kawarimi "hero"
-		lappend effects [list "kawarimi" "hero" 1]
 		replace
 	} elseif {[get_chakra "hero"] < 10} {
 		no_chakra_message

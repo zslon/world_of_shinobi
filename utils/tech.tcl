@@ -109,22 +109,34 @@ proc effect {name owner what {pr "nextturn"}} {
 		}
 	}
 	if {$what == "remove"} {
+		if {$name == "suiton-kirigakure"} {
+			.c delete mist
+		}
 		if {$name == "kibakufuda"} {
 			detonation $owner
 		}
 		if {$name == "suiken"} {
 			set_speed $owner [expr [get_speed $owner] - 2]
 		}
-		if {$name == "shadow-clon"} {
+		if {$name == "shadow-clon" || $name == "water-clon"} {
 			set x [getx original_$owner]
 			set y [gety original_$owner]
 			if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
 				block_battlepanel
-				clon-pufff $owner [get_name $owner]
-				clones_interface $owner "remove_all"
-				after 1100 "teleport $owner $x $y
-				effect kage-bunshin $owner remove
-				replace"
+				if {$name == "shadow-clon"} {
+					clon-pufff $owner [get_name $owner]
+					clones_interface $owner "remove_all"
+					after 1100 "teleport $owner $x $y
+					effect kage-bunshin $owner remove
+					replace"
+				}
+				if {$name == "water-clon"} {
+					clon-pufff $owner [get_name $owner] "water"
+					clones_interface $owner "remove_all"
+					after 1100 "teleport $owner $x $y
+					effect suiton-bunshin $owner remove
+					replace"
+				}
 				.c delete original_$owner
 				after 2000 {unblock_battlepanel}
 			} else {
@@ -271,14 +283,18 @@ proc take_damage {p d t {tim 0}} {
 		} else {
 			set k -1
 			while {$k <= 10} {
-				if {[is_in [list "shadow-clon" $p $k] $effects]} {
+				if {[is_in [list "shadow-clon" $p $k] $effects] || [is_in [list "water-clon" $p $k] $effects]} {
 					set dclones 1
-					after 900 "effect shadow-clon $p remove"
+					if {[is_in [list "shadow-clon" $p $k] $effects]} {
+						after 900 "effect shadow-clon $p remove"
+					} elseif {[is_in [list "water-clon" $p $k] $effects]} {
+						after 900 "effect water-clon $p remove"
+					}
 					if {$k >= 0} {
 						set u 0
 						set i -1
 						foreach s $effects {
-							if {$s == [list "shadow-clon" $p $k]} {
+							if {$s == [list "shadow-clon" $p $k] || $s == [list "water-clon" $p $k] } {
 								set i $u
 							}
 							incr u
@@ -288,7 +304,7 @@ proc take_damage {p d t {tim 0}} {
 						}
 					}
 				}
-				if {[is_in [list "kage-bunshin" $p $k] $effects]} {
+				if {[is_in [list "kage-bunshin" $p $k] $effects] || [is_in [list "suiton-bunshin" $p $k] $effects]} {
 					#remove damage
 					set_hitpoints $p [expr [get_hitpoints $p] + $d]
 					set d 0
@@ -313,6 +329,30 @@ proc take_damage {p d t {tim 0}} {
 					}
 				} elseif {[is_in "one-tails" [get_skills $p]] && [is_in "shukaku-enabled" $skills]} {
 				#One Tails
+				} elseif {[is_in "suiton-suika" [get_skills $p]] && [get_hitpoints $p] <= 0 && ([get_chakra $p] > 10 || [is_in [list "suiton-suika" $p 1] $effects])} {
+					#Suika no Jutsu - remove damage
+					set_hitpoints $p [expr [get_hitpoints $p] + $d]
+					set d 0
+					if {$p == "hero" && ![is_in [list "suiton-suika" $p 1] $effects]} {
+						suika_no_jutsu "heroi" [get_name $p]
+						set_chakra $p [expr [get_chakra $p] - 10]
+						lappend effects [list "suiton-suika" $p 1]	
+						set ss [get_speed $p]
+						set_speed $p 0
+						if {$ss > 0} {
+							after 300 "set_speed $p $ss"
+						}
+						
+					} elseif {![is_in [list "suiton-suika" $p 1] $effects]} {
+						suika_no_jutsu $p [get_name $p]
+						set_chakra $p [expr [get_chakra $p] - 10]
+						lappend effects [list "suiton-suika" $p 1]
+						set ss [get_speed $p]
+						set_speed $p 0
+						if {$ss > 0} {
+							after 300 "set_speed $p $ss"
+						}
+					}
 				}
 			}
 		}
@@ -343,6 +383,9 @@ proc tech_kunai {x y r p {timestart 0} d {type "little"}} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*15]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "kunai"
@@ -421,6 +464,9 @@ proc tech_suriken {x y r p {timestart 0} d} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*10]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	if {$randomnumber < $chance} {
 		#hit (have more chances, and more damage then kunai, but not many shoots)
 		take_damage $p $d "raiko-kenka"
@@ -466,6 +512,9 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*15]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	if {$randomnumber < $chance} {
 		#hit
 		set nd [take_damage $p $d "kuchiese-kusarigama"]
@@ -1409,7 +1458,7 @@ proc tech_hirudora {u r p {timestart 0} d} {
 #ranged 
 #ninjitsu
 proc tech_soshoryu {u r p {timestart 0} d} {
-	global mydir enemy locations
+	global mydir enemy locations effects
 	if {$u == "hero"} {
 		set tag "heroi"damage
 		s
@@ -1453,6 +1502,9 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 			set s [get_speed $purpose]	
 			set randomnumber [expr 100*rand()]
 			set miss_chance [expr $s*15]
+			if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+				set miss_chance [expr $miss_chance + 20]
+			}
 			if {$randomnumber > $miss_chance} {
 				#full hit
 			} else {
@@ -1479,7 +1531,7 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 	}
 }
 proc tech_sogu-tensasai {u r p {timestart 0} d} {
-	global mydir enemy locations
+	global mydir enemy locations effects
 	if {$u == "hero"} {
 		set tag "heroi"
 	} else {
@@ -1524,6 +1576,9 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 		if {[get_height $purpose] == $h && [get_location $purpose] != $l} {
 			set s [get_speed $purpose]	
 			set miss_chance [expr $s*15]
+			if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+				set miss_chance [expr $miss_chance + 20]
+			}
 			if {$randomnumber > $miss_chance} {
 				#full hit
 			} else {
@@ -1574,6 +1629,9 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	#damage (very mark)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*5]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	while {$t < [expr $timestart + 500]} {
 		if {$randomnumber < $chance} {
 			after $t "if_delete t_$randomnumber $u
@@ -1615,6 +1673,9 @@ proc tech_futon-shinku-gyoku {x y r p {timestart 0} d} {
 	#damage (very mark)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*5]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	if {$randomnumber > 50} {
 	     set k 1
 	} else {
@@ -1662,6 +1723,9 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	#damage (very very mark - minimal chance is 70% vs naruto in fox-mode)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*3]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	while {$t < [expr $timestart + 500]} {
 		if {$randomnumber < $chance} {
 			after $t "if_delete t_$randomnumber $u
@@ -1695,7 +1759,6 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	}
 }
 #katon
-#futon
 proc tech_katon-gokakyu {x y r p {timestart 0} d} {
 	global mydir effects enemy
 	
@@ -1722,6 +1785,9 @@ proc tech_katon-gokakyu {x y r p {timestart 0} d} {
 	set s [get_speed $p]
 	#normal chances
 	set chance [expr 100 - $s*10]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
 	while {$t < [expr $timestart + 500]} {
 		if {$randomnumber < $chance} {
 			after $t "if_delete t_$randomnumber $u
@@ -1755,6 +1821,51 @@ proc tech_katon-gokakyu {x y r p {timestart 0} d} {
 		}
 	}
 }
+#suiton
+proc tech_suiton-suika {u} {
+	global mydir effects
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set_nin $u 0
+	set_chakra $u [expr [get_chakra $u] - 10]	
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 5} {
+		after $t "get_image $tag [file join $mydir images heroes $user suiton-suika $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+} 
+proc tech_suiton-kirigakure {u} {
+	global mydir effects
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set_chakra $u [expr [get_chakra $u] - 15]	
+	set user [get_name $u]
+	set c 1
+	while {$c <= 10} {
+		get_image mist$c [file join $mydir images attacks kirigakure $c.gif] 
+		incr c
+	}
+	set t 100
+	after $t ".c create image 512 288 -image mist1 -tag mist"
+	set i 1
+	while {$i <= 10} {
+		after $t "get_image $tag [file join $mydir images heroes $user suiton-kirigakure $i.gif] run $u"
+		after $t ".c itemconfigure mist -image mist$i"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+} 
 #bonus
 proc tech_raiko-kenka {u} {
 	global mydir effects

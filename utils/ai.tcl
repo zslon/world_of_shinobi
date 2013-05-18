@@ -343,7 +343,7 @@ proc bonus_tech_ai {num} {
 	set t 0
 	set i 1
 	foreach p $priory {
-		if {[is_in $p $l] && ![is_in [list $p enemy$num -1] $effects]} {
+		if {[is_in $p $l] && ![is_in [list $p enemy$num -1] $effects] && ![is_in [list $p "field" -1] $effects]} {
 			if {$c > [enciclopedia $p "chakra"]} {
 				set t $i
 				break
@@ -370,7 +370,11 @@ proc bonus_tech_ai {num} {
 			return [melee_tech_ai $num]
 		} else {
 		tech_[lindex $priory $t] enemy$num
-		lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+		if {[lindex $priory $t] == "suiton-kirigakure"} {
+			lappend effects [list [lindex $priory $t] "field" [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+		} else {
+			lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+		}
 		replace
 		}
 		return [list]

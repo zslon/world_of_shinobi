@@ -102,6 +102,19 @@ proc genin_armmaster {x y village tai nin gen sp skills} {
 		gen_plus $enemy
 	}
 }
+proc genin_watermaster {x y village tai nin gen sp skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "genin-[set village]-watermaster" 1 $tai $nin $gen $sp $skills
+	genin_watermaster_from_$village $x $y
+	if {$tai < 2 || $nin < 3} {
+		gen_minus $enemy
+	}
+	if {$sp > 1 || $gen > 1 || $tai > 2 || $nin > 3} {
+		gen_plus $enemy
+	}
+}
 proc chunin {x y village tai nin gen sp skills} {
 	global enemy
 	incr enemy 1
@@ -126,6 +139,9 @@ proc genin_robber_armmaster {x y {tai 1} {nin 1} {gen 1} {sp 4} {skills {}}} {
 }
 proc genin_sound_armmaster {x y {tai 1} {nin 1} {gen 2} {sp 4} {skills {}}} {
 	genin_armmaster $x $y sound $tai $nin $gen $sp $skills
+}
+proc genin_mist_watermaster {x y {tai 2} {nin 3} {gen 1} {sp 1} {skills {}}} {
+	genin_watermaster $x $y mist $tai $nin $gen $sp $skills
 }
 proc chunin_sound {x y {tai 3} {nin 3} {gen 3} {sp 3} {skills {}}} {
 	chunin $x $y sound $tai $nin $gen $sp $skills
@@ -558,7 +574,7 @@ move_all_clones $class $m $u"
 	after $t "get_image $tag [file join $mydir images heroes $name stand 1.gif] $s $class clones"
 }
 proc end_turn {{tech "none"} {p 0}} {
-	global dclones lever
+	global dclones lever effects
 	if {$lever == 0} {
 		catch {		
 			destroy .m 
@@ -793,15 +809,22 @@ proc dies {} {
 		if {$x > 0 && $x < 1024 && $y > 0 && $y < 600} {
 			#clon-pufff
 		} elseif {$h < 1} {
-			if {[is_in [list "shadow-clon" enemy$e -1] $effects]} {
-				after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] clon-pufff 10.gif] run enemy$e
-				.c itemconfigure enemy$e -image dieenemy$e
-				clon_message
-				replace"
+			if {[is_in [list "shadow-clon" enemy$e -1] $effects] || [is_in [list "water-clon" enemy$e -1] $effects]} {
+				if {[is_in [list "shadow-clon" enemy$e -1] $effects]} {
+after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] clon-pufff 10.gif] run enemy$e
+.c itemconfigure enemy$e -image dieenemy$e
+clon_message
+replace"
+				} elseif {[is_in [list "water-clon" enemy$e -1] $effects]} {
+after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] suiton-suika 12.gif] run enemy$e
+.c itemconfigure enemy$e -image dieenemy$e
+clon_message
+replace"
+				}
 				set u 0
 				set i -1
 				foreach s $effects {
-					if {$s == [list "shadow-clon" enemy$e -1]} {
+					if {$s == [list "shadow-clon" enemy$e -1] || $s == [list "water-clon" enemy$e -1]} {
 						set i $u
 					}
 					incr u
@@ -880,6 +903,16 @@ proc ranged_tech {from to name par ans par2} {
 	} elseif {[is_in [list "kawarimi" $to 1] $effects] && [expr abs([get_location $from] - [get_location $to])] == 1 && [get_height $from] == [get_height $to]} {
 		set ans "kunai"
 		set par2 [get_speed $to]
+	} elseif {[is_in [list "suiton-suika" $to 1] $effects] && ![is_suiton_based $tech] && ![is_doton_based $tech] && ![is_futon_based $tech] && ![is_raiton_based $tech]} {
+		set ans "none"
+		set par2 "0"
+		set dam 0
+		if {$to == "hero"} {
+			set tak "heroi"
+		} else {
+			set tak $to
+		}
+		suika_no_jutsu $tak [get_name $to]
 	}
 	set dam [enciclopedia $name "damage" $par]
 	set num [enciclopedia $name "number" $par]
@@ -1047,6 +1080,16 @@ proc melee_tech {from to name par ans par2} {
 	} elseif {[is_in [list "kawarimi" $to 1] $effects]} {
 		set ans "attack"
 		set par2 [get_tai $to]
+	} elseif {[is_in [list "suiton-suika" $to 1] $effects] && ![is_suiton_based $name] && ![is_doton_based $name] && ![is_futon_based $name] && ![is_raiton_based $name]} {
+		set ans "none"
+		set par2 "0"
+		set dam 0
+		if {$to == "hero"} {
+			set tak "heroi"
+		} else {
+			set tak $to
+		}
+		suika_no_jutsu $tak [get_name $to]
 	}
 	set addnum 0
 	set addnum2 0
