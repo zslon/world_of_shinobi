@@ -388,6 +388,18 @@ proc replace {} {
 			.c create image $x $y -image cross -tag cross 
 		} else {
 			set co [enciclopedia $s chakra]
+			if {($s == "hachimon-2" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-3" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-3" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-4" $used])} {
+				set co [expr $co + 20]
+			}
+			if {($s == "hachimon-3" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-3" $used])} {
+				set co [expr $co + 20]
+			}
+			if {($s == "hachimon-4" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-2" $used])} {
+				set co [expr $co + 20]
+			}
+			if {($s == "hachimon-5" && ![is_in "hachimon-1" $used]) } {
+				set co [expr $co + 20]
+			}
 			if {$s == "kage-bunshin"} {
 				set co [expr [get_chakra hero] / 10]
 			}
