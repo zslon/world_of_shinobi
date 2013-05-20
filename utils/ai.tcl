@@ -5,7 +5,7 @@ proc hero_ai_fox {n} {
 	}
 }
 proc hero_ai_agressive {} {
-	global enemy hero_ancof
+	global enemy hero_ancof lever
 	set e 1
 	set d 3000
 	set n 1
@@ -18,13 +18,16 @@ proc hero_ai_agressive {} {
 	}
 	if {$enemy == 0} {
 		if {[get_speed "hero"] > 0} {
+			set lever 0
 			mov_ai "hero" "out"
 		}
 	} else {
 		#n is closet enemy
 		if {[get_speed "hero"] > 0 && [dist "heroi" enemy$n] > 0} {
+			set lever 0
 			mov_ai "hero" enemy$n
 		} elseif {[dist "heroi" enemy$n] < 0 && [get_speed "hero"] > 0 } {
+			set lever 0
 			mov_ai "hero" "out"
 		}
 	}

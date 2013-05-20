@@ -1,5 +1,4 @@
-#fonts
-font create Arial -family Courier -size 10
+
 #imageworking
 proc get_image {im from {arg1 "norm"} {arg2 "hero"} {arg3 "none"}} {
 	set num 0
