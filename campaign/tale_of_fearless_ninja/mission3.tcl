@@ -50,7 +50,7 @@ proc slide_5 {} {
 	scenery_message {Kirigakure Ninja}
 }
 proc slide_6 {} {
-	global locations bonus ai_type effects
+	global locations ai_type effects
 	set ai_type "special"
 	phon 6
 	set locations [list 2 2 2 -3]

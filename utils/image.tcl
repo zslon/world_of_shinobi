@@ -423,10 +423,14 @@ proc stand_animation {tag im {s 0}} {
 			if {$hero_ancof == 5} {
 				set hero_ancof 1
 			}
-			get_image heroi [file join $mydir images heroes $im stand $hero_ancof.gif] clones hero
+			if {[get_gen "hero"] > 0} {
+				get_image heroi [file join $mydir images heroes $im stand $hero_ancof.gif] clones hero
+			}
 			after 150 "stand_animation $tag $im $s"			
 		} else {
-			get_image heroi [file join $mydir images heroes $im stand 1.gif] clones hero
+			if {[get_gen "hero"] > 0} {
+				get_image heroi [file join $mydir images heroes $im stand 1.gif] clones hero
+			}
 		}
 	} else {
 		global [set tag]_ancof
@@ -435,7 +439,9 @@ proc stand_animation {tag im {s 0}} {
 			if {[set [set tag]_ancof] == 5} {
 				set [set tag]_ancof 1
 			}
-			get_image [set tag] [file join $mydir images heroes $im stand [set [set tag]_ancof].gif] clones [set tag]
+			if {[get_gen [set tag]] > 0} {
+				get_image [set tag] [file join $mydir images heroes $im stand [set [set tag]_ancof].gif] clones [set tag]
+			}			
 			if {$s == $slide} {
 				after 150 "stand_animation $tag $im $s"	
 			}		
@@ -444,6 +450,56 @@ proc stand_animation {tag im {s 0}} {
 				after 150 "stand_animation $tag $im $s"
 			}
 		}
+	}
+}
+proc create_suiro {p id} {
+	global mydir
+	if {$p == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $p
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	set t 0
+	set i 1
+	get_image suira-$id [file join $mydir images attacks suiro 1.gif]
+	.c create image $x $y -image suira-$id -tag suira-$id 
+	while {$i <= 7} {
+		after $t ".c raise suira-$id
+                get_image suira-$id [file join $mydir images attacks suiro $i.gif]"
+		incr i
+		set t [expr $t + 50]
+	}
+}
+proc create_makyo-hyosho {p id} {
+	global mydir
+	if {$p == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $p
+	}
+	set x [getx $tag]
+	set y [gety $tag]
+	set t 0
+	set i 1
+	get_image suira-$id [file join $mydir images attacks makyo-hyosho 1.gif]
+	.c create image $x $y -image suira-$id -tag suira-$id 
+	while {$i <= 7} {
+		after $t ".c raise $tag
+                get_image suira-$id [file join $mydir images attacks makyo-hyosho $i.gif]"
+		incr i
+		set t [expr $t + 50]
+	}
+}
+proc remove_suiro {u} {
+	global effects
+	set l [get_location $u]
+	set h [get_height $u]
+	set hl [expr ($h * 10) + $l] 
+	if {[is_in [list "suiton-suiro-user" $u $hl] $effects] || [is_in [list "hyoton-makyo-hyosho-user" $u $hl] $effects]} {
+		puts "yes"
+		.c delete suira-$hl
 	}
 }
 proc block_animation {tag im} {
@@ -493,8 +549,13 @@ proc concentrate_chakra {tag im} {
 		incr i 
 	}
 }
-proc clon-pufff {tag im {type "shadow"}} {
+proc clon-pufff {tag im {type "shadow"} {vid "fight"}} {
 	global mydir
+	if {$vid == "scenery"} {
+		set v "norm"
+	} else {
+		set v "run"
+	}
 	set t 100
 	set i 1
 	if {$tag == "hero"} {
@@ -505,14 +566,14 @@ proc clon-pufff {tag im {type "shadow"}} {
 	while {$t < 1000} {
 		if {$type == "shadow"} {
 			if {$i < 8} {
-				after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif] run $tag"	
+				after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif] $v $tag"	
 			} else {
 				after $t "get_image $tag2 [file join $mydir images heroes $im clon-pufff $i.gif]"
 			}
 		}
 		if {$type == "water"} {
 			if {$i < 8} {
-				after $t "get_image $tag2 [file join $mydir images heroes $im suiton-suika [expr $i+5].gif] run $tag"	
+				after $t "get_image $tag2 [file join $mydir images heroes $im suiton-suika [expr $i+5].gif] $v $tag"	
 			} else {
 				after $t "get_image $tag2 [file join $mydir images heroes $im suiton-suika 12.gif]"
 			}
@@ -522,7 +583,7 @@ proc clon-pufff {tag im {type "shadow"}} {
 	}
 }
 proc die {class} {
-	global mydir hero_ancof
+	global mydir hero_ancof effects
 	if {$class == "hero"} {
 		set tag "heroi"
 		set hero_ancof 0
@@ -535,6 +596,21 @@ proc die {class} {
 		set tag $class
 		set [set class]_ancof 0
 	}
+	set n 0
+	foreach e $effects {
+		set do [lindex $e 0]
+		set holder [lindex $e 1]
+		set t [lindex $e 2]
+		if {$holder == $class && $n < [llength $effects]} {
+			set effects [lreplace $effects $n $n]
+			incr i -1
+		} 
+		incr i
+	}
+	set_tai $class 0
+	set_nin $class 0
+	set_speed $class 0
+	set_gen $class 0
 	if {[get_name $class] == "trap" && [get_name $class] == "trapmap"} {
 		.c delete $tag
 	} else {
@@ -626,10 +702,16 @@ proc if_delete {tag owner} {
 			if {[object_in [getx $tag] [gety $tag] [getx enemy$e] [gety enemy$e] 50 50]} {
 				.c delete $tag
 			}
+			if {[object_in [getx $tag] [gety $tag] [getx wallenemy$e] [gety wallenemy$e] 50 200]} {
+				.c delete $tag
+			}
 			incr e 1
 		}
 	} else {
 		if {[object_in [getx $tag] [gety $tag] [getx "heroi"] [gety "heroi"] 50 50]} {
+			.c delete $tag
+		}
+		if {[object_in [getx $tag] [gety $tag] [getx "wallheroi"] [gety "wallheroi"] 50 200]} {
 			.c delete $tag
 		}
 	}
@@ -650,6 +732,38 @@ proc if_contact_nokout {tag purpose} {
 			nokout $purpose
 		}
 	}
+}
+proc suiro_end_anim {who} {
+	global mydir
+	set user [get_name $who]
+	if {$who == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $who
+	} 
+	get_image $tag [file join $mydir images heroes $user suiton-suiro 5.gif] run $tag
+	after 150 "get_image $tag [file join $mydir images heroes $user suiton-suiro 6.gif] run $tag"
+	after 300 "get_image $tag [file join $mydir images heroes $user suiton-suiro 5.gif] run $tag"
+	after 450 "get_image $tag [file join $mydir images heroes $user stand 1.gif] run $tag"
+}
+proc makyo-hyosho_zalp {who tag} {
+	global mydir
+	set user [get_name $who]
+	if {$who == "hero"} {
+		set owner "heroi"
+	} else {
+		set owner $who
+	} 
+	get_image $owner [file join $mydir images heroes $user hyoton-makyo-hyosho 4.gif] run $owner
+	set t 50
+	set i 8
+	while {$t < 500} {
+		after $t "get_image $tag [file join $mydir images attacks makyo-hyosho $i.gif]"
+		incr t 50
+		incr i 1
+	}
+	after 500 "get_image $owner [file join $mydir images heroes $user hyoton-makyo-hyosho 3.gif] run $owner
+	get_image $tag [file join $mydir images attacks makyo-hyosho 7.gif]"
 }
 proc kawarimi_teleport {tag im} {
 	global locations mydir
@@ -745,6 +859,155 @@ proc kawarimi_teleport {tag im} {
 		incr t 100
 		incr i 
 	}
+}
+proc hyoton_teleport {tag im} {
+	global locations mydir
+	set ax [getx $tag]
+	set ay [gety $tag]
+	if {$tag == "heroi"} {
+		set l [get_location "hero"]
+		set h [get_height "hero"]
+		if {$l > 0} {
+			set le [lindex $locations [expr $l - 1]]
+			if {abs($le) == $h || ($h < $le)} {
+				after 400 ".c move $tag -300 0
+				.c move reserve$tag 300 0"
+				set dx [expr $ax - 300]
+				set dy $ay
+			} elseif {$le < $h && $le > 0} {
+				set d [expr ($h - $le) * 100]
+				after 400 ".c move $tag -300 $d
+				.c move reserve$tag 300 -$d"
+				set dx [expr $ax - 300]
+				set dy [expr $ay + $d]
+			} else {
+				if {$h < [lindex $locations $l]} {
+					after 400 ".c move $tag 0 -100
+					.c move reserve$tag 0 100"
+					set dx $ax
+					set dy [expr $ay - 100]
+				} else {
+					set le [lindex $locations [expr $l + 1]]
+					if {abs($le) == $h || ($h < $le)} {
+						after 400 ".c move $tag 300 0
+						.c move reserve$tag -300 0"
+						set dx [expr $ax + 300]
+						set dy $ay
+					} else {
+						if {$le < 0} {
+						} else {
+							set d [expr ($h - $le) * 100]
+							after 400 ".c move $tag 300 $d
+							.c move reserve$tag -300 -$d"
+							set dx [expr $ax + 300]
+							set dy [expr $ay + $d]
+						}
+					}
+				}
+			}
+		} else {
+			if {$h < [lindex $locations $l]} {
+				after 400 ".c move $tag 0 -100
+				.c move reserve$tag 0 100"
+				set dx $ax
+				set dy [expr $ay - 100]
+			} else {
+				set le [lindex $locations [expr $l + 1]]
+				if {abs($le) == $h || ($h < $le)} {
+					after 400 ".c move $tag 300 0
+					.c move reserve$tag -300 0"
+					set dx [expr $ax + 300]
+					set dy $ay			
+				} else {
+					if {$le < 0} {
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 400 ".c move $tag 300 $d
+						.c move reserve$tag -300 -$d"
+						set dx [expr $ax + 300]
+						set dy [expr $ay + $d]
+					}
+				}
+			}
+		}
+	} else {
+		set l [get_location $tag]
+		set h [get_height $tag]
+		if {$l < 3} {
+			set le [lindex $locations [expr $l + 1]]
+			if {abs($le) == $h || ($h < $le)} {
+				after 400 ".c move $tag 300 0
+				.c move reserve$tag -300 0"
+				set dx [expr $ax + 300]
+				set dy $ay
+			} elseif {$le < $h && $le > 0} {
+				set d [expr ($h - $le) * 100]
+				after 400 ".c move $tag 300 $d
+				.c move reserve$tag -300 -$d"
+				set dx [expr $ax + 300]
+				set dy [expr $ay + $d]
+			} else {
+				if {$h < [lindex $locations $l]} {
+					after 400 ".c move $tag 0 -100"
+					.c move reserve$tag 0 100"
+					set dx $ax
+					set dy [expr $ay - 100]
+				} else {
+					set le [lindex $locations [expr $l - 1]]
+					if {abs($le) == $h || ($h < $le)} {
+						after 400 ".c move $tag -300 0
+						.c move reserve$tag 300 0"
+						set dx [expr $ax - 300]
+						set dy $ay
+					} else {
+						if {$le < 0} {
+						} else {
+						set d [expr ($h - $le) * 100]
+						after 400 ".c move $tag -300 $d
+						.c move reserve$tag 300 -$d"
+						set dx [expr $ax - 300]
+						set dy [expr $ay + $d]
+						}
+					}
+				}
+			}
+		} else {
+			if {$h < [lindex $locations $l]} {
+				after 400 ".c move $tag 0 -100
+				.c move reserve$tag 0 100"
+				set dx $ax
+				set dy [expr $ay - 100]
+			} else {
+				set le [lindex $locations [expr $l - 1]]
+				if {abs($le) == $h || ($h < $le)} {
+					after 400 ".c move $tag -300 0
+					.c move reserve$tag 300 0"
+					set dx [expr $ax - 300]
+					set dy $ay
+				} else {
+					if {$le < 0} {
+					} else {
+						set d [expr ($h - $le) * 100]
+						after 400 ".c move $tag -300 $d
+						.c move reserve$tag 300 -$d"
+						set dx [expr $ax - 300]
+						set dy [expr $ay + $d]
+					}
+				}
+			}
+		}
+	}
+	set t 100
+	set i 4
+	get_image reserve$tag [file join $mydir images heroes $im hyoton-korikyo m1.gif]
+	.c create image $dx $dy -tag reserve$tag -image reserve$tag
+	while {$t <= 1000} {
+		after $t "get_image $tag [file join $mydir images heroes $im hyoton-korikyo $i.gif]
+		get_image reserve$tag [file join $mydir images heroes $im hyoton-korikyo m$i.gif]"	
+		incr t 100
+		incr i 
+	}
+	after $t ".c delete reserve$tag"
 }
 proc suika_no_jutsu {tag im} {
 	global locations mydir
@@ -908,6 +1171,7 @@ proc clones_interface {who type} {
 			set t [lindex $e 2]
 			if {$do == "taju-kage-bunshin" && $holder == $who} {
 				set effects [lreplace $effects $i $i]
+				incr i -1
 			}
 			incr i
 		}
@@ -959,6 +1223,7 @@ proc clones_interface {who type} {
 					lset effects $i [list "taju-kage-bunshin" $who $num]
 				} else {
 					lset effects $i [lreplace $effects $i $i]
+					incr i -1
 				}
 			}
 			incr i
@@ -1156,6 +1421,24 @@ proc jonin_hatake_kakashi {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "kakashi" $slide
+}
+proc genin_haku {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes haku stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "haku" $slide
+}
+proc nukenin_momochi_zabuza {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes zabuza stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "zabuza" $slide
 }
 #tech
 proc suiken_not_message {} {
@@ -1497,7 +1780,7 @@ proc clon_message {} {
 		destroy .s
 	}
 	toplevel .s
-	wm title .s {It`s was a shadow clone!}
+	wm title .s {It`s was a clone!}
 	wm geometry .s 400x300
 	wm maxsize .s 400 300
 	wm minsize .s 400 300
@@ -1547,6 +1830,21 @@ proc rolic {name} {
 	set_speed "hero" 0
 	replace
 	animation_$name
+}
+proc end_rolic {} {
+	global allbuttonskills mydir
+	destroy .jump
+	destroy .right
+	destroy .left
+	destroy .stand
+	foreach s $allbuttonskills {
+		if {[enciclopedia $s chakra] != 0} {
+			destroy .button_$s
+		}
+	}
+	puts "yes"
+	source [file join $mydir utils buttons.tcl]
+	unblock_battlepanel	
 }
 proc end_panel {h1 h2 h3} {
 	global campdir

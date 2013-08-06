@@ -63,6 +63,11 @@ proc yellow_table {x y} {
 	get_image yl_table [file join $mydir images heroes yellow-table.gif]
 	.c create image $x $y -image yl_table -tag yellow_medic
 }
+proc red_table {x y} {
+	global mydir
+	get_image rd_table [file join $mydir images heroes red-table.gif]
+	.c create image $x $y -image rd_table -tag red_medic
+}
 #shinobi
 proc major_hero {x y} {
 	global heroname herolevel skills tai nin gen speed
@@ -225,6 +230,20 @@ proc hatake_kakashi {x y skills} {
 	shinobi "enemy$enemy" "kakashi" 4 3 5 2 4 $skills
 	jonin_hatake_kakashi $x $y
 }
+proc haku {x y skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "haku" 2 1 3 1 4 $skills
+	genin_haku $x $y
+}
+proc momochi_zabuza {x y skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "zabuza" 4 4 4 2 4 $skills
+	nukenin_momochi_zabuza $x $y
+}
 ##
 proc getx {tag} {
 	set l [.c coords $tag]
@@ -282,15 +301,19 @@ proc get_height {class} {
 	return $h
 }
 proc get_status {class} {
+	global effects
 	set t [get_tai $class]
 	set n [get_nin $class]
 	set g [get_gen $class]
 	set s [get_speed $class]
+	set l [get_location $class]
+	set h [get_height $class]
+	set hl [expr ($h * 10) + $l]
 	if {$t == 0} {
 		set a "passive"
 	} else {
 		if {$g == 0} {
-			set a "in genjitsu"
+			set a "in_genjitsu"
 		} else {	
 			if {$s == 0} {
 				set a "shocked"
@@ -302,6 +325,9 @@ proc get_status {class} {
 				}
 			}
 		}
+	}
+	if {[is_in [list "suiton-suiro" $class $hl] $effects] || [is_in [list "hyoton-makyo-hyosho" $class $hl] $effects]} {
+		set a "shocked"
 	}
 	return $a
 }
@@ -599,7 +625,14 @@ proc end_turn {{tech "none"} {p 0}} {
 			dies
 			#else effect_work
 			replace
+			auto_nextturn
 		}
+	}
+}
+proc auto_nextturn {} {
+	set status [get_status "hero"]
+	if {$status == "shocked" || $status == "in_genjitsu"} {
+		end_turn
 	}
 }
 proc replace_nin {} {
@@ -637,11 +670,12 @@ proc fighting_sensor {} {
 	while {$e <= $enemy} {
 		set eh [get_height enemy$e]
 		set el [get_location enemy$e]
+		set hit [get_hitpoints enemy$e]
 		if {$el == $l && [get_name enemy$e] == "trap"} {
 			set t "trap"
 			break
 		} elseif {$eh == $h} {
-			if {$el == $l && $t == "none"} {
+			if {$el == $l && $t == "none" && $hit > 0 && [get_hitpoints "hero"] > 0} {
 				set t "melee"
 				set ea $e
 			}			
@@ -658,8 +692,9 @@ proc fighting_sensor {} {
 		while {$e <= $enemy} {
 			set eh [get_height enemy$e]
 			set el [get_location enemy$e]
+			set hit [get_hitpoints enemy$e]
 			if {$eh == $h} {
-				if {[expr $el - 1] == $l && [get_name enemy$e] != "trap"} {
+				if {[expr $el - 1] == $l && [get_name enemy$e] != "trap" && $hit > 0 && [get_hitpoints "hero"] > 0} {
 					set t "kunai"
 					break
 				}			
@@ -705,6 +740,17 @@ proc fighting_sensor {} {
 				set_chakra "hero" [expr [get_chakra "hero"] + 50]
 				concentrate_chakra "heroi" [get_name "hero"]
 				.c delete yellow_medic				
+			}
+		}
+		if {[getx red_medic] > 0} {
+			if {[object_in [getx heroi] [gety heroi] [getx red_medic] [gety red_medic] 25 25]} {
+				set level $herolevel
+				if {[get_hitpoints "hero"] < [expr 50*($level + 1)]} {
+					set_hitpoints "hero" [expr 50*($level + 1)]								
+				}
+				.c delete red_medic	
+				set_chakra "hero" [expr [get_chakra "hero"] + 100]
+				concentrate_chakra "heroi" [get_name "hero"]			
 			}
 		}
 	} else {
@@ -837,6 +883,14 @@ replace"
 #last enemy to empty place
 				.c move panelenemy$enemy 0 [expr -51*($enemy - $e)]
 				set enemy$e [set enemy$enemy]
+				foreach ef $effects {
+					set do [lindex $ef 0]
+					set owner [lindex $ef 1]
+					set t [lindex $ef 2]
+					if {$owner == "enemy$enemy"} {
+						lappend effects [list $do enemy$e $t]
+					}
+				}
 				after 2000 "
 				.c addtag enemy$e withtag enemy$enemy
 				.c dtag enemy$enemy
@@ -876,6 +930,8 @@ replace"
 }
 proc ranged_tech {from to name par ans par2} {
 	global mydir effects
+	remove_suiro $from
+	remove_suiro $to
 	set user [get_name $from]
 	set nin [get_nin $from]
 	set_nin $from 0
@@ -1003,10 +1059,86 @@ proc ranged_tech {from to name par ans par2} {
 		set dam [expr $dam / 2]
 	} 
 	if {$name == "futon-shinku-gyoku" && ![is_in [list "kyubi-1" $from -1] $effects]} {
-		set_chakra $from [expr [get_chakra $from] - 20]
+		set_chakra $from [expr [get_chakra $from] - 15]
 	}
 	if {$ans == "futon-shinku-gyoku" && ![is_in [list "kyubi-1" $to -1] $effects]} {
-		set_chakra $to [expr [get_chakra $to] - 20]
+		set_chakra $to [expr [get_chakra $to] - 15]
+	}
+#koridomu
+	if {$ans != "none" && $name == "hyoton-koridomu" && [get_chakra $from] > [enciclopedia $ans "chakra" $par2]} {
+		#koridomu defence
+		set dam2 0		
+		if {[get_chakra $from] > [enciclopedia $ans "chakra" $par2]} {
+			set_chakra $from [expr [get_chakra $from] + 10 - [enciclopedia $ans "chakra" $par2]]
+		}
+	}
+	if {$ans == "hyoton-koridomu" && [get_chakra $to] > [enciclopedia $name "chakra" $par]} {
+		#koridomu defence
+		set dam 0
+		if {[enciclopedia $name "chakra" $par] > 0} {
+			set_chakra $to [expr [get_chakra $to] + 10 - [enciclopedia $name "chakra" $par]]
+		}
+	}
+#elementals
+	if {[is_katon_based $name] && [is_futon_based $ans]} {
+		set dam [expr ($dam*3)/2]
+	}
+	if {[is_futon_based $name] && [is_raiton_based $ans]} {
+		set dam2 [expr $dam2/2]
+	}
+	if {[is_raiton_based $name] && [is_doton_based $ans]} {
+		set dam [expr ($dam*3)/2]
+	}
+	if {[is_doton_based $name] && [is_suiton_based $ans]} {
+		set dam2 [expr $dam2/2]
+	}
+	if {[is_suiton_based $name] && [is_katon_based $ans]} {
+		set dam2 [expr $dam2/2]
+	}
+	if {[is_katon_based $ans] && [is_futon_based $name]} {
+		set dam2 [expr ($dam2*3)/2]
+	}
+	if {[is_futon_based $ans] && [is_raiton_based $name]} {
+		set dam [expr $dam/2]
+	}
+	if {[is_raiton_based $ans] && [is_doton_based $name]} {
+		set dam2 [expr ($dam2*3)/2]
+	}
+	if {[is_doton_based $ans] && [is_suiton_based $name]} {
+		set dam [expr $dam/2]
+	}
+	if {[is_suiton_based $ans] && [is_katon_based $name]} {
+		set dam [expr $dam/2]
+	}
+	if {([is_katon_based $name] && [is_katon_based $ans]) || ([is_futon_based $name] && [is_futon_based $ans]) || ([is_raiton_based $name] && [is_raiton_based $ans]) || ([is_doton_based $name] && [is_doton_based $ans]) || ([is_suiton_based $name] && [is_suiton_based $ans])} {
+		if {$dam > $dam2} {
+			set dam [expr $dam - $dam/5]
+			set dam2 [expr $dam2 - $dam/5]
+			if {$dam2 < 0} {
+				set dam2 0
+			}
+		} else {
+			set dam [expr $dam - $dam2/5]
+			set dam2 [expr $dam2 - $dam2/5]	
+			if {$dam < 0} {
+				set dam 0
+			}		
+		}
+	}
+#suijinheki
+	if {$ans != "none" && $name == "suiton-suijinheki"} {
+		#suijinheki defence
+		set dam2 [expr $dam2 - $dam/$num2]		
+		if {$dam2 < 0} {
+			set dam2 0
+		}
+	}
+	if {$ans == "suiton-suijinheki"} {
+		#suijinheki defence
+		set dam [expr $dam - $dam2/$num]		
+		if {$dam < 0} {
+			set dam 0
+		}
 	}
 	set n 1
 	while {$n <= $num || $n <= $num2} {		
@@ -1020,16 +1152,22 @@ proc ranged_tech {from to name par ans par2} {
 				}
 				incr i
 			}
-			if {($name == "kunai" || $name == "kusarigama") && [is_high $from]} { 
+			if {$name == "kunai" && [is_in "senbon" [get_skills $from]]} {
+				set name "senbon"
+			}
+			if {($name == "kunai" || $name == "kusarigama" || $name == "suriken" || $name == "senbon") && [is_high $from]} { 
 				tech_$name $x $y $r $to $t $dam "big"
 			} else {
 				tech_$name $x $y $r $to $t $dam
+			}
+			if {$name == "senbon"} {
+				set name "kunai"
 			}
 			if {$name == "kusarigama"} {
 				after [expr $t + 200] "get_image $tag [file join $mydir images heroes $user $name 5.gif]"
 				after [expr $t + 400] "get_image $tag [file join $mydir images heroes $user $name 6.gif]"
 			} else {
-				after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+				after [expr $mt*$n] "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
 			}
 		}
 		if {[get_status $to] == "cast" && $n <= $num2} {
@@ -1040,10 +1178,16 @@ proc ranged_tech {from to name par ans par2} {
 				after $t "get_image $tag2 [file join $mydir images heroes $user2 $ans $i.gif]"
 				incr i
 			}	
-			if {($ans == "kunai" || $ans == "kusarigama") && [is_high $to]} { 
+			if {$ans == "kunai" && [is_in "senbon" [get_skills $to]]} {
+				set ans "senbon"
+			}
+			if {($ans == "kunai" || $ans == "kusarigama"|| $ans == "suriken" || $ans == "senbon") && [is_high $to]} { 
 				tech_$ans $x2 $y2 [expr -1*$r] $from $t $dam2 "big"
 			} else {
 				tech_$ans $x2 $y2 [expr -1*$r] $from $t $dam2
+			}
+			if {$ans == "senbon"} {
+				set ans "kunai"
 			}
 			if {$ans == "kusarigama"} {
 				after [expr $t + 200] "get_image $tag2 [file join $mydir images heroes $user2 $ans 5.gif]"
@@ -1057,12 +1201,17 @@ proc ranged_tech {from to name par ans par2} {
 }
 proc melee_tech {from to name par ans par2} {
 	global mydir effects
+	remove_suiro $from
+	remove_suiro $to
 	set nin [get_nin $from]
 	set_nin $from 0
 	set dam [enciclopedia $name "damage" $par]
 	set num [enciclopedia $name "number" $par]
 	set sk [get_skills $from]
 #kawarimi
+	if {($name == "suiton-suiro" || $name == "hyoton-makyo-hyosho") && ![is_in [list "kyubi-1" $from -1] $effects]} {
+		set_chakra $from [expr [get_chakra $from] - 25 + 3*$nin]
+	}
 	if {[is_in [list "kawarimi" $to 1] $effects] && [get_gen $from] < [expr 2*[get_gen $to]]} {
 		set ans "none"
 		set par2 "0"
@@ -1072,7 +1221,9 @@ proc melee_tech {from to name par ans par2} {
 		} else {
 			set tak $to
 		}
-		kawarimi_teleport $tak [get_name $to]
+		if {[get_location $from] == [get_location $to] && [get_height $from] == [get_height $to]} {
+			kawarimi_teleport $tak [get_name $to]
+		}
 	} elseif {[is_in [list "kawarimi" $to 1] $effects]} {
 		set ans "attack"
 		set par2 [get_tai $to]
@@ -1085,7 +1236,18 @@ proc melee_tech {from to name par ans par2} {
 		} else {
 			set tak $to
 		}
-		suika_no_jutsu $tak [get_name $to]
+		if {[get_location $from] == [get_location $to] && [get_height $from] == [get_height $to]} {
+			suika_no_jutsu $tak [get_name $to]
+		}
+	} elseif {[is_in [list "hyoton-korikyo" $to 1] $effects] && ([get_location $from] != [get_location $to] || [get_height $from] != [get_height $to])} {
+		set ans "none"
+		set par2 "0"
+		set dam 0
+		if {$to == "hero"} {
+			set tak "heroi"
+		} else {
+			set tak $to
+		}
 	}
 	set addnum 0
 	set addnum2 0
@@ -1103,6 +1265,11 @@ proc melee_tech {from to name par ans par2} {
 				set dam2 [enciclopedia $ans "damage" [expr $par2 - 1]]
 				set num2 [enciclopedia $ans "number" [expr $par2 - 1]]
 			}
+		}
+	#kubikiribocho effect
+		if {$name == "attack" && [is_in "kubikiribocho" $sk]} {
+			set dam [expr $dam * 2]
+			set num [expr $num / 2]
 		}
 	#taju kage bunshin effect
 		if {[clones_interface $from "get_number"] > 0 && $name== "attack"} {
@@ -1141,6 +1308,9 @@ proc melee_tech {from to name par ans par2} {
 		set_nin $to 0
 		set dam2 [enciclopedia $ans "damage" $par2]
 		set num2 [enciclopedia $ans "number" $par2]
+		if {($ans == "suiton-suiro" || $ans == "hyoton-makyo-hyosho") && ![is_in [list "kyubi-1" $to -1] $effects]} {
+			set_chakra $to [expr [get_chakra $to] - 25 + 3*$nin2]
+		}
 		if {$num2 > 0} {
 			set sk2 [get_skills $to]
 #meisu
@@ -1156,6 +1326,11 @@ proc melee_tech {from to name par ans par2} {
 					set dam [enciclopedia $name "damage" [expr $par - 1]]
 					set num [enciclopedia $name "number" [expr $par - 1]]
 				}
+			}
+#kubikiribocho	
+			if {$ans == "attack" && [is_in "kubikiribocho" $sk2]} {
+				set dam2 [expr $dam2 * 2]
+				set num2 [expr $num2 / 2]
 			}
 #taju kage bunshin
 			if {[clones_interface $to "get_number"] > 0 && $ans == "attack"} {
@@ -1177,6 +1352,8 @@ proc melee_tech {from to name par ans par2} {
 	set n 1
 	set h11 [get_hitpoints $to]
 	set h12 [get_hitpoints $from]
+	set h21 [get_hitpoints $to]
+	set h22 [get_hitpoints $from]
 	while {$n <= $num || $n <= $num2 || $n <= $addnum || $n <= $addnum2} {
 #bunshin attacks
 		if {[get_status $from] == "cast" && $n <= $addnum} {
@@ -1186,6 +1363,11 @@ proc melee_tech {from to name par ans par2} {
 			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $dam2 [clones_interface $from "get_number"]
 		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
+#kubikiribocho effect
+			if {$name == "attack" && [is_in "kubikiribocho" $sk] && [get_hitpoints $to] < $h21} {
+				set h21 [get_hitpoints $to]
+				incr dam 2
+			} 
 #konoha_senpu effect
 			if {$n == 1 && $name == "attack" && [is_in "konoha-senpu" $sk] && $dam > 0} {
 				incr dam 1
@@ -1221,6 +1403,11 @@ proc melee_tech {from to name par ans par2} {
 			}
 		}
 		if {[get_status $to] == "cast" && $n <= $num2} {
+#kubikiribocho effect
+			if {$ans == "attack" && [is_in "kubikiribocho" $sk2] && [get_hitpoints $from] < $h22} {
+				set h22 [get_hitpoints $from]
+				incr dam2 2
+			} 
 #konoha_senpu effect
 			if {$n == 1 && $ans == "attack" && [is_in "konoha-senpu" $sk2] && $dam2 > 0} {
 				incr dam2 1

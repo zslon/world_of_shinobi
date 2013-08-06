@@ -284,7 +284,15 @@ proc standart_ai {num tech p} {
 	} else {
 		set tmo 0
 	}
-	if {[llength $l] != 0 && $tech == "busy"} {
+	if {[llength $l] != 0 && [lindex $l 0] == "nonething"} {
+		set_nin enemy$num 0 
+		if {$tech == "busy" || $tech == "none" || $tech == "run"} {
+		} elseif {[is_melee $tech] && [get_location hero] == [get_location enemy$num] && [get_height hero] == [get_height enemy$num]} {
+			after $tmo "melee_tech hero enemy$num $tech $p none 0"
+		} elseif {[is_ranged $tech] && [get_location hero] < [get_location enemy$num] && [get_height hero] == [get_height enemy$num]} {
+			after $tmo "ranged_tech hero enemy$num $tech $p none 0"
+		} 
+	} elseif {[llength $l] != 0 && $tech == "busy"} {
 		if {[is_ranged [lindex $l 0]]} {
 			after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 		} elseif {[is_melee [lindex $l 0]]} {
@@ -309,7 +317,9 @@ proc standart_ai {num tech p} {
 			if {[get_location hero] == [get_location enemy$num] && [get_height hero] == [get_height enemy$num]} {
 				melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] "attack" [get_tai "hero"]
 				set_nin hero 0
-			} elseif {[get_height hero] == [get_height enemy$num]} {
+			} elseif {[get_location hero] == [expr [get_location enemy$num] - 1] && [get_height hero] == [get_height enemy$num]} {
+				ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] kunai [get_speed hero]
+		        } elseif {[get_height hero] == [get_height enemy$num]} {
 				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			}
 		} elseif {$p == 2} {
@@ -330,7 +340,7 @@ proc standart_ai {num tech p} {
 				after $tmo "ranged_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			}
 		} elseif {[get_location hero] == [get_location enemy$num] && [get_height hero] == [get_height enemy$num]} {
-			if {[is_melee [lindex $l 0]] && [lindex $l 0] != "attack"} {
+			if {[is_melee [lindex $l 0]] && [is_melee_max [lindex $l 0]]} {
 				after $tmo "melee_tech enemy$num hero [lindex $l 0] [lindex $l 1] none 0"
 			} elseif {[is_melee [lindex $l 0]]} {
 				after $tmo "ranged_tech enemy$num hero kunai [get_speed enemy$num] none 0"
@@ -369,11 +379,11 @@ proc bonus_tech_ai {num} {
 		set y [gety original_enemy$num]
 		if {[lindex $priory $t] == "kawarimi" && ([get_height hero] > [get_height enemy$num] || ([get_height hero] < [get_height enemy$num] && [get_location hero] != [get_location enemy$num]))} {
 			mov_ai enemy$num "hero"
-		} elseif {[lindex $priory $t] == "kage-bunshin" && ((([get_height hero] == [get_height enemy$num]) && ([get_location hero] == [get_location enemy$num])) || ($x > 0 && $x < 1024 && $y > 0 && $y < 600))} {
+		} elseif {(([lindex $priory $t] == "kage-bunshin") || ([lindex $priory $t] == "suiton-mizu-bunshin")) && ((([get_height hero] == [get_height enemy$num]) && ([get_location hero] == [get_location enemy$num])) || ($x > 0 && $x < 1024 && $y > 0 && $y < 600))} {
 			return [melee_tech_ai $num]
 		} else {
 		tech_[lindex $priory $t] enemy$num
-		if {[lindex $priory $t] == "suiton-kirigakure"} {
+		if {[lindex $priory $t] == "suiton-kirigakure" || [lindex $priory $t] == "suiton-baku-suishoha" || [lindex $priory $t] == "suiton-dai-baku-suishoha"} {
 			lappend effects [list [lindex $priory $t] "field" [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
 		} else {
 			lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
@@ -384,14 +394,25 @@ proc bonus_tech_ai {num} {
 	}
 }
 proc melee_tech_ai {num} {
-	global meleelist
+	global meleelist effects
 	set priory $meleelist
 	set l [get_skills enemy$num]
 	set c [get_chakra enemy$num]
 	set t 0
 	set i 1
+	set loc [get_location enemy$num]
+	set h [get_height enemy$num]
+	set hl [expr ($h * 10) + $loc]
 	foreach p $priory {
 		if {[is_in $p $l]} {
+			if {$p == "suiton-suiro" && $c > 10 && [is_in [list "suiton-suiro-user" enemy$num $hl] $effects]} {
+				set t $i
+				break
+			}
+			if {$p == "hyoton-makyo-hyosho" && $c > 10 && [is_in [list "hyoton-makyo-hyosho-user" enemy$num $hl] $effects]} {
+				set t $i
+				break
+			}
 			if {$c > [enciclopedia $p "chakra"]} {
 				set t $i
 				break
@@ -407,6 +428,14 @@ proc melee_tech_ai {num} {
 		}
 	} else {
 		incr t -1
+		if {[lindex $priory $t] == "suiton-suiro" || [lindex $priory $t] == "hyoton-makyo-hyosho"} {
+			if {[is_in [list "suiton-suiro-user" enemy$num $hl] $effects] || [is_in [list "hyoton-makyo-hyosho-user" enemy$num $hl] $effects]} {
+				return [list "nonething" 0]
+			}	
+		}
+		if {[lindex $priory $t] == "hyoton-sensatsu-suisho"} {
+			return [list [lindex $priory $t] [get_speed enemy$num]]
+		}
 		if {[is_ninjitsu [lindex $priory $t]]} {
 			return [list [lindex $priory $t] [get_nin enemy$num]]
 		}
@@ -419,7 +448,7 @@ proc melee_tech_ai {num} {
 	}
 }
 proc ranged_tech_ai {num} {
-	global rangedlist
+	global rangedlist effects
 	#hirudora and asakujaku is in both lists
 	set priory $rangedlist
 	set l [get_skills enemy$num]
@@ -429,8 +458,12 @@ proc ranged_tech_ai {num} {
 	foreach p $priory {
 		if {[is_in $p $l]} {
 			if {$c > [enciclopedia $p "chakra"]} {
-				set t $i
-				break
+				if {$p == "suiton-daibakufu" && [get_height enemy$num] != 1} {
+					puts "can`t use suiton daibakufu"
+				} else {
+					set t $i
+					break
+				}
 			}
 		}
 		incr i
@@ -446,6 +479,11 @@ proc ranged_tech_ai {num} {
 		}			
 	} else {
 		incr t -1
+		if {([lindex $priory $t] == "suiton-suijinheki" || [lindex $priory $t] == "suiton-daibakufu" || [lindex $priory $t] == "suiton-suiryudan") && ![is_in [list "suiton-baku-suishoha" "field" -1] $effects]} {
+			tech_suiton-baku-suishoha enemy$num
+			lappend effects [list "suiton-baku-suishoha" "field" -1]
+			return [list ]
+		}
 		puts "[lindex $priory $t] technic!"
 		if {[is_ninjitsu [lindex $priory $t]]} {
 			return [list [lindex $priory $t] [get_nin enemy$num]]
