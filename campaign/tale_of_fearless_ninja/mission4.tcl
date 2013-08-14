@@ -20,13 +20,12 @@ proc slide_1 {} {
 	genin_mist_watermaster 1000 520 
 }
 proc slide_2 {} {
-	global locations ai_type effects
-	lappend effects [list "suiton-baku-suishoha" field -1]
+	global locations ai_type
 	set ai_type "high"
 	replic "naruto-1" 4000
 	phon 2
 	set locations [list 1 1 1 1]
-	hatake_kakashi 1000 520 {"katon-endan"}
+	hatake_kakashi 1000 520 {"doton-moguragakure"}
 	#genin_mist_watermaster 1000 520 2 3 1 1 {"suiton-suika" "suiton-suiro"}
 }
 proc slide_3 {} {
@@ -236,6 +235,14 @@ proc special_haku_ai {n tech p} {
 			#stand and wait
 		}
 	}
+}
+proc slide_8 {} {
+	global locations bonus ai_type effects etap
+	set ai_type "special"
+	phon 8
+	set locations [list 2 2 2 1]
+	hatake_kakashi 50 520 {"sharingan-1" "sharingan-2" "sharingan-3" "raiton-raikiri" "doton-moguragakure" "doton-doryu-heki" "doton-tsuiga" "katon-endan" "suiton-daibakufu" "suiton-suiryudan" "kage-bunshin" "shofu" "kawarimi"}
+	momochi_zabuza 1000 520 {"kubikiribocho" "sairento-kiringu" "suiton-kirigakure" "suiton-mizurappa" "suiton-mizu-bunshin" "suiton-suijinheki" "suiton-daibakufu" "suiton-suiryudan" "suiton-baku-suishoha" "suiton-suiro"} 
 }
 proc victory_special {} {
 	global skills

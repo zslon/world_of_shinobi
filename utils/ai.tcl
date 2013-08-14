@@ -163,6 +163,8 @@ proc major_ai {tech p} {
 				}
 				.c move enemy$e [expr 10*($enemy - 2)] 0
 				.c move original_enemy$e [expr 10*($enemy - 2)] 0
+			} elseif {$c > 0} {
+				standart_ai $e $tech $p
 			}
 			incr e
 		}
@@ -211,7 +213,9 @@ proc standart_ai {num tech p} {
 	set omkof [expr sqrt($ot*$os)]
 	set orkof [expr sqrt($on*$os*$os)]
 	set l {}
-	if {$tech == "busy"} {
+	if {[get_status enemy$num] == "shocked" || [get_status enemy$num] == "in_genjitsu"} {
+		set l {}
+	} elseif {$tech == "busy"} {
 		if {[get_height hero] == [get_height enemy$num] && [get_location hero] == [get_location enemy$num]} {
 			set l [melee_tech_ai $num]
 		} else {
@@ -277,6 +281,8 @@ proc standart_ai {num tech p} {
 			ranged_tech "hero" enemy$num $tech $p "none" 0
 		} elseif {[is_melee $tech] && [get_height hero] == [get_height enemy$num] && [get_location hero] == [get_location enemy$num]} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
+		} elseif {[is_melee_max $tech] && [get_height hero] == [get_height enemy$num]} {
+			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
 		}
 	}
 	if {[lindex $l 0] == "kunai" || [lindex $l 0] == "attack"} {
@@ -302,8 +308,8 @@ proc standart_ai {num tech p} {
 		if {[is_ranged [lindex $l 0]] && [is_ranged $tech]} {
 			ranged_tech "hero" enemy$num $tech $p [lindex $l 0] [lindex $l 1]
 		} elseif {[is_ranged [lindex $l 0]] && ![is_ranged $tech]} {
-			if {[dist "heroi" enemy$num] < 360} {
-				ranged_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] "none" 0
+			if {[dist "heroi" enemy$num] < 360 && [is_melee_max $tech]} {
+				melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
 			} else {
 				ranged_tech enemy$num "hero" [lindex $l 0] [lindex $l 1] "none" 0
 			}
@@ -432,6 +438,10 @@ proc melee_tech_ai {num} {
 			if {[is_in [list "suiton-suiro-user" enemy$num $hl] $effects] || [is_in [list "hyoton-makyo-hyosho-user" enemy$num $hl] $effects]} {
 				return [list "nonething" 0]
 			}	
+		}
+		if {([lindex $priory $t] == "raiton-chidori" || [lindex $priory $t] == "raiton-raikiri") && ![is_in [list "sharingan-2" enemy$num -1] $effects]} {
+			tech_sharingan-full enemy$num
+			return [list ]
 		}
 		if {[lindex $priory $t] == "hyoton-sensatsu-suisho"} {
 			return [list [lindex $priory $t] [get_speed enemy$num]]

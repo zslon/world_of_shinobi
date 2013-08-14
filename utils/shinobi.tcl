@@ -206,7 +206,7 @@ proc uchiha_sasuke {x y skills {level 1}} {
 		genin_sasuke $x $y
 	}
 	if {$level == 3} {
-		shinobi "enemy$enemy" "sasuke-enemy" 3 2 3 3 3 $skills
+		shinobi "enemy$enemy" "sasuke-enemy" 3 2 3 2 3 $skills
 		genin_sakuke $x $y
 	}
 }
@@ -215,7 +215,7 @@ proc uchiha_sasuke_nukenin {x y skills {level 3}} {
 	incr enemy 1
 	set x [expr $x + ($enemy - 2)*10]
 	if {$level == 3} {
-		shinobi "enemy$enemy" "sasuke-enemy-nukenin" 3 2 3 3 3 $skills
+		shinobi "enemy$enemy" "sasuke-enemy-nukenin" 3 3 3 3 3 $skills
 		nukenin_sakuke $x $y
 	}
 	if {$level == 4} {
@@ -328,6 +328,15 @@ proc get_status {class} {
 	}
 	if {[is_in [list "suiton-suiro" $class $hl] $effects] || [is_in [list "hyoton-makyo-hyosho" $class $hl] $effects]} {
 		set a "shocked"
+	}
+	set turns 1
+	if {$t > 0} {
+		while {$turns <= [expr 10 / $t]} {
+			if {[is_in [list "tsuiga-no-jutsu" $class $turns] $effects]} {
+				set a "shocked"
+			}
+			incr turns
+		}
 	}
 	return $a
 }
@@ -942,16 +951,25 @@ proc ranged_tech {from to name par ans par2} {
 		set tag $from
 		set tag2 "heroi"
 	}
+	if {$name=="doton-moguragakure"} {
+		if {[is_mass $ans]} {
+		} else {
+		set dam2 0
+		}
+	}
 	if {[is_in [list "kawarimi" $to 1] $effects] && [get_gen $from] < [expr 2*[get_gen $to]]} {
 		set ans "none"
 		set par2 "0"
-		set dam 0
 		if {$to == "hero"} {
 			set tak "heroi"
 		} else {
 			set tak $to
 		}
-		kawarimi_teleport $tak [get_name $to]
+		if {[is_mass $name]} {
+		} else {
+			kawarimi_teleport $tak [get_name $to]
+			set dam 0
+		}
 	} elseif {[is_in [list "kawarimi" $to 1] $effects] && [expr abs([get_location $from] - [get_location $to])] == 1 && [get_height $from] == [get_height $to]} {
 		set ans "kunai"
 		set par2 [get_speed $to]
@@ -1012,6 +1030,12 @@ proc ranged_tech {from to name par ans par2} {
 		set_nin $to 0
 		set dam2 [enciclopedia $ans "damage" $par2]
 		set num2 [enciclopedia $ans "number" $par2]
+		if {$ans=="doton-moguragakure"} {
+			if {[is_mass $name]} {
+			} else {
+				set dam 0
+			}
+		}
 		if {$num2 > 0} {
 	#kusarigama
 			if {$ans == "kunai" && [is_in [list "kuchiese-kusarigama" $to -1] $effects]} {
@@ -1125,15 +1149,15 @@ proc ranged_tech {from to name par ans par2} {
 			}		
 		}
 	}
-#suijinheki
-	if {$ans != "none" && $name == "suiton-suijinheki"} {
+#suijinheki and doryuheki
+	if {$ans != "none" && ($name == "suiton-suijinheki" || $name == "doton-doryu-heki")} {
 		#suijinheki defence
 		set dam2 [expr $dam2 - $dam/$num2]		
 		if {$dam2 < 0} {
 			set dam2 0
 		}
 	}
-	if {$ans == "suiton-suijinheki"} {
+	if {$ans == "suiton-suijinheki" || $ans == "doton-doryu-heki"} {
 		#suijinheki defence
 		set dam [expr $dam - $dam2/$num]		
 		if {$dam < 0} {
@@ -1208,10 +1232,10 @@ proc melee_tech {from to name par ans par2} {
 	set dam [enciclopedia $name "damage" $par]
 	set num [enciclopedia $name "number" $par]
 	set sk [get_skills $from]
-#kawarimi
 	if {($name == "suiton-suiro" || $name == "hyoton-makyo-hyosho") && ![is_in [list "kyubi-1" $from -1] $effects]} {
 		set_chakra $from [expr [get_chakra $from] - 25 + 3*$nin]
 	}
+#kawarimi
 	if {[is_in [list "kawarimi" $to 1] $effects] && [get_gen $from] < [expr 2*[get_gen $to]]} {
 		set ans "none"
 		set par2 "0"

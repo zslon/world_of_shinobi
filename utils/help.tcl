@@ -1,19 +1,19 @@
 #imageworking
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu futonjitsu katonjitsu suitonjitsu dotonjitsu raitonjitsu
 set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin" "kage-bunshin" "kawarimi" "kai" "futon-shinku-gyoku"]
-set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "hyoton-makyo-hyosho" "omote-renge" "suiton-suiro" "hyoton-sensatsu-suisho" "shofu"]
-set rangedlist [list "futon-rasensuriken" "hirudora" "suiton-suiryudan" "suiton-suiro-same-odori" "futon-kiryu-ranbu" "asakujaku" "suiton-daibakufu" "suiton-suijinheki" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "hyoton-koridomu" "katon-endan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "katon-housenka" "futon-shinku-gyoku" "bunshin-no-henge" "suiton-mizurappa" "katon-gokakyu" "futon-zankuha"]
-set bonuslist [list "sennin-mode" "hachimon-8" "hachimon-7" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "suiton-dai-baku-suishoha" "hachimon-4" "hachimon-3" "suiton-baku-suishoha" "suiton-mizu-bunshin" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "hyoton-korikyo" "suiton-kirigakure" "suiton-suika" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
-set ninjitsu [list "futon-rasensuriken" "rasen-cho-tarengan" "suiton-suiryudan" "suiton-suiro-same-odori" "futon-kiryu-ranbu" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "odama-rasengan" "suiton-dai-baku-suishoha" "suiton-daibakufu" "suiton-suijinheki" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "rasengan" "hyoton-makyo-hyosho" "hyoton-koridomu" "suiton-baku-suishoha" "suiton-suiro" "suiton-mizu-bunshin" "katon-endan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "taju-kage-bunshin" "hyoton-sensatsu-suisho" "hyoton-korikyo" "suiton-mizurappa" "suiton-kirigakure" "suiton-suika" "katon-housenka" "katon-gokakyu" "futon-shinku-gyoku" "futon-zankuha" "kage-bunshin"]
-set taijitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "ura-renge" "omote-renge" "shofu"]
+set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "raiton-raikiri" "hyoton-makyo-hyosho" "omote-renge" "raiton-chidori" "suiton-suiro" "hyoton-sensatsu-suisho" "shofu"]
+set rangedlist [list "futon-rasensuriken" "hirudora" "suiton-suiryudan" "suiton-suiro-same-odori" "futon-kiryu-ranbu" "asakujaku" "suiton-daibakufu" "suiton-suijinheki" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "hyoton-koridomu" "doton-doryu-heki" "katon-endan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "bunshin-no-henge" "katon-housenka" "futon-shinku-gyoku" "doton-moguragakure" "suiton-mizurappa" "katon-gokakyu" "futon-zankuha"]
+set bonuslist [list "sennin-mode" "mangekyo-sharingan-obito" "hachimon-8" "hachimon-7" "sharingan-3" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "suiton-dai-baku-suishoha" "sharingan-2" "hachimon-4" "hachimon-3" "doton-tsuiga" "suiton-baku-suishoha" "suiton-mizu-bunshin" "soshuga" "kuchiese-meisu" "kibakufuda-no-kawarimi" "kibakufuda" "sharingan-1" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "hyoton-korikyo" "suiton-kirigakure" "suiton-suika" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
+set ninjitsu [list "futon-rasensuriken" "rasen-cho-tarengan" "suiton-suiryudan" "suiton-suiro-same-odori" "futon-kiryu-ranbu" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "odama-rasengan" "suiton-dai-baku-suishoha" "suiton-daibakufu" "suiton-suijinheki" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "rasengan" "hyoton-makyo-hyosho" "hyoton-koridomu" "raiton-raikiri" "raiton-chidori" "doton-tsuiga" "doton-doryu-heki" "suiton-baku-suishoha" "suiton-suiro" "suiton-mizu-bunshin" "katon-endan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "taju-kage-bunshin" "hyoton-sensatsu-suisho" "hyoton-korikyo" "suiton-mizurappa" "suiton-kirigakure" "suiton-suika" "katon-housenka" "katon-gokakyu" "futon-shinku-gyoku" "futon-zankuha" "kage-bunshin"]
+set taijitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "ura-renge" "omote-renge" "doton-moguragakure" "shofu"]
 set genjitsu [list "senpo-kawazu-naki" "kibakufuda-no-kawarimi" "kawarimi" "kai"]
-set physicjitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "tsuten-kyaku" "ura-renge" "omote-renge" "naruto-rendan" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
+set physicjitsu [list "hirudora" "naruto-yonsen-rendan" "asakujaku" "naruto-nisen-rendan" "tsuten-kyaku" "ura-renge" "omote-renge" "naruto-rendan" "soshuga" "kuchiese-meisu" "kuchiese-kusarigama" "hosho" "doton-moguragakure" "shoshitsu" "konoha-senpu" "shofu" "kubakufuda" "attack"]
 set kunaijitsu [list "sogu-tensasai" "hyoton-makyo-hyosho" "sofusha-san-no-tachi" "soshoryu" "bunshin-no-henge" "shihohappo-suriken" "raiko-kenka" "hyoton-sensatsu-suisho" "senbon" "kunai"]
 set futonjitsu [list "hyoton-makyo-hyosho" "hyoton-koridomu" "hyoton-sensatsu-suisho" "hyoton-korikyo" "futon-rasensuriken" "futon-kiryu-ranbu" "futon-rasengan" "futon-shinku-renpa" "futon-kazekiri" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "futon-shinku-gyoku" "futon-zankuha"]
 set katonjitsu [list "katon-endan" "katon-housenka" "katon-gokakyu"]
 set suitonjitsu [list "hyoton-makyo-hyosho" "hyoton-koridomu" "hyoton-sensatsu-suisho" "hyoton-korikyo" "suiton-suiryudan" "suiton-suiro-same-odori" "suiton-dai-baku-suishoha" "suiton-daibakufu" "suiton-suijinheki" "suiton-baku-suishoha" "suiton-suiro" "suiton-mizu-bunshin" "suiton-mizurappa" "suiton-kirigakure" "suiton-suika"]
-set dotonjitsu [list ]
-set raitonjitsu [list ]
+set dotonjitsu [list "doton-tsuiga" "doton-doryu-heki" "doton-moguragakure"]
+set raitonjitsu [list "raiton-raikiri" "raiton-chidori"]
 proc enciclopedia_search {testskill testobj skill name damage number chakra} {
 	if {$testskill == $skill} {
 		return [set [set testobj]]
@@ -34,6 +34,10 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "hachimon-6" "Keimon" 0 -1 25]
 	lappend cyclo [list "hachimon-7" "Kyomon" 0 -1 25]
 	lappend cyclo [list "hachimon-8" "Shimon" 0 -1 50]
+	lappend cyclo [list "sharingan-1" "Sharingan" 0 -1 10]
+	lappend cyclo [list "sharingan-2" "Sharingan" 0 -1 10]
+	lappend cyclo [list "sharingan-3" "Sharingan" 0 -1 10]
+	lappend cyclo [list "mangekyo-sharingan-obito" "Mangekyo Sharingan" 0 -1 25]
 	lappend cyclo [list "nine-tails" "Kyubi no Koromo" 0 2 0]
 	lappend cyclo [list "kyubi-enabled" "Kyubi" 0 0 0]
 	lappend cyclo [list "taju-kage-bunshin" "Taju Kage Bunsin no Jutsu" 0 [expr $par * 2] 50]
@@ -88,6 +92,11 @@ proc enciclopedia {skill obj {par "0"} {par2 0}} {
 	lappend cyclo [list "suiton-suijinheki" "Suiton: Suijinheki" [expr 15*$par] 1 50]
 	lappend cyclo [list "suiton-daibakufu" "Suiton: Daibakufu no Jutsu" [expr 20*$par] 1 70]	
 	lappend cyclo [list "suiton-suiryudan" "Suiton: Suiryudan no Jutsu" [expr 25*$par] 1 100]
+	lappend cyclo [list "doton-moguragakure" "Doton: Moguragakure no Jutsu" [expr 3 + $par] 1 10]
+	lappend cyclo [list "doton-doryu-heki" "Doton: Doryu Heki" [expr 10*$par] 1 30]
+	lappend cyclo [list "doton-tsuiga" "Kuchiese: Doton: Tsuiga no Jutsu" 0 0 20]
+	lappend cyclo [list "raiton-chidori" "Chidori" [expr 10*$par] 1 30]
+	lappend cyclo [list "raiton-raikiri" "Raikiri" [expr 15*$par] 1 60]
 	lappend cyclo [list "hyoton-korikyo" "Hyoton: Korikyo" 0 1 10]
 	lappend cyclo [list "hyoton-sensatsu-suisho" "Hyoton: Sensatsu Suisho" [expr 5 * $par] 1 15]
 	lappend cyclo [list "hyoton-koridomu" "Hyoton: Koridomu" 1 1 10]
@@ -171,12 +180,15 @@ proc is_raiton_based {tech} {
 }
 proc have_special_animate {tech} {
 #range tech, with have special animate
-	return [is_in $tech [list "hirudora" "asakujaku" "sogu-tensasai" "soshoryu" "suiton-suijinheki" "suiton-daibakufu" "suiton-suiryudan" "hyoton-koridomu"]]
+	return [is_in $tech [list "hirudora" "asakujaku" "sogu-tensasai" "soshoryu" "suiton-suijinheki" "suiton-daibakufu" "suiton-suiryudan" "doton-doryu-heki" "hyoton-koridomu"]]
 }
 proc is_high {name} {
 #hero height for kunai technics
 	return [is_in [get_name $name] [list "gui" "kakashi" "chunin-sound" "haku"]]
 }
 proc is_melee_max {tech} {
-	return [is_in $tech [list "hirudora" "asakujaku" "rasengan" "odama-rasengan" "futon-rasengan" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "naruto-nisen-rendan"]]
+	return [is_in $tech [list "hirudora" "asakujaku" "rasengan" "odama-rasengan" "futon-rasengan" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "naruto-nisen-rendan" "raiton-chidori" "raiton-raikiri"]]
+}
+proc is_mass {name} {
+	return [is_in $name [list "hirudora" "asakujaku" "suiton-daibakufu" "suiton-suiryudan" "futon-kazekiri" "futon-rasensuriken"]]
 }
