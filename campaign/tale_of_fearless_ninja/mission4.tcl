@@ -25,8 +25,8 @@ proc slide_2 {} {
 	replic "naruto-1" 4000
 	phon 2
 	set locations [list 1 1 1 1]
-	hatake_kakashi 1000 520 {"doton-moguragakure"}
-	#genin_mist_watermaster 1000 520 2 3 1 1 {"suiton-suika" "suiton-suiro"}
+	#hatake_kakashi 1000 520 {"doton-moguragakure"}
+	genin_mist_watermaster 1000 520 2 3 1 1 {"suiton-suika" "suiton-suiro"}
 }
 proc slide_3 {} {
 	global locations ai_type
