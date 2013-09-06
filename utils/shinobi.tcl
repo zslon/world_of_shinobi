@@ -244,6 +244,19 @@ proc momochi_zabuza {x y skills} {
 	shinobi "enemy$enemy" "zabuza" 4 4 4 2 4 $skills
 	nukenin_momochi_zabuza $x $y
 }
+proc sarutobi_konohomaru {x y skills {level 1}} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	if {$level == 1} {
+		shinobi "enemy$enemy" "konohomaru" 1 1 2 1 1 $skills
+		boy_konohomaru $x $y
+	}
+	if {$level == 2} {
+		shinobi "enemy$enemy" "konohomaru-adult" 2 2 3 2 2 $skills
+		genin_konohomaru $x $y
+	}
+}
 ##
 proc getx {tag} {
 	set l [.c coords $tag]

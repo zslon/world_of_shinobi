@@ -2,22 +2,19 @@
 source [file join $mydir utils shinobi.tcl]
 source [file join $mydir utils buttons.tcl]
 global missionnumber heroname herolevel ai_type
-set missionnumber 4
+set missionnumber 5
 set heroname "naruto"
 set herolevel 1
 set ai_type "normal"
-autosave 0 4
+autosave 0 5
 breefing
+levelup 1 1 0 1
 proc slide_1 {} {
-	global locations bonus skills effects
-	lappend skills "kyubi-enabled"
+	global locations bonus effects
 	set bonus 0
 	phon 1
 	set locations [list 1 1 1 1]
-	lappend effects [list "water-clon" enemy1 -1]
-	lappend effects [list "water-clon" enemy2 -1]
-	genin_mist_watermaster 700 520
-	genin_mist_watermaster 1000 520 
+	sarutobi_konohomaru 1000 520
 }
 proc slide_2 {} {
 	global locations ai_type
@@ -235,7 +232,7 @@ proc special_haku_ai {n tech p} {
 		}
 	}
 }
-proc slide_8 {} {
+proc slide_2 {} {
 	global locations bonus ai_type effects firsttime
 	set ai_type "special"
 	set firsttime 1

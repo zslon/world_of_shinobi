@@ -1440,6 +1440,24 @@ proc nukenin_momochi_zabuza {x y} {
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "zabuza" $slide
 }
+proc boy_konohomaru {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes konohomaru stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "konohomaru" $slide
+}
+proc genin_konohomaru {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes konohomaru-adult stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "konohomaru-adult" $slide
+}
 #tech
 proc suiken_not_message {} {
 	global mydir
