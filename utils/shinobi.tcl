@@ -1397,7 +1397,7 @@ proc melee_tech {from to name par ans par2} {
 			tech_clones-attack $from $to [expr $mt*($n-1)] $ti $dam [clones_interface $from "get_number"]
 		}	
 		if {[get_status $to] == "cast" && $n <= $addnum2} {
-			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $dam2 [clones_interface $from "get_number"]
+			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $dam2 [clones_interface $to "get_number"]
 		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
 #kubikiribocho effect

@@ -720,7 +720,8 @@ proc tech_clones-attack {u p {timestart 0} interval d num} {
 	}
 	set randomnumber [expr 100*rand()]
 	set t $timestart
-	clones_interface $u "attack-$num"	
+	puts "fact $num"
+	after $t "clones_interface $u attack-$num"
 	#damage
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	

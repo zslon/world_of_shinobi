@@ -10,11 +10,12 @@ autosave 0 5
 breefing
 levelup 1 1 0 1
 proc slide_1 {} {
-	global locations bonus effects
+	global locations bonus effects ai_type
+	#set ai_type "high"
 	set bonus 0
 	phon 1
 	set locations [list 1 1 1 1]
-	sarutobi_konohomaru 1000 520
+	sarutobi_konohomaru 1000 520 {} 1
 }
 proc slide_2 {} {
 	global locations ai_type
