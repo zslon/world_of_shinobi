@@ -120,6 +120,32 @@ proc genin_watermaster {x y village tai nin gen sp skills} {
 		gen_plus $enemy
 	}
 }
+proc genin_firemaster {x y village tai nin gen sp skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "genin-[set village]-firemaster" 1 $tai $nin $gen $sp $skills
+	genin_firemaster_from_$village $x $y
+	if {$tai < 2 || $nin < 3} {
+		gen_minus $enemy
+	}
+	if {$sp > 1 || $gen > 1 || $tai > 2 || $nin > 3} {
+		gen_plus $enemy
+	}
+}
+proc genin_genmaster {x y village tai nin gen sp skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "genin-[set village]-genjitsu" 1 $tai $nin $gen $sp $skills
+	genin_genjitsu_from_$village $x $y
+	if {$tai < 2 || $gen < 3} {
+		gen_minus $enemy
+	}
+	if {$sp > 1 || $nin > 1 || $tai > 2 || $gen > 3} {
+		gen_plus $enemy
+	}
+}
 proc chunin {x y village tai nin gen sp skills} {
 	global enemy
 	incr enemy 1
@@ -130,6 +156,19 @@ proc chunin {x y village tai nin gen sp skills} {
 		gen_minus $enemy
 	}
 	if {$tai > 3 || $nin > 3 || $gen > 3 || $sp > 3} {
+		gen_plus $enemy
+	}
+}
+proc chunin_genmaster {x y village tai nin gen sp skills} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	shinobi "enemy$enemy" "chunin-[set village]-genjitsu" 2 $tai $nin $gen $sp $skills
+	chunin_genjitsu_from_$village $x $y
+	if {$tai < 3 || $nin < 2 || $gen < 4 || $sp < 3} {
+		gen_minus $enemy
+	}
+	if {$tai > 3 || $nin > 2 || $gen > 4 || $sp > 3} {
 		gen_plus $enemy
 	}
 }
@@ -148,8 +187,17 @@ proc genin_sound_armmaster {x y {tai 1} {nin 1} {gen 2} {sp 4} {skills {}}} {
 proc genin_mist_watermaster {x y {tai 2} {nin 3} {gen 1} {sp 1} {skills {}}} {
 	genin_watermaster $x $y mist $tai $nin $gen $sp $skills
 }
+proc genin_leaf_firemaster {x y {tai 2} {nin 3} {gen 1} {sp 1} {skills {}}} {
+	genin_firemaster $x $y leaf $tai $nin $gen $sp $skills
+}
+proc genin_leaf_genjitsu {x y {tai 2} {nin 1} {gen 3} {sp 1} {skills {}}} {
+	genin_genmaster $x $y leaf $tai $nin $gen $sp $skills
+}
 proc chunin_sound {x y {tai 3} {nin 3} {gen 3} {sp 3} {skills {}}} {
 	chunin $x $y sound $tai $nin $gen $sp $skills
+}
+proc chunin_leaf_genjitsu {x y {tai 3} {nin 2} {gen 4} {sp 3} {skills {}}} {
+	chunin_genmaster $x $y leaf $tai $nin $gen $sp $skills
 }
 #personal
 proc ten_ten {x y skills {level 1}} {
@@ -341,6 +389,15 @@ proc get_status {class} {
 	}
 	if {[is_in [list "suiton-suiro" $class $hl] $effects] || [is_in [list "hyoton-makyo-hyosho" $class $hl] $effects]} {
 		set a "shocked"
+	}
+	set turns 1
+	if {$g > 0} {
+		while {$turns <= [expr 10 / $g]} {
+			if {[is_in [list "magen-narakumi" $class $turns] $effects]} {
+				set a "in_genjitsu"
+			}
+			incr turns
+		}
 	}
 	set turns 1
 	if {$t > 0} {
@@ -652,9 +709,17 @@ proc end_turn {{tech "none"} {p 0}} {
 	}
 }
 proc auto_nextturn {} {
+	global lever
 	set status [get_status "hero"]
+	set skills [get_skills "hero"]
 	if {$status == "shocked" || $status == "in_genjitsu"} {
-		end_turn
+		if {$status == "in_genjitsu" && [is_in "kai" $skills] && [get_chakra "hero"] > 10} {
+			block_battlepanel
+			set lever 1
+			kai_message
+		} else {
+			end_turn
+		}
 	}
 }
 proc replace_nin {} {
@@ -1100,6 +1165,12 @@ proc ranged_tech {from to name par ans par2} {
 	}
 	if {$ans == "futon-shinku-gyoku" && ![is_in [list "kyubi-1" $to -1] $effects]} {
 		set_chakra $to [expr [get_chakra $to] - 15]
+	}
+	if {$name == "katon-housenka" && ![is_in [list "kyubi-1" $from -1] $effects]} {
+		set_chakra $from [expr [get_chakra $from] - 10]
+	}
+	if {$ans == "katon-housenka" && ![is_in [list "kyubi-1" $to -1] $effects]} {
+		set_chakra $to [expr [get_chakra $to] - 10]
 	}
 #koridomu
 	if {$ans != "none" && $name == "hyoton-koridomu" && [get_chakra $from] > [enciclopedia $ans "chakra" $par2]} {

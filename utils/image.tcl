@@ -1089,7 +1089,7 @@ proc clones_interface {who type} {
 			set holder [lindex $e 1]
 			set t [lindex $e 2]
 			if {$do == "taju-kage-bunshin" && $holder == $who} {
-				set r [expr $r + $t]
+				set r $t
 			}
 			incr i
 		}
@@ -1214,19 +1214,27 @@ proc clones_interface {who type} {
 			effect "taju-kage-bunshin" $who "remove"
 		}
 		set i 0
+		set j 1 
 		foreach e $effects {
 			set do [lindex $e 0]
 			set holder [lindex $e 1]
 			set t [lindex $e 2]
-			if {$do == "taju-kage-bunshin" && $holder == $who} {
+			if {$do == "taju-kage-bunshin" && $holder == $who && $j > 0 && $t > 0} {
 				if {$num > 0} {
 					lset effects $i [list "taju-kage-bunshin" $who $num]
+					set j -1
 				} else {
-					lset effects $i [lreplace $effects $i $i]
+					set effects [lreplace $effects $i $i]
 					incr i -1
 				}
+			} elseif {($j < 0 || $t < 1) && $do == "taju-kage-bunshin" && $holder == $who} {
+				set effects [lreplace $effects $i $i]
+				incr i -1
 			}
 			incr i
+		}
+		if {$j > 0} {
+			lappend effects [list "taju-kage-bunshin" $who $num]
 		}
 	}
 }
@@ -1349,6 +1357,24 @@ proc genin_watermaster_from_mist {x y} {
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-mist-watermaster" $slide
 }
+proc genin_firemaster_from_leaf {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes genin-leaf-firemaster stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "genin-leaf-firemaster" $slide
+}
+proc genin_genjitsu_from_leaf {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes genin-leaf-genjitsu stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "genin-leaf-genjitsu" $slide
+}
 proc chunin_from_sound {x y} {
 	global mydir enemy slide
 	global enemy[set enemy]_ancof
@@ -1357,6 +1383,15 @@ proc chunin_from_sound {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "chunin-sound" $slide
+}
+proc chunin_genjitsu_from_leaf {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes chunin-leaf-genjitsu stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "chunin-leaf-genjitsu" $slide
 }
 #personal
 proc genin_tenten {x y} {
@@ -1624,6 +1659,35 @@ proc hachimon_8_really_message {} {
 		}	
 		if {[object_in %x %y 320 272 125 25]} {
 			destroy .s
+		}		
+	}	
+}
+proc kai_message {} {
+	global mydir lever
+	get_image kai_mess [file join $mydir images skills information ingenjitsu.gif]
+	catch {
+		destroy .k
+	}
+	toplevel .k
+	wm title .k {You are in enemy genjutsu!}
+	wm geometry .k 400x300
+	wm maxsize .k 400 300
+	wm minsize .k 400 300
+	canvas .k.c -height 300 -width 400 -bg black
+	.k.c create image 200 150 -image kai_mess -tag infa
+	pack .k.c -side top
+	bind .k.c <ButtonPress> {
+		if {[object_in %x %y 83 272 125 25]} {
+			tech_kai "hero"
+			replace
+			set lever 0
+			end_turn "kai"
+			destroy .k
+		}	
+		if {[object_in %x %y 320 272 125 25]} {
+			set lever 0
+			end_turn
+			destroy .k
 		}		
 	}	
 }

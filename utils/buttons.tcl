@@ -173,7 +173,14 @@ proc next_slide {} {
 	foreach e $effects {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
-		effect $do $owner "remove" "nextslide"
+		if {$do == "katon-haisekisho"} {
+			effect $do "hero" "remove" "nextslide"	
+			effect $do enemy1 "remove" "nextslide"	
+			effect $do enemy2 "remove" "nextslide"	
+			effect $do enemy3 "remove" "nextslide"	
+		} else {
+			effect $do $owner "remove" "nextslide"
+		}
 		incr i
 	}
 	set effects [lreplace $effects 0 [expr [llength $effects] - 1]]

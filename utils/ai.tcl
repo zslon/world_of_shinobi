@@ -199,6 +199,9 @@ proc mine_schema {mines tech p} {
 }
 proc standart_ai {num tech p} {
 	set en [get_nin enemy$num]
+	if {$en < 1} {
+		set en 1
+	}
 	set et [get_tai enemy$num]
 	set es [get_speed enemy$num]
 	set on [get_nin hero]
@@ -391,8 +394,16 @@ proc bonus_tech_ai {num} {
 		tech_[lindex $priory $t] enemy$num
 		if {[lindex $priory $t] == "suiton-kirigakure" || [lindex $priory $t] == "suiton-baku-suishoha" || [lindex $priory $t] == "suiton-dai-baku-suishoha"} {
 			lappend effects [list [lindex $priory $t] "field" [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+		} elseif {[lindex $priory $t] == "katon-haisekisho"} {
+			set hl [get_height enemy$num]
+			set hl [expr -1*$hl]
+			lappend effects [list [lindex $priory $t] "field" $hl]
+		} elseif {[lindex $priory $t] == "kokoni-arazu"} {
+			lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_gen enemy$num]]]
 		} else {
-			lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+			if {[enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]] > 0} {
+				lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+			}
 		}
 		replace
 		}

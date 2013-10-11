@@ -10,27 +10,32 @@ proc effect_work {} {
 		set do [lindex $e 0]
 		set owner [lindex $e 1]
 		set t [lindex $e 2]
-		puts "$t $do $owner"
-		if {$t > 0 && $i < [llength $effects]} {
-			lset effects $i [list $do $owner [expr $t - 1]]
-		} else {
-		}
-		effect $do $owner "do"
-		if {$t == 0} {
-			if {[llength $effects] > $i} {
-				set effects [lreplace $effects $i $i]
-				effect $do $owner "remove"
-			}
-		} else {	
-			set k [expr $enemy + 1]
-			while {$k < 5} {
-				if {$owner == "enemy$k" && [llength $effects] > $i} {
-					set effects [lreplace $effects $i $i]
-					incr i -1
-				}
-				incr k 1
-			}
+		if {$t < -1000 || $t > 1000} {
+			set effects [lreplace $effects $i $i]
 			incr i
+		} else {
+		puts "$t $do $owner"
+			if {$t > 0 && $i < [llength $effects]} {
+				lset effects $i [list $do $owner [expr $t - 1]]
+			} else {
+			}
+			effect $do $owner "do"
+			if {$t == 0} {
+				if {[llength $effects] > $i} {
+					set effects [lreplace $effects $i $i]
+					effect $do $owner "remove"
+				}
+			} else {	
+				set k [expr $enemy + 1]
+				while {$k < 5} {
+					if {$owner == "enemy$k" && [llength $effects] > $i} {
+						set effects [lreplace $effects $i $i]
+						incr i -1
+					}
+					incr k 1
+				}
+				incr i
+			}
 		}
 	}
 	set lever 0
@@ -214,6 +219,9 @@ proc effect {name owner what {pr "nextturn"}} {
 			}
 			.c delete dogs$tag
 		}
+		if {$name == "katon-haisekisho"} {
+			.c delete ash_$owner
+		}
 		if {$name == "suiton-kirigakure"} {
 			.c delete mist
 		}
@@ -352,7 +360,7 @@ proc effect {name owner what {pr "nextturn"}} {
 			set do [lindex $e 0]
 			set holder [lindex $e 1]
 			set t [lindex $e 2]
-			if {$do == $name && $holder == $owner} {
+			if {$do == $name && $holder == $owner && ($t == 0 || $t == -1 || $pr == "nextslide")} {
 				if {$i < [llength $effects]} {
 					set effects [lreplace $effects $i $i]
 					incr i -1
@@ -367,10 +375,10 @@ proc take_damage {p d t {tim 0}} {
 	if {[get_hitpoints $p] > 0 && $d > 0} {
 		set_hitpoints $p [expr [get_hitpoints $p] - $d]
 		if {[clones_interface $p "get_number"] > 0} {
-			if {$t == "hirudora" || $t == "futon-rasensuriken" || $t == "futon-kiryu-ranbu" || $t == "futon-kazekiri" || $t == "futon-rasengan" || $t == "suiton-daibakufu"} {
+			if {$t == "hirudora" || $t == "futon-rasensuriken" || $t == "futon-kiryu-ranbu" || $t == "futon-kazekiri" || $t == "futon-rasengan" || $t == "suiton-daibakufu" || $t == "katon-haisekisho"} {
 				#save damage and remove all clones
 				after 500 "clones_interface $p remove_all" 
-			} elseif {$t == "soshoryu" || $t == "sogu-tensasai" || $t == "futon-shinkuha" || $t == "naruto-nisen-rendan" || $t == "naruto-yonsen-rendan"} {
+			} elseif {$t == "soshoryu" || $t == "sogu-tensasai" || $t == "futon-shinkuha" || $t == "naruto-nisen-rendan" || $t == "naruto-yonsen-rendan" || $t == "katon-ryuka"} {
 				#remove all clones and remove damage
 				set_hitpoints $p [expr [get_hitpoints $p] + $d]
 				set d 0
@@ -521,7 +529,9 @@ proc tech_kunai {x y r p {timestart 0} d {type "little"}} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*15]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -605,7 +615,9 @@ proc tech_suriken {x y r p {timestart 0} d} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -642,7 +654,9 @@ proc tech_senbon {x y r p {timestart 0} d {type "little"}} {
 	set s [get_speed $p]
 	#very mark
 	set chance [expr 100 - $s*5]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -693,7 +707,9 @@ proc tech_kusarigama {x y r p {timestart 0} d {type "little"}} {
 	#damage
 	set s [get_speed $p]
 	set chance [expr 100 - $s*15]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -720,13 +736,17 @@ proc tech_clones-attack {u p {timestart 0} interval d num} {
 	}
 	set randomnumber [expr 100*rand()]
 	set t $timestart
-	puts "fact $num"
 	after $t "clones_interface $u attack-$num"
 	#damage
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 75 - ($s2-$s1)*5]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -777,7 +797,12 @@ get_image $tag [file join $mydir images heroes $user attack $r-$i.gif] run $u"
 		incr s1 1
 	}
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -814,8 +839,12 @@ get_image $tag [file join $mydir images heroes $user meisu $i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -852,8 +881,12 @@ get_image $tag [file join $mydir images heroes $user soshuga $i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -903,8 +936,12 @@ replace"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -963,14 +1000,18 @@ get_image $tag [file join $mydir images heroes $user konoha-senpu $i.gif]"
 		set s1 [get_speed $u]
 		set s2 [get_speed $p]
 		set chance [expr 50 - ($s2-$s1)*10]
-		if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-			
+		set hi [get_height $p]
+		set hi [expr -1*$hi]
+		if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+			set chance [expr $chance - 20]
+		}
+		if {[if_kokoni_arazu $p $u]} {
 			set chance [expr $chance - 20]
 		}
 		if {[is_in [list "sharingan-1" $u -1] $effects]} {
 			set chance [expr $chance + 20]
 		}
-]		if {[is_in [list "sharingan-2" $p -1] $effects]} {
+		if {[is_in [list "sharingan-2" $p -1] $effects]} {
 			set chance [expr $chance - 20]
 		}
 		set randomnumber [expr 100*rand()]
@@ -1064,8 +1105,12 @@ get_image $tag [file join $mydir images heroes $user attack 3-$i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -1114,8 +1159,12 @@ get_image $tag [file join $mydir images heroes $user shoshitsu $i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -1156,8 +1205,12 @@ get_image $tag [file join $mydir images heroes $user attack 1-$i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 50 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
-		
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-1" $u -1] $effects]} {
@@ -1778,7 +1831,9 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 			set s [get_speed $purpose]	
 			set randomnumber [expr 100*rand()]
 			set miss_chance [expr $s*15]
-			if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+			set hi [get_height $purpose]
+			set hi [expr -1*$hi]
+			if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 				set miss_chance [expr $miss_chance + 20]
 			}
 			if {[is_in [list "sharingan-2" $purpose -1] $effects]} {
@@ -1858,7 +1913,9 @@ get_image $tag [file join $mydir images heroes $name soshoryu $i.gif]"
 		if {[get_height $purpose] == $h && [get_location $purpose] != $l} {
 			set s [get_speed $purpose]	
 			set miss_chance [expr $s*15]
-			if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+			set hi [get_height $purpose]
+			set hi [expr -1*$hi]
+			if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 				set miss_chance [expr $miss_chance + 20]
 			}
 			if {[is_in [list "sharingan-2" $purpose -1] $effects]} {
@@ -1895,7 +1952,8 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		get_image i_$randomnumber [file join $mydir images attacks zankuha 2.gif]
+		set tp 2
+		get_image i_$randomnumber [file join $mydir images attacks zankuha 2-1.gif]
 		set e 1
 		while {$e <= $enemy} {
 			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
@@ -1908,7 +1966,8 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 			set_chakra $u [expr [get_chakra $u] - 15]
 		}
 	} else {
-		get_image i_$randomnumber [file join $mydir images attacks zankuha 1.gif]
+		set tp 1
+		get_image i_$randomnumber [file join $mydir images attacks zankuha 1-1.gif]
 		if {[is_in [list "kyubi-1" "hero" -1] $effects]} {
 		} else {
 			set_chakra "hero" [expr [get_chakra "hero"] - 15]
@@ -1920,7 +1979,9 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	#damage (very mark)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*5]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -1937,6 +1998,20 @@ proc tech_futon-zankuha {x y r p {timestart 0} d} {
 	}
 	after $t ".c delete t_$randomnumber
 	replace"
+	set t $timestart
+	get_image i_$randomnumber-1 [file join $mydir images attacks zankuha [set tp]-1.gif]
+	get_image i_$randomnumber-2 [file join $mydir images attacks zankuha [set tp]-2.gif]
+	get_image i_$randomnumber-3 [file join $mydir images attacks zankuha [set tp]-3.gif]
+	get_image i_$randomnumber-4 [file join $mydir images attacks zankuha [set tp]-4.gif]
+	set k 1
+	while {$t < [expr $timestart + 500]} {
+		after $t ".c itemconfigure t_$randomnumber -image i_$randomnumber-$k"
+		incr k 1
+		if {$k > 4} {
+			set k 1
+		}
+		incr t 50
+	}
 	if {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "futon-zankuha"
@@ -1967,7 +2042,9 @@ proc tech_futon-shinku-gyoku {x y r p {timestart 0} d} {
 	#damage (very mark)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*5]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -1977,6 +2054,10 @@ proc tech_futon-shinku-gyoku {x y r p {timestart 0} d} {
 	     set k 1
 	} else {
 	     set k -1
+	}
+	if {[is_high $u]} {
+		after $t " .c move t_$randomnumber 0 -20"
+		incr k 1
 	}
 	while {$t < [expr $timestart + 500]} {
 		if {$randomnumber < $chance} {
@@ -2001,7 +2082,8 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	global mydir effects enemy
 	set randomnumber [expr 100*rand()]
 	if {$p == "hero"} {
-		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 2.gif]
+		set tp 2
+		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 2-1.gif]
 		set e 1
 		while {$e <= $enemy} {
 			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
@@ -2014,7 +2096,8 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 		set_chakra $u [expr [get_chakra $u] - 25]
 		}
 	} else {
-		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 1.gif]
+		set tp 1
+		get_image i_$randomnumber [file join $mydir images attacks zankukyokuha 1-1.gif]
 		if {[is_in [list "kyubi-1" "hero" -1] $effects]} {
 		} else {
 		set_chakra "hero" [expr [get_chakra "hero"] - 25]
@@ -2026,7 +2109,9 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	#damage (very very mark - minimal chance is 70% vs naruto in fox-mode)
 	set s [get_speed $p]
 	set chance [expr 100 - $s*3]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -2043,6 +2128,20 @@ proc tech_futon-zankukyokuha {x y r p {timestart 0} d} {
 	}
 	after $t ".c delete t_$randomnumber
 	replace"
+	set t $timestart
+	get_image i_$randomnumber-1 [file join $mydir images attacks zankukyokuha [set tp]-1.gif]
+	get_image i_$randomnumber-2 [file join $mydir images attacks zankukyokuha [set tp]-2.gif]
+	get_image i_$randomnumber-3 [file join $mydir images attacks zankukyokuha [set tp]-3.gif]
+	get_image i_$randomnumber-4 [file join $mydir images attacks zankukyokuha [set tp]-4.gif]
+	set k 1
+	while {$t < [expr $timestart + 500]} {
+		after $t ".c itemconfigure t_$randomnumber -image i_$randomnumber-$k"
+		incr k 1
+		if {$k > 4} {
+			set k 1
+		}
+		incr t 75
+	}
 	if {$randomnumber < $chance} {
 		#hit
 		set nd [take_damage $p $d "futon-zankukyokuha"]
@@ -2097,7 +2196,9 @@ proc tech_katon-gokakyu {x y r p {timestart 0} d} {
 	set s [get_speed $p]
 	#normal chances
 	set chance [expr 100 - $s*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -2128,11 +2229,129 @@ proc tech_katon-gokakyu {x y r p {timestart 0} d} {
 	}
 	after $t ".c delete t_$randomnumber
 	replace"
-	if {$randomnumber < $chance} {
+	if {[is_in [list "katon-haisekisho" "field" $hi] $effects]} {
+		haisekisho_boom $d $hi $u $timestart
+		after [expr $timestart + 200] ".c delete t_$randomnumber"
+	} elseif {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "katon-gokakyu"
 		if {[get_chakra $p] == 0} {
 			set_hitpoints $p 0
+		}
+	}
+}
+proc tech_katon-housenka {x y r p {timestart 0} d} {
+	global mydir effects enemy
+	set randomnumber [expr 100*rand()]
+	if {$p == "hero"} {
+		get_image i_$randomnumber [file join $mydir images attacks housenka 2.gif]
+		set e 1
+		while {$e <= $enemy} {
+			if {[getx enemy$e] == $x && [gety enemy$e] == $y} {
+				set u "enemy$e"
+			}
+			incr e
+		}
+
+	} else {
+		get_image i_$randomnumber [file join $mydir images attacks housenka 1.gif]
+		set u "hero"
+	}
+	set t $timestart
+	after $t ".c create image $x $y -image i_$randomnumber -tag t_$randomnumber"
+	#damage (very mark)
+	set s [get_speed $p]
+	set chance [expr 100 - $s*10]
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
+		set chance [expr $chance - 20]
+	}
+	if {[is_in [list "sharingan-2" $p -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
+	if {$randomnumber > 50} {
+	     set k 1
+	} else {
+	     set k -1
+	}
+	while {$t < [expr $timestart + 500]} {
+		if {$randomnumber < $chance} {
+			after $t "if_delete t_$randomnumber $u
+.c move t_$randomnumber [expr $r / 25] $k"
+		} else {
+			after $t ".c move t_$randomnumber [expr $r / 25] 0"
+		}
+		incr t 20	
+	}
+	after $t ".c delete t_$randomnumber
+	replace"
+	if {[is_in [list "katon-haisekisho" "field" $hi] $effects]} {
+		haisekisho_boom $d $hi $u $timestart
+		after [expr $timestart + 200] ".c delete t_$randomnumber"
+	} elseif {$randomnumber < $chance} {
+		#hit
+		take_damage $p $d "katon-housenka"
+		if {[get_chakra $p] == 0} {
+			set_hitpoints $p 0
+		}
+	}
+}
+proc tech_katon-ryuka {u p {timestart 0} interval d} {
+	global mydir effects enemy
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	.c raise $tag
+	if {[is_in [list "kyubi-1" $u -1] $effects]} {
+	} else {
+		set_chakra $u [expr [get_chakra $u] - 20]
+	}	
+	set randomnumber [expr 100*rand()]
+	set user [get_name $u]
+	set t $timestart
+	set i 1
+	while {$i <= 7} {
+		set t [expr $t + $interval]
+		after $t ".c raise $tag
+get_image $tag [file join $mydir images heroes $user katon-ryuka $i.gif]"
+		incr i
+	}
+	set t [expr $t + $interval]
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+	after $t "replace"
+	#damage
+	set ll [list "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		lappend ll "enemy$e"
+		incr e 1
+	}
+	foreach pur $ll {
+		if {$pur != $u && [get_height $pur] == [get_height $u] && [get_location $u] == [get_location $pur]} {
+			set s1 [get_speed $u]
+			set s2 [get_speed $pur]	
+			set chance [expr 100 - ($s2-$s1)*10]
+			set hi [get_height $pur]
+			set hi [expr -1*$hi]
+			if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $pur]]} {
+				set chance [expr $chance - 20]
+			}
+			if {[if_kokoni_arazu $pur $u]} {
+				set chance [expr $chance - 20]
+			}
+			if {[is_in [list "sharingan-1" $u -1] $effects]} {
+				set chance [expr $chance + 20]
+			}
+			if {[is_in [list "sharingan-2" $pur -1] $effects]} {
+				set chance [expr $chance - 20]
+			}
+			if {$randomnumber < $chance} {
+				#hit	
+				take_damage $pur $d "katon-ryuka"
+			}
 		}
 	}
 }
@@ -2188,7 +2407,9 @@ proc tech_katon-endan {x y r p {timestart 0} d} {
 	set s [get_speed $p]
 	#low chances
 	set chance [expr 100 - $s*15]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -2196,11 +2417,114 @@ proc tech_katon-endan {x y r p {timestart 0} d} {
 	}
 	after [expr $timestart + 600] "
 	replace"
-	if {$randomnumber < $chance} {
+	if {[is_in [list "katon-haisekisho" "field" $hi] $effects]} {
+		haisekisho_boom $d $hi $u $timestart
+		after [expr $timestart + 200] ".c delete t_$randomnumber"
+	} elseif {$randomnumber < $chance} {
 		#hit
 		take_damage $p $d "katon-endan"
 		if {[get_chakra $p] == 0} {
 			set_hitpoints $p 0
+		}
+	}
+}
+proc tech_suiton-suika {u} {
+	global mydir effects
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set_nin $u 0
+	set_chakra $u [expr [get_chakra $u] - 10]	
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 5} {
+		after $t "get_image $tag [file join $mydir images heroes $user suiton-suika $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+} 
+proc tech_katon-haisekisho {u} {
+	global mydir effects
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	if {[is_in [list "kyubi-1" $u -1] $effects]} {
+	} else {
+	set_chakra $u [expr [get_chakra $u] - 25]
+	}	
+	set user [get_name $u]
+	set c 1
+	while {$c <= 10} {
+		get_image ash_$u-$c [file join $mydir images attacks haisekisho $c.gif] 
+		incr c
+	}
+	set t 100
+	set y [gety $tag]
+	after $t ".c create image 512 $y -image ash_$u-1 -tag ash_$u"
+	set i 1
+	while {$i <= 10} {
+		after $t "get_image $tag [file join $mydir images heroes $user katon-haisekisho $i.gif] run $u"
+		after $t ".c itemconfigure ash_$u -image ash_$u-$i"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+} 
+proc haisekisho_boom {d h u timestart} {
+	global mydir effects enemy
+	set ll [list "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		lappend ll "enemy$e"
+		incr e 1
+	}
+	set h [expr -1*$h]
+	set c 11
+	while {$c <= 18} {
+		get_image ash-boom_$c [file join $mydir images attacks haisekisho $c.gif] 
+		incr c 1
+	}
+	foreach user $ll {
+		set y [gety ash_$user]
+		if {$y < [expr 700 - 100*$h] && $y > [expr 600 - 100*$h]} {
+			set t $timestart
+			set c 11
+			while {$c <= 18} {
+				if {$c > 15} {
+					incr t 50
+				}
+				incr t 50
+				after $t ".c itemconfigure ash_$user -image ash-boom_$c"
+				incr c 1
+			}
+			after [expr $timestart + 650] "effect katon-haisekisho $user remove"
+		}
+	}
+	set i 0
+	foreach ef $effects {
+		set do [lindex $ef 0]
+		set holder [lindex $ef 1]
+		set t [lindex $ef 2]
+		if {$do == "katon-haisekisho" && $t == [expr -1*$h]} {
+			if {$i < [llength $effects]} {
+				set effects [lreplace $effects $i $i]
+				incr i -1
+			}
+		}
+		incr i
+	}
+	foreach p $ll {
+		if {$p != $u && [get_height $p] == $h} {
+			take_damage $p $d "katon-haisekisho"
+			if {[get_chakra $p] == 0} {
+				set_hitpoints $p 0
+			}
 		}
 	}
 }
@@ -2238,7 +2562,6 @@ proc tech_suiton-kirigakure {u} {
 	set user [get_name $u]
 	set c 1
 	while {$c <= 10} {
-		get_image mist$c [file join $mydir images attacks kirigakure $c.gif] 
 		incr c
 	}
 	set t 100
@@ -2305,7 +2628,9 @@ proc tech_suiton-mizurappa {x y r p {timestart 0} d} {
 	set s [get_speed $p]
 	#low chances
 	set chance [expr 100 - $s*15]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
@@ -2394,6 +2719,9 @@ proc tech_suiton-suiro {u p {timestart 0} interval d} {
 	set s1 [get_speed $p]	
         #very mark
 	set chance [expr 100 - $s1*5]
+	if {[if_kokoni_arazu $p $u]} {
+		set chance [expr $chance - 20]
+	}
 	if {$randomnumber < $chance} {
 		#hit
 		set nd [take_damage $p $d "suiton-suiro"]
@@ -2683,6 +3011,9 @@ proc tech_doton-moguragakure {x y r p {timestart 0} d} {
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
 		set chance [expr $chance - 20]
 	}
+	if {[if_kokoni_arazu $p $u]} {
+		set chance [expr $chance - 20]
+	}
 	set user [get_name $u]
 	after [expr $t + 500] "get_image $tag [file join $mydir images heroes $user doton-moguragakure 5.gif]"
 	after [expr $t + 600] "get_image $tag [file join $mydir images heroes empty.gif]"
@@ -2818,16 +3149,13 @@ proc tech_doton-tsuiga {u} {
 		}
 		set f "no"
 		set ts 0
-		if {$tai > 0} {
-			while {$ts <= [expr 10 / $tai]} {
-				if {[is_in [list "tsuiga-no-jutsu" $p $ts] $effects]} {
-					set f "yes"
-					lset effects [lsearch $effects [list "tsuiga-no-jutsu" $p $ts]] [list "tsuiga-no-jutsu" $p $turns]
-				}
-				incr ts
+		while {$ts <= 10} {
+			if {[is_in [list "tsuiga-no-jutsu" $p $ts] $effects]} {
+				set f "yes"
+				lset effects [lsearch $effects [list "tsuiga-no-jutsu" $p $ts]] [list "tsuiga-no-jutsu" $p $turns]
+				break
 			}
-		} else {
-			set f "yes"
+			incr ts
 		}
 		if {$f == "no"} {
 			lappend effects [list "tsuiga-no-jutsu" $p $turns]
@@ -2877,7 +3205,9 @@ get_image $tag [file join $mydir images heroes $user raiton-chidori $i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 75 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
 		
 		set chance [expr $chance - 20]
 	}
@@ -2885,6 +3215,9 @@ get_image $tag [file join $mydir images heroes $user raiton-chidori $i.gif]"
 		set chance [expr $chance + 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {$randomnumber < $chance} {
@@ -2927,7 +3260,9 @@ get_image $tag [file join $mydir images heroes $user raiton-chidori $i.gif]"
 	set s1 [get_speed $u]
 	set s2 [get_speed $p]	
 	set chance [expr 75 - ($s2-$s1)*10]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] && [is_in "sairento-kiringu" [get_skills $p]]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {([is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]) && [is_in "sairento-kiringu" [get_skills $p]]} {
 		
 		set chance [expr $chance - 20]
 	}
@@ -2935,6 +3270,9 @@ get_image $tag [file join $mydir images heroes $user raiton-chidori $i.gif]"
 		set chance [expr $chance + 20]
 	}
 	if {[is_in [list "sharingan-2" $p -1] $effects]} {
+		set chance [expr $chance - 20]
+	}
+	if {[if_kokoni_arazu $p $u]} {
 		set chance [expr $chance - 20]
 	}
 	if {$randomnumber < $chance} {
@@ -3054,9 +3392,12 @@ get_image i_$randomnumber [file join $mydir images attacks sensatsu-suisho $i.gi
 	#damage (mark how senbon)
 	set s2 [get_speed $p]	
 	set chance [expr 100 - $s2*5]
-	if {[is_in [list "suiton-kirigakure" "field" -1] $effects]} {
+	set hi [get_height $p]
+	set hi [expr -1*$hi]
+	if {[is_in [list "suiton-kirigakure" "field" -1] $effects] || [is_in [list "katon-haisekisho" "field" $hi] $effects]} {
 		set chance [expr $chance - 20]
 	}
+
 	if {$randomnumber < $chance} {
 		take_damage $p $d "hyoton-sensatsu-suisho"
 	}
@@ -3811,7 +4152,6 @@ proc tech_kai {u} {
 	} else {
 		set tag $u
 	}
-	set_nin $u 0
 	if {[is_in [list "kyubi-1" $u -1] $effects]} {
 	} else {
 		set_chakra $u [expr [get_chakra $u] - 10]
@@ -3819,6 +4159,7 @@ proc tech_kai {u} {
 	set x [getx $tag]
 	set y [gety $tag]
 	set user [get_name $u]
+	set g [get_gen $u]
 	set t 100
 	set i 1
 	while {$i <= 5} {
@@ -3828,4 +4169,151 @@ proc tech_kai {u} {
 	}
 	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif] run $u"
 	after $t "replace"
+	set j 0
+	foreach ef $effects {
+		set do [lindex $ef 0]
+		set owner [lindex $ef 1]
+		set t [lindex $ef 2]
+		if {$owner == $u && $t > 0 && ($do == "kokoni-arazu-victim" || $do == "magen-narakumi")} {
+			set t1 [expr $t - $g]
+			if {$t1 > 0} {
+				lset effects $j [list $do $owner $t1]
+			} else {
+				if {[llength $effects] > $j} {
+					set effects [lreplace $effects $j $j]
+					effect $do $owner "remove"
+					incr j -1
+				}
+			}
+			
+		}
+		incr j 1
+	} 
+}
+proc tech_kokoni-arazu {u} {
+	global mydir effects enemy
+	if {$u == "hero"} {
+		set tag "heroi"
+	} else {
+		set tag $u
+	}
+	set ll [list "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		lappend ll "enemy$e"
+		incr e 1
+	}
+	set_chakra $u [expr [get_chakra $u] - 20]	
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 12} {
+		after $t "get_image $tag [file join $mydir images heroes $user kokoni-arazu $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "replace"
+	foreach p $ll {
+		if {$p != $u} {
+			set gu [get_gen $u]
+			set gp [get_gen $p]
+			if {$gp == 0} {
+				set gp 1
+			}
+			set turns [expr $gu / $gp]
+			if {$turns > 0} {
+				lappend effects [list "kokoni-arazu-victim" $p $turns]
+			}
+		}
+	}
+} 
+proc if_kokoni_arazu {u p} {
+	global effects
+	set a1 0
+	set a2 0
+	foreach e $effects {
+		set do [lindex $e 0]
+		set holder [lindex $e 1]
+		set t [lindex $e 2]
+		if {$do == "kokoni-arazu" && $holder == $u} {
+			set a1 1
+		}
+		if {$do == "kokoni-arazu-victim" && $holder == $p} {
+			set a2 1
+		}
+	}
+	if {$a1 == 1 && $a2 == 1} {
+		return 1
+	} else {
+		return 0
+	}
+}
+proc tech_narakumi {u} {
+	global mydir enemy effects
+	if {$u == "hero"} {
+		set tag "heroi"
+		set e 1
+		set p "none"
+		set d 5000000
+		while {$e <= $enemy} {
+			if {$d > [dist $tag enemy$e]} {
+				set d [dist $tag enemy$e]
+				set p "enemy$e"
+			}
+			incr e
+		}
+		set tag2 $p
+	} else {
+		set tag $u
+		set p "hero"
+		set tag2 "heroi"
+	}
+	set i 0
+	set_chakra $u [expr [get_chakra $u] - 20]
+	set user [get_name $u]
+	set t 100
+	set i 1
+	while {$i <= 10} {
+		after $t "get_image $tag [file join $mydir images heroes $user narakumi $i.gif] run $u"
+		incr i
+		incr t 100
+	}
+	after $t "get_image $tag [file join $mydir images heroes $user stand 1.gif]"
+	after $t "replace"
+	if {$p != "none"} {
+		set gen1 [get_gen $u]
+		set gen2 [get_gen $p]
+		if {$gen2 == 0} {
+			set turns [expr $gen1 + 1]
+		} else {
+			set turns [expr $gen1/$gen2 + 1]
+		}
+		set f "no"
+		set ts 0
+		while {$ts <= 10} {
+			if {[is_in [list "magen-narakumi" $p $ts] $effects]} {
+				set f "yes"
+				lset effects [lsearch $effects [list "magen-narakumi" $p $ts]] [list "magen-narakumi" $p $turns]
+				break
+			}
+			incr ts
+		}
+		if {$f == "no"} {
+			lappend effects [list "magen-narakumi" $p $turns]
+		}
+		set t 900
+		set x [getx $tag2]
+		set y [gety $tag2]
+		after $t "get_image narakumi [file join $mydir images attacks narakumi 1.gif]"
+		get_image narakumi [file join $mydir images heroes empty.gif]
+		.c create image [getx $tag2] [gety $tag2] -image narakumi -tag narakumi
+		.c addtag $tag2 withtag narakumi
+		set i 1
+		while {$i <= 10} {
+			after $t "get_image narakumi [file join $mydir images attacks narakumi $i.gif]"
+			incr i
+			incr t 50
+		}
+		after $t ".c delete narakumi"
+	}
 }
