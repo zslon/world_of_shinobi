@@ -41,9 +41,9 @@ proc slide_5 {} {
 	phon 5
 	set locations [list 3 3 3 1]
 	scenery_message {Lesson 5: Traps}	
-	kunai_trap 350
-	kunai_trap 650
 	kunai_trap 950
+	kunai_trap 650
+	kunai_trap 350
 }
 proc slide_6 {} {
 	global locations

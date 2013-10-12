@@ -49,13 +49,8 @@ proc mov_ai {who to} {
 		set l1 [get_location $who]
 		set h1 [get_height $who]
 		if {$l1 == 3} {
-			move "hero" "right"
-			end_turn "run" 0
-			after 1000 {
-				next_slide
-			}
-		}
-		if {([lindex $locations [expr $l1 + 1]] == $h1) || ([lindex $locations [expr $l1 + 1]] == -$h1) || ([lindex $locations [expr $l1 + 1]] > 0)} {
+			end_turn
+		} elseif {([lindex $locations [expr $l1 + 1]] == $h1) || ([lindex $locations [expr $l1 + 1]] == -$h1) || ([lindex $locations [expr $l1 + 1]] > 0)} {
 			move "hero" "right"
 			end_turn "run" 0
 		} else {
@@ -403,6 +398,9 @@ proc bonus_tech_ai {num} {
 		} else {
 			if {[enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]] > 0} {
 				lappend effects [list [lindex $priory $t] enemy$num [enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]]]
+			}
+			if {[enciclopedia [lindex $priory $t] "number" [get_nin enemy$num]] == -1} {
+				lappend effects [list [lindex $priory $t] enemy$num -1]
 			}
 		}
 		replace

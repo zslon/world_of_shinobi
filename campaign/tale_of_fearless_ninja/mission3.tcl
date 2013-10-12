@@ -63,10 +63,11 @@ proc special_genin-mist-watermaster_ai {n tech p} {
 	standart_ai $n $tech $p
 }
 proc special_trap_ai {n tech p} {
-	global enemy
+	global enemy lever
 	if {$enemy > 1} {
 	} else {
 		rolic "naruto_in_a_bridge"
+		set lever 0
 	}
 }
 proc animation_naruto_in_a_bridge {} {

@@ -899,11 +899,13 @@ proc fighting_sensor {} {
 			set type [get_skills enemy$e]
 			set y [gety "heroi"]
 			set x [getx enemy$e]
-			.c move enemy$e [expr 1000 - $x] [expr $y - 700]
-			ranged_tech enemy$e "hero" $type $es "none" $s
-			block_animation "heroi" [get_name "hero"] 
-			.c move enemy$e [expr $x - 1000] [expr 700 - $y]
-			set_hitpoints enemy$e 0
+			if {$x > 0} {
+				.c move enemy$e [expr 1000 - $x] [expr $y - 700]
+				ranged_tech enemy$e "hero" $type $es "none" $s
+				block_animation "heroi" [get_name "hero"] 
+				.c move enemy$e [expr $x - 1000] [expr 700 - $y]
+				set_hitpoints enemy$e 0
+			}
 		}
 	}
 }
@@ -1663,7 +1665,8 @@ proc victory {} {
 	after 5000 "next_mission $m"
 }
 proc clear {} {
-	global allbuttonskills
+	global allbuttonskills stopper
+	set stopper 1
 	.c delete all
 	destroy .right .left .jump .stand
 	bind .c <ButtonPress> {

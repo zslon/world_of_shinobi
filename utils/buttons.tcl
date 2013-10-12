@@ -1,5 +1,5 @@
 button .right -state disabled -command {
-	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0 && $lever == 0} {
 		if {[getx "heroi"] < 900} {
 			set l [get_location "hero"]
 			set h [get_height "hero"]
@@ -33,7 +33,7 @@ button .right -state disabled -command {
 	}
 }
 button .left -state disabled -command {
-	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0 && $lever == 0} {
 		if {[getx "heroi"] > 100} {
 			set l [get_location "hero"]
 			set h [get_height "hero"]
@@ -68,7 +68,7 @@ button .left -state disabled -command {
 	}
 }	
 button .jump -state disabled -command {
-	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0} {
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 0 && $lever == 0} {
 		set l [get_location "hero"]
 		set h [get_height "hero"]
 		set e 1

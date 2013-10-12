@@ -28,8 +28,8 @@ catch {
 }
 .c delete all
 
-#Rock Lee statistic 
-proc rock_lee_stats {{type "skill"}} {
+#Naruto statistic 
+proc naruto_stats {{type "skill"}} {
 	global campdir mydir skills accessskills tai speed tailist genlist futonlist fuinlist kuchieselist hidenlist nin gen
 	source [file join $campdir personstat.tcl]
 	set tailist [list "shofu" "konoha-senpu" "bunshin-taiatari" "naruto-rendan" "tsuten-kyaku" "naruto-nisen-rendan" "naruto-yonsen-rendan" "kawazu-kumite"]
@@ -125,7 +125,7 @@ proc click_skill {ex ey {status "skill"}} {
 	list_info $genlist $ex $ey 395 98 $status "gen"
 	list_info $futonlist $ex $ey 465 98 $status "nin"
 	list_info $hidenlist $ex $ey 705 98 $status
-	list_info $kuchieselist $ex $ey 785 398 $status "nin"
+	list_info $kuchieselist $ex $ey 785 348 $status "nin"
 	list_info $fuinlist $ex $ey 865 98 $status "gen"
 	#attack button
 	if {[object_in $ex $ey 149 544 45 45]} {
@@ -157,9 +157,9 @@ proc begin {} {
 	bind .c <ButtonPress> {
 		click_skill %x %y "no skill"
 	}
-	rock_lee_stats 
+	naruto_stats 
 }
-rock_lee_stats 
+naruto_stats 
 bind .c <ButtonPress> {
 	click_skill %x %y $st
 }

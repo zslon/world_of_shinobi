@@ -27,6 +27,7 @@ catch {
 	canvas .c -height 576 -width 1024 -bg black
 }
 .c delete all
+
 #Rock Lee statistic 
 proc rock_lee_stats {{type "skill"}} {
 	global campdir mydir skills accessskills tai speed tailist hidenlist nin gen
@@ -110,7 +111,7 @@ proc click_skill {ex ey {status "skill"}} {
 		#go button
 		if {[object_in $ex $ey 817 502 125 25]} {
 			catch {
-				destroy .i
+				destroy .si
 				destroy .m
 			}
 			.c delete all

@@ -52,19 +52,19 @@ proc skillmessage {} {
 	global mydir
 	get_image mess [file join $mydir images skills information message.gif]
 	catch {
-		destroy .m
+		destroy .mi
 	}
-	toplevel .m
-	wm title .m {Choose new skill!}
-	wm geometry .m 400x300
-	wm maxsize .m 400 300
-	wm minsize .m 400 300
-	canvas .m.c -height 300 -width 400 -bg black
-	.m.c create image 200 150 -image mess -tag infa
-	pack .m.c -side top
-	bind .m.c <ButtonPress> {
+	toplevel .mi
+	wm title .mi {Choose new skill!}
+	wm geometry .mi 400x300
+	wm maxsize .mi 400 300
+	wm minsize .mi 400 300
+	canvas .mi.c -height 300 -width 400 -bg black
+	.mi.c create image 200 150 -image mess -tag infa
+	pack .mi.c -side top
+	bind .mi.c <ButtonPress> {
 		if {[object_in %x %y 320 272 125 25]} {
-			destroy .m
+			destroy .mi
 		}			
 	}	
 }
@@ -78,10 +78,10 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	set newskill $image
 	get_image infa [file join $mydir images skills information $image.gif]
 	catch {
-		destroy .i
+		destroy .si
 	}
-	toplevel .i
-	wm title .i $title
+	toplevel .si
+	wm title .si $title
 	if {$image != "nine-tails" && $image != "susanoo" && $image != "sennin-mode"} {
 		set y1 300
 		set y2 272
@@ -89,56 +89,56 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 		set y1 600
 		set y2 572
 	}
-	wm geometry .i 400x$y1
-	wm maxsize .i 400 $y1
-	wm minsize .i 400 $y1
-	canvas .i.c -height $y1 -width 400 -bg black
-	.i.c create image 200 [expr $y1 / 2] -image infa -tag infa
-	pack .i.c -side top
+	wm geometry .si 400x$y1
+	wm maxsize .si 400 $y1
+	wm minsize .si 400 $y1
+	canvas .si.c -height $y1 -width 400 -bg black
+	.si.c create image 200 [expr $y1 / 2] -image infa -tag infa
+	pack .si.c -side top
 	if {$dam != 0} {
-		.i.c create text 317 10 -text $dam -tag infa
-		.i.c create text 337 10 -text $much -tag infa
+		.si.c create text 317 10 -text $dam -tag infa
+		.si.c create text 337 10 -text $much -tag infa
 	}
 	if {$access > 0} {
-		.i.c create image 335 40 -image aceptbutton -tag infa
+		.si.c create image 335 40 -image aceptbutton -tag infa
 		if {$y2 == 572} {
-			bind .i.c <ButtonPress> {
+			bind .si.c <ButtonPress> {
 				if {[object_in %x %y 320 572 125 25]} {
-					destroy .i
+					destroy .si
 				}
 				if {[object_in %x %y 335 40 125 25]} {
 					addskill
 					.c delete phon
 					.c delete skills
 					begin
-					destroy .i
+					destroy .si
 				}			
 			}
 		} else {
-			bind .i.c <ButtonPress> {
+			bind .si.c <ButtonPress> {
 				if {[object_in %x %y 320 272 125 25]} {
-					destroy .i
+					destroy .si
 				}
 				if {[object_in %x %y 335 40 125 25]} {
 					addskill
 					.c delete phon
 					.c delete skills
 					begin
-					destroy .i
+					destroy .si
 				}			
 			}
 		}
 	} else {
 		if {$y2 == 572} {
-			bind .i.c <ButtonPress> {
+			bind .si.c <ButtonPress> {
 				if {[object_in %x %y 320 572 125 25]} {
-					destroy .i
+					destroy .si
 				}
 			}
 		} else {
-			bind .i.c <ButtonPress> {
+			bind .si.c <ButtonPress> {
 				if {[object_in %x %y 320 272 125 25]} {
-					destroy .i
+					destroy .si
 				}
 			}
 		}
@@ -149,7 +149,7 @@ proc skillinfo {title image {dam 0} {much 0} {access 0}} {
 	
 }
 proc breefing {} {
-	global campdir missionnumber slide enemy hero_ancof nins lever
+	global campdir missionnumber slide enemy hero_ancof nins lever stopper
 	set nins [list 0 0 0 0 0 0 0 0 0 0 0]
 	set slide 1
 	set enemy 0
@@ -161,6 +161,7 @@ proc breefing {} {
 			major_hero 50 520
 			set hero_ancof 0
 			set lever 0
+			set stopper 0
 	 		create_battlepanel
 		}
 	}
@@ -196,60 +197,62 @@ proc phon {number} {
 	get_image phonimage [file join $campdir land $missionnumber-$number.gif]
 }
 proc create_battlepanel {} {
-	global heroname mydir enemy slide skills
-	get_image battlepanel [file join $mydir images skills battlepanel.gif]
-	get_image heroportrait [file join $mydir images heroes $heroname face.gif]
-	.c create image 512 100 -image battlepanel -tag panel
-	.c create image 26 26 -image heroportrait -tag panel
-	.c create text 175 12 -text [get_hitpoints "hero"] -tag stat
-	.c create text 175 37 -text [get_chakra "hero"] -tag stat
-	.c create text 200 67 -text [get_tai "hero"] -tag stat
-	.c create text 200 100 -text [get_nin "hero"] -tag stat
-	.c create text 200 131 -text [get_gen "hero"] -tag stat
-	.c create text 200 162 -text [get_speed "hero"] -tag stat
-	create_hitpoints "hero"
-	create_chakra "hero"
-	set e 1
-	while {$e <= $enemy} {
-		if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
-			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
-			.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
-			create_hitpoints enemy$e
-			create_chakra enemy$e
+	global heroname mydir enemy slide skills stopper
+	if {$stopper == 0} {
+		get_image battlepanel [file join $mydir images skills battlepanel.gif]
+		get_image heroportrait [file join $mydir images heroes $heroname face.gif]
+		.c create image 512 100 -image battlepanel -tag panel
+		.c create image 26 26 -image heroportrait -tag panel
+		.c create text 175 12 -text [get_hitpoints "hero"] -tag stat
+		.c create text 175 37 -text [get_chakra "hero"] -tag stat
+		.c create text 200 67 -text [get_tai "hero"] -tag stat
+		.c create text 200 100 -text [get_nin "hero"] -tag stat
+		.c create text 200 131 -text [get_gen "hero"] -tag stat
+		.c create text 200 162 -text [get_speed "hero"] -tag stat
+		create_hitpoints "hero"
+		create_chakra "hero"
+		set e 1
+		while {$e <= $enemy} {
+			if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
+				get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
+				.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
+				create_hitpoints enemy$e
+				create_chakra enemy$e
+			}
+			incr e
 		}
-		incr e
-	}
-	set x 275
-	set y 75
-	foreach s $skills {
-		if {[enciclopedia $s chakra] != 0} {
-			.c create image $x $y -image skill_$s -tag panel
-			incr x 45
+		set x 275
+		set y 75
+		foreach s $skills {
+			if {[enciclopedia $s chakra] != 0} {
+				.c create image $x $y -image skill_$s -tag panel
+				incr x 45
+			}
+			if {$x > 550} {
+				set x 275
+				incr y 45
+			}
 		}
-		if {$x > 550} {
-			set x 275
-			incr y 45
+		bind .c <ButtonPress> {
+			click_in_game %x %y
 		}
+		bind . <Right> {
+			.right invoke
+		}
+		bind . <Left> {
+			.left invoke
+		}
+		bind . <Up> {
+			.jump invoke
+		}
+		bind . <space> {
+			.stand invoke
+		}
+		if {$slide == 1} {
+			unblock_battlepanel
+		}
+		replace
 	}
-	bind .c <ButtonPress> {
-		click_in_game %x %y
-	}
-	bind . <Right> {
-		.right invoke
-	}
-	bind . <Left> {
-		.left invoke
-	}
-	bind . <Up> {
-		.jump invoke
-	}
-	bind . <space> {
-		.stand invoke
-	}
-	if {$slide == 1} {
-		unblock_battlepanel
-	}
-	replace
 }
 proc click_in_game {ex ey} {
 	global mydir skills
@@ -356,62 +359,67 @@ proc create_chakra {class} {
 		}
 }
 proc replace {} {
-	global enemy mydir skills used
-	.c delete cross
-	.c delete hit_panel
-	.c delete chakra_panel
-	.c delete stat
-	.c create text 175 12 -text [get_hitpoints "hero"] -tag stat
-	.c create text 175 37 -text [get_chakra "hero"] -tag stat
-	.c create text 200 67 -text [get_tai "hero"] -tag stat
-	.c create text 200 100 -text [get_nin "hero"] -tag stat
-	.c create text 200 131 -text [get_gen "hero"] -tag stat
-	.c create text 200 162 -text [get_speed "hero"] -tag stat
-	create_hitpoints "hero"
-	create_chakra "hero"
-	set e 1
-	while {$e <= $enemy} {
-		if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
-			create_hitpoints enemy$e
-			create_chakra enemy$e
-			get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
-			.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
-			.c raise panelenemy$e
+	global enemy mydir skills used stopper
+	if {$stopper == 0} {
+		.c delete cross
+		.c delete hit_panel
+		.c delete chakra_panel
+		.c delete stat
+		.c create text 175 12 -text [get_hitpoints "hero"] -tag stat
+		.c create text 175 37 -text [get_chakra "hero"] -tag stat
+		.c create text 200 67 -text [get_tai "hero"] -tag stat
+		.c create text 200 100 -text [get_nin "hero"] -tag stat
+		.c create text 200 131 -text [get_gen "hero"] -tag stat
+		.c create text 200 162 -text [get_speed "hero"] -tag stat
+		create_hitpoints "hero"
+		create_chakra "hero"
+		set e 1
+		while {$e <= $enemy} {
+			if {[get_name enemy$e] != "trap" && [get_name enemy$e] != "trapmap"} {
+				create_hitpoints enemy$e
+				create_chakra enemy$e
+				get_image face$e [file join $mydir images heroes [get_name enemy$e] face.gif]
+				.c create image 679 [expr 26 + 51*($e-1)] -image face$e -tag stat
+				.c raise panelenemy$e
+			}
+			incr e
 		}
-		incr e
-	}
-	set x 275
-	set y 75
-	foreach s $skills {
-		if {[is_in $s $used]} {
-			.c create image $x $y -image cross -tag cross 
-		} else {
-			set co [enciclopedia $s chakra]
-			if {($s == "hachimon-2" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-3" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-3" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-4" $used])} {
-				set co [expr $co + 20]
-			}
-			if {($s == "hachimon-3" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-3" $used])} {
-				set co [expr $co + 20]
-			}
-			if {($s == "hachimon-4" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-2" $used])} {
-				set co [expr $co + 20]
-			}
-			if {($s == "hachimon-5" && ![is_in "hachimon-1" $used]) } {
-				set co [expr $co + 20]
-			}
-			if {$s == "kage-bunshin"} {
-				set co [expr [get_chakra hero] / 10]
-			}
-			if {$co != 0} {
+		set x 275
+		set y 75
+		foreach s $skills {
+			if {[is_in $s $used]} {
+				.c create image $x $y -image cross -tag cross 
+			} else {
+				set co [enciclopedia $s chakra]
+				if {$s == "hachimon-1" || $s == "hachimon-2" || $s == "hachimon-3" || $s == "hachimon-4" || $s == "hachimon-5"} {
+					set co 20
+				}
+				if {($s == "hachimon-2" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-3" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-3" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-4" $used])} {
+					set co [expr $co + 20]
+				}
+				if {($s == "hachimon-3" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-4" && ![is_in "hachimon-2" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-3" $used])} {
+					set co [expr $co + 20]
+				}
+				if {($s == "hachimon-4" && ![is_in "hachimon-1" $used]) || ($s == "hachimon-5" && ![is_in "hachimon-2" $used])} {
+					set co [expr $co + 20]
+				}
+				if {($s == "hachimon-5" && ![is_in "hachimon-1" $used]) } {
+					set co [expr $co + 20]
+				}
+				if {$s == "kage-bunshin"} {
+					set co [expr [get_chakra hero] / 10]
+				}
+				if {$co != 0} {
 				.c create text [expr $x - 10] [expr $y - 15] -fill white -text $co -tag cross -font Arrial
+				}
 			}
-		}
-		if {[enciclopedia $s chakra] != 0} {
-			incr x 45
-		}
-		if {$x > 550} {
-			set x 275
-			incr y 45
+			if {[enciclopedia $s chakra] != 0} {
+				incr x 45
+			}
+			if {$x > 550} {
+				set x 275
+				incr y 45
+			}
 		}
 	}
 }
@@ -603,9 +611,9 @@ proc die {class} {
 		set t [lindex $e 2]
 		if {$holder == $class && $n < [llength $effects]} {
 			set effects [lreplace $effects $n $n]
-			incr i -1
+			incr n -1
 		} 
-		incr i
+		incr n
 	}
 	set_tai $class 0
 	set_nin $class 0
@@ -1093,6 +1101,11 @@ proc clones_interface {who type} {
 			}
 			incr i
 		}
+		#set n [expr $r + 1]
+		#while {$n <= 10} {
+		#	after 500 ".c delete clon-$n-$tag" 
+		#	incr n 1
+		#}
 		return $r
 	}
 	if {$type == "attack" && $postfix > 0} {

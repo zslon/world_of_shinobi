@@ -420,6 +420,7 @@ proc take_damage {p d t {tim 0}} {
 			}
 		} else {
 			set k -1
+			set ex 0
 			while {$k <= 10} {
 				if {[is_in [list "shadow-clon" $p $k] $effects] || [is_in [list "water-clon" $p $k] $effects]} {
 					set dclones 1
@@ -441,15 +442,18 @@ proc take_damage {p d t {tim 0}} {
 							set effects [lreplace $effects $i $i]
 						}
 					}
+					set ex 1
 				}
 				if {[is_in [list "kage-bunshin" $p $k] $effects] || [is_in [list "suiton-mizu-bunshin" $p $k] $effects]} {
 					#remove damage
 					set_hitpoints $p [expr [get_hitpoints $p] + $d]
 					set d 0
+					set ex 1
 				}
 				incr k 1
 			}
-			if {$d >= [get_hitpoints $p]} {
+			if {$ex == 1} {
+			} elseif {$d >= [get_hitpoints $p]} {
 				#critical damage (above 50%)
 				if {[is_in "nine-tails" [get_skills $p]] && [is_in "kyubi-enabled" $skills]} {
 					#Nine Tails
@@ -2562,6 +2566,7 @@ proc tech_suiton-kirigakure {u} {
 	set user [get_name $u]
 	set c 1
 	while {$c <= 10} {
+		get_image mist$c [file join $mydir images attacks kirigakure $c.gif] 
 		incr c
 	}
 	set t 100

@@ -111,8 +111,8 @@ proc click_skill {ex ey {status "skill"}} {
 		#go button
 		if {[object_in $ex $ey 817 502 125 25]} {
 			catch {
-				destroy .i
-				destroy .m
+				destroy .si
+				destroy .mi
 			}
 			.c delete all
 			source [file join $campdir mission$m.tcl]
