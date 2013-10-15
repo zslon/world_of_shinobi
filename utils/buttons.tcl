@@ -523,3 +523,32 @@ button .button_futon-shinku-gyoku -state disabled -command {
 		no_chakra_message
 	}
 }
+button .button_kibakufuda -state disabled -command {
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 9} {
+		lappend effects [list "kibakufuda" "hero" 1]
+		end_turn "kibakufuda"
+		tech_kibakufuda "hero"
+		replace
+	} elseif {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] < 10} {
+		no_chakra_message
+	}
+}
+button .button_futon-shinku-dai-gyoku -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] >= $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		
+		incr e
+	}
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 34 && ($q > 0)} {
+		end_turn "futon-shinku-dai-gyoku" [get_nin "hero"]
+	} elseif {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] < 35} {
+		no_chakra_message
+	}
+}

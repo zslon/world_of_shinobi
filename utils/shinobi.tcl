@@ -178,6 +178,9 @@ proc genin_robber {x y {tai 2} {nin 1} {gen 1} {sp 1} {skills {}}} {
 proc genin_sound {x y {tai 2} {nin 1} {gen 2} {sp 1} {skills {}}} {
 	genin $x $y sound $tai $nin $gen $sp $skills
 }
+proc genin_waterfall {x y {tai 3} {nin 1} {gen 1} {sp 1} {skills {}}} {
+	genin $x $y waterfall $tai $nin $gen $sp $skills
+}
 proc genin_robber_armmaster {x y {tai 1} {nin 1} {gen 1} {sp 4} {skills {}}} {
 	genin_armmaster $x $y robber $tai $nin $gen $sp $skills
 }
@@ -256,6 +259,23 @@ proc uchiha_sasuke {x y skills {level 1}} {
 	if {$level == 3} {
 		shinobi "enemy$enemy" "sasuke-enemy" 3 2 3 2 3 $skills
 		genin_sakuke $x $y
+	}
+}
+proc uchiha_sasuke_friend {x y skills {level 1}} {
+	global enemy
+	incr enemy 1
+	set x [expr $x + ($enemy - 2)*10]
+	if {$level == 1} {
+		shinobi "enemy$enemy" "sasuke" 1 2 2 1 1 $skills
+		sasuke $x $y
+	}
+	if {$level == 2} {
+		shinobi "enemy$enemy" "sasuke" 2 2 3 2 2 $skills
+		sasuke $x $y
+	}
+	if {$level == 3} {
+		shinobi "enemy$enemy" "sasuke" 3 2 3 2 3 $skills
+		sakuke $x $y
 	}
 }
 proc uchiha_sasuke_nukenin {x y skills {level 3}} {
@@ -1252,6 +1272,18 @@ proc ranged_tech {from to name par ans par2} {
 	}
 	set n 1
 	while {$n <= $num || $n <= $num2} {		
+		if {$n == 1 && [get_status $from] == "cast" && ($name == "kunai" || $name == "kusarigama" || $name == "suriken")} {
+			set colvo [clones_interface $from "get_number"]
+			if {$colvo > 0} {
+				tech_shihohappo $from $to 0 100 [expr $colvo * 2] $colvo
+			} 
+		}	
+		if {$n == 1 && [get_status $to] == "cast" && ($ans == "kunai" || $ans == "kusarigama" || $ans == "suriken")} {
+			set colvo2 [clones_interface $to "get_number"]
+			if {$colvo2 > 0} {
+				tech_shihohappo $to $from 0 100 [expr $colvo2 * 2] $colvo2
+			} 
+		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
 			set i 1
 			set t [expr $mt*($n-1)]
@@ -1261,6 +1293,9 @@ proc ranged_tech {from to name par ans par2} {
 					after $t "get_image $tag [file join $mydir images heroes $user $name $i.gif]"
 				}
 				incr i
+			}
+			if {$n == 1 & [is_in "futon-reppusho" [get_skills $from]] && ($name == "kunai" || $name == "suriken")} {
+				set dam [expr $dam + 2]
 			}
 			if {$name == "kunai" && [is_in "senbon" [get_skills $from]]} {
 				set name "senbon"
@@ -1288,6 +1323,9 @@ proc ranged_tech {from to name par ans par2} {
 				after $t "get_image $tag2 [file join $mydir images heroes $user2 $ans $i.gif]"
 				incr i
 			}	
+			if {$n == 1 && [is_in "futon-reppusho" [get_skills $to]] && ($ans == "kunai" || $ans == "suriken")} {
+				set dam2 [expr $dam2 + 2]
+			}
 			if {$ans == "kunai" && [is_in "senbon" [get_skills $to]]} {
 				set ans "senbon"
 			}
@@ -1466,11 +1504,25 @@ proc melee_tech {from to name par ans par2} {
 	set h22 [get_hitpoints $from]
 	while {$n <= $num || $n <= $num2 || $n <= $addnum || $n <= $addnum2} {
 #bunshin attacks
-		if {[get_status $from] == "cast" && $n <= $addnum} {
-			tech_clones-attack $from $to [expr $mt*($n-1)] $ti $dam [clones_interface $from "get_number"]
+		if {[get_status $from] == "cast" && $n <= $addnum && $name == "attack"} {
+			set ddam $dam
+			if {$n == 1 && [is_in "konoha-senpu" $sk] && $dam > 0} {
+				incr ddam 1
+				if {[is_in "konoha-goriki-senpu" $sk]} {	
+					incr ddam 2
+				}
+			}
+			tech_clones-attack $from $to [expr $mt*($n-1)] $ti $ddam [clones_interface $from "get_number"]
 		}	
-		if {[get_status $to] == "cast" && $n <= $addnum2} {
-			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $dam2 [clones_interface $to "get_number"]
+		if {[get_status $to] == "cast" && $n <= $addnum2 && $ans == "attack"} {
+			set ddam2 $dam2
+			if {$n == 1 && [is_in "konoha-senpu" $sk2] && $dam2 > 0} {
+				incr ddam2 1
+				if {[is_in "konoha-goriki-senpu" $sk2]} {	
+					incr ddam2 2
+				}
+			}
+			tech_clones-attack $to $from [expr $mt2*($n-1)] $ti2 $ddam2 [clones_interface $to "get_number"]
 		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
 #kubikiribocho effect
@@ -1494,6 +1546,7 @@ proc melee_tech {from to name par ans par2} {
 					tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "begin"
 				}
 			} else {
+
 #shoshitsu effect
 				if {$n == 1 && $name == "attack" && [is_in "shoshitsu" $sk] && $dam > 0} {
 					tech_shoshitsu $from $to [expr $mt*($n-1)] $ti $dam

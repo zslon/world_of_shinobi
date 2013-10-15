@@ -48,7 +48,7 @@ proc slide_5 {} {
 	phon 5
 	scenery_message {Red pill}
 	set locations [list 1 1 1 1]
-	genin_robber 1000 520 2 1 1 1 {"senbon"} 
+	genin_robber 1000 520 1 1 1 1 {"senbon"} 
 	red_table 950 520
 }
 proc slide_6 {} {

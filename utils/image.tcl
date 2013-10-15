@@ -506,7 +506,6 @@ proc remove_suiro {u} {
 	set h [get_height $u]
 	set hl [expr ($h * 10) + $l] 
 	if {[is_in [list "suiton-suiro-user" $u $hl] $effects] || [is_in [list "hyoton-makyo-hyosho-user" $u $hl] $effects]} {
-		puts "yes"
 		.c delete suira-$hl
 	}
 }
@@ -1108,7 +1107,58 @@ proc clones_interface {who type} {
 		#}
 		return $r
 	}
-	if {$type == "attack" && $postfix > 0} {
+	if {$type == "surikens" && $postfix > 0 && [clones_interface $who "get_number"] > 0} {
+		set n $postfix
+		while {$n >= 1} {
+			set tag2 clon-$n-$tag
+			set xx [getx clon-$n-$tag]
+			set yy [gety clon-$n-$tag]
+			set x [getx $tag]
+			#if clone in the first row it will be melee attack. else - ranged attack
+			if {!($xx > -1000)} {
+				#clone is destroed - melee attack
+				set i 1
+				set t 0
+				while {$i <= 4} {
+					after $t "get_image $tag2 [file join $mydir images heroes $im kunai $i.gif]"	
+					incr t 25
+					incr i 
+				}
+				after [expr $t + 25] "get_image $tag2 [file join $mydir images heroes $im stand 1.gif]"
+			} else {
+				set i 1
+				set t 0
+				while {$i <= 4} {
+					after $t "get_image $tag2 [file join $mydir images heroes $im kunai $i.gif]"	
+					incr t 25
+					incr i 
+				}
+				after [expr $t + 25] "get_image $tag2 [file join $mydir images heroes $im stand 1.gif]"
+				set randomnumber [expr 100*rand()]
+				get_image i_$randomnumber [file join $mydir images attacks suriken 3.gif]
+				after $t ".c create image $xx $yy -image i_$randomnumber -tag t_$randomnumber"
+				set st $t
+				set r [expr 350 + ($x - $xx)]
+				if {$randomnumber > 75} {
+					set cof 1
+				} elseif {$randomnumber > 50} {
+					set cof 2
+				} elseif {$randomnumber > 25} {
+					set cof -1
+				} else {
+					set cof -2
+				}
+				while {$t < [expr $st + 200]} {
+					after $t ".c move t_$randomnumber [expr $r / 10] $cof"
+					incr t 20	
+				}
+				after $t ".c delete t_$randomnumber
+				replace"
+			}
+			incr n -1
+		}
+	}
+	if {$type == "attack" && $postfix > 0 && [clones_interface $who "get_number"] > 0} {
 		set n $postfix
 		while {$n >= 1} {
 			set tag2 clon-$n-$tag
@@ -1224,7 +1274,9 @@ proc clones_interface {who type} {
 				incr n2 -2
 			}
 		} else {
-			effect "taju-kage-bunshin" $who "remove"
+			if {$num == 0} {
+				effect "taju-kage-bunshin" $who "remove"
+			}
 		}
 		set i 0
 		set j 1 
@@ -1317,7 +1369,22 @@ proc naruto-sennin_4 {x y} {
 proc naruto_3 {x y} {
 	naruto_uzumaki $x $y
 }
-
+proc sasuke_uchiha {x y} {
+	global mydir hero_ancof
+	set hero_ancof 1
+	get_image heroi [file join $mydir images heroes sasuke stand 1.gif]
+	.c create image $x $y -image heroi -tag heroi
+	.c raise heroi
+}
+proc sasuke_1 {x y} {
+	sasuke_uchiha $x $y
+}
+proc sasuke_2 {x y} {
+	sasuke_uchiha $x $y
+}
+proc sasuke_3 {x y} {
+	sasuke_uchiha $x $y
+}
 #enemy
 proc lumber {x y} {
 	global mydir enemy
@@ -1342,6 +1409,15 @@ proc genin_from_sound {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "genin-sound" $slide
+}
+proc genin_from_waterfall {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes genin-waterfall stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "genin-waterfall" $slide
 }
 proc genin_armmaster_from_robber {x y} {
 	global mydir enemy slide
@@ -1460,6 +1536,15 @@ proc genin_sasuke {x y} {
 	.c create image $x $y -image enemy$enemy -tag enemy$enemy
 	.c raise enemy$enemy
 	stand_animation enemy$enemy "sasuke-enemy" $slide
+}
+proc sasuke {x y} {
+	global mydir enemy slide
+	global enemy[set enemy]_ancof
+	set enemy[set enemy]_ancof 1
+	get_image enemy$enemy [file join $mydir images heroes sasuke stand 1.gif]
+	.c create image $x $y -image enemy$enemy -tag enemy$enemy
+	.c raise enemy$enemy
+	stand_animation enemy$enemy "sasuke" $slide
 }
 proc jonin_hatake_kakashi {x y} {
 	global mydir enemy slide
@@ -1937,7 +2022,6 @@ proc end_rolic {} {
 			destroy .button_$s
 		}
 	}
-	puts "yes"
 	source [file join $mydir utils buttons.tcl]
 	unblock_battlepanel	
 }
@@ -2068,4 +2152,25 @@ proc click_end {ex ey h1 h2 h3} {
 		pack forget .c 
 		source [file join $mydir menu.tcl]
 	}
+}
+proc one_tenth_traectory {tag1 tag2 n} {
+	set x1 [getx $tag1]
+	set y1 [gety $tag1]
+	set x2 [getx $tag2]
+	set y2 [gety $tag2]
+	set dx [expr $x2 - $x1]
+	set dy [expr $y2 - $y1]
+	set d1 [expr $dx / (11 - $n)]
+	set d2 [expr $dy / (11 - $n)]
+	.c move $tag1 $d1 $d2
+}
+proc tross {tag1 tag2 {dx 0} {dy 0}} {
+	set x1 [getx $tag1]
+	set y1 [gety $tag1]
+	set x2 [getx $tag2]
+	set y2 [gety $tag2]
+	set x1 [expr $x1 + $dx]
+	set y1 [expr $y1 + $dy]
+	.c delete tross_[set tag1]_[set tag2]
+	.c create line $x1 $y1 $x2 $y2 -fill black -tag tross_[set tag1]_[set tag2]
 }
