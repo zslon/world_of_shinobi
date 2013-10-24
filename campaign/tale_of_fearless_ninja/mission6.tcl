@@ -58,6 +58,8 @@ proc special_genin-waterfall_ai {num tech p} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
 		} elseif {[is_melee_max $tech] && [get_height hero] == [get_height enemy$num]} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
+		} elseif {[is_ranged $tech] && [get_height hero] != [get_height enemy$num] && [is_longranged $tech]} {
+			ranged_tech "hero" enemy$num $tech $p "none" 0
 		}
 	}
 	if {[lindex $l 0] == "kunai" || [lindex $l 0] == "attack"} {
@@ -409,6 +411,8 @@ proc special_chunin-leaf-genjitsu_ai {num tech p} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
 		} elseif {[is_melee_max $tech] && [get_height hero] == [get_height enemy$num]} {
 			melee_tech "hero" enemy$num $tech $p "attack" [get_tai enemy$num]
+		} elseif {[is_ranged $tech] && [get_height hero] != [get_height enemy$num] && [is_longranged $tech]} {
+			ranged_tech "hero" enemy$num $tech $p "none" 0
 		}
 	}
 	if {[lindex $l 0] == "kunai" || [lindex $l 0] == "attack"} {

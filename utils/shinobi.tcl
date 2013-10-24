@@ -1044,6 +1044,8 @@ proc ranged_tech {from to name par ans par2} {
 	set user [get_name $from]
 	set nin [get_nin $from]
 	set_nin $from 0
+	set dam [enciclopedia $name "damage" $par]
+	set num [enciclopedia $name "number" $par]
 	if {$from == "hero"} {
 		set tag "heroi"
 		set tag2 $to
@@ -1084,8 +1086,6 @@ proc ranged_tech {from to name par ans par2} {
 		}
 		suika_no_jutsu $tak [get_name $to]
 	}
-	set dam [enciclopedia $name "damage" $par]
-	set num [enciclopedia $name "number" $par]
 	if {$num > 0} {
 	#kusarigama
 		if {$name == "kunai" && [is_in [list "kuchiese-kusarigama" $from -1] $effects]} {
@@ -1554,7 +1554,13 @@ proc melee_tech {from to name par ans par2} {
 					tech_$name $from $to [expr $mt*($n-1)] $ti $dam 
 				}
 			}
-			if {$n == 2 && $name == "attack" && [is_in "konoha-dai-senpu" $sk] && $dam > 0 && [get_hitpoints $to] < $h11} {
+			if {$n == 2 && $name == "attack" && [is_in "naruto-rendan" $sk] && $dam > 0 && [get_hitpoints $to] < $h11 && [clones_interface $from "get_number"] > 0} {
+				if {$addnum > $n} {
+					tech_naruto-rendan-prev $from $to [expr $mt*($n-1)] $ti $dam [expr $num - $n + $addnum - $n]
+				} else {
+					tech_naruto-rendan-prev $from $to [expr $mt*($n-1)] $ti $dam [expr $num - $n]
+				}
+			} elseif {$n == 2 && $name == "attack" && [is_in "konoha-dai-senpu" $sk] && $dam > 0 && [get_hitpoints $to] < $h11} {
 				tech_konoha-senpu $from $to [expr $mt*($n-1)] $ti $dam "final" [expr $num - $n]
 			}
 			if {$n == 2 && [is_in "shoshitsu" $sk] && $dam > 0 && [get_hitpoints $to] < $h11} {
@@ -1594,7 +1600,13 @@ proc melee_tech {from to name par ans par2} {
 					tech_$ans $to $from [expr $mt2*($n-1)] $ti2 $dam2 
 				}
 			}
-			if {$n == 2 && $ans == "attack" && [is_in "konoha-dai-senpu" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12} {
+			if {$n == 2 && $ans == "attack" && [is_in "naruto-rendan" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12 && [clones_interface $to "get_number"] > 0} {
+				if {$addnum2 > $n} {
+					tech_naruto-rendan-prev $to $from [expr $mt2*($n-1)] $ti2 $dam2 [expr $num2 - $n + $addnum2 - $n]
+				} else {
+					tech_naruto-rendan-prev $to $from [expr $mt2*($n-1)] $ti2 $dam2 [expr $num2 - $n]
+				}
+			} elseif {$n == 2 && $ans == "attack" && [is_in "konoha-dai-senpu" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12} {
 				tech_konoha-senpu $to $from [expr $mt2*($n-1)] $ti2 $dam2 "final" [expr $num2 - $n]
 			}
 			if {$n == 2 && [is_in "shoshitsu" $sk2] && $dam2 > 0 && [get_hitpoints $from] < $h12} {

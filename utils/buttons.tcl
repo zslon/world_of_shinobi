@@ -552,3 +552,41 @@ button .button_futon-shinku-dai-gyoku -state disabled -command {
 		no_chakra_message
 	}
 }
+button .button_futon-shinkuha -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		set en "enemy$e"
+		if {([expr abs([get_location $en] - $l)] == 1 && !([expr abs([get_height $en] - $h)] == 1)) || (![expr abs([get_location $en] - $l)] == 1 && ([expr abs([get_height $en] - $h)] == 1))} {
+			set q $e
+			break
+		}		
+		incr e
+	}
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 24 && ($q > 0)} {
+		end_turn "futon-shinkuha" [get_nin "hero"]
+	} elseif {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] < 25} {
+		no_chakra_message
+	}
+}
+button .button_bunshin-no-henge -state disabled -command {
+	set q 0
+	set l [get_location "hero"]
+	set h [get_height "hero"]
+	set e 1
+	while {$e <= $enemy} {
+		if {([get_location enemy$e] >= $l) && ([get_height enemy$e] == $h)} {
+			set q $e
+			break
+		}
+		
+		incr e
+	}
+	if {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] > 9 && ($q > 0)} {
+		end_turn "bunshin-no-henge" [get_nin "hero"]
+	} elseif {[get_hitpoints "hero"] > 0 && [get_chakra "hero"] < 10} {
+		no_chakra_message
+	}
+}

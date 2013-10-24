@@ -1,6 +1,6 @@
 #imageworking
 global meleelist rangedlist bonuslist ninjitsu taijitsu genjitsu allbuttonskills kunaijitsu futonjitsu katonjitsu suitonjitsu dotonjitsu raitonjitsu
-set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin" "kage-bunshin" "kawarimi" "kai" "futon-shinku-gyoku" "kibakufuda" "futon-shinku-dai-gyoku"]
+set allbuttonskills [list "suiken" "hachimon-1" "hachimon-2" "hachimon-3" "hachimon-4" "hachimon-5" "hachimon-6" "hachimon-7" "hachimon-8" "shofu" "omote-renge" "ura-renge" "asakujaku" "hirudora" "taju-kage-bunshin" "kage-bunshin" "kawarimi" "kai" "futon-shinku-gyoku" "kibakufuda" "futon-shinku-dai-gyoku" "futon-shinkuha" "bunshin-no-henge"]
 set meleelist [list "hirudora" "rasen-cho-tarengan" "naruto-yonsen-rendan" "senpo-kawazu-naki" "asakujaku" "odama-rasengan" "futon-rasengan" "rasengan" "naruto-nisen-rendan" "ura-renge" "raiton-raikiri" "hyoton-makyo-hyosho" "omote-renge" "raiton-chidori" "suiton-suiro" "katon-ryuka" "hyoton-sensatsu-suisho" "shofu"]
 set rangedlist [list "futon-rasensuriken" "hirudora" "suiton-suiryudan" "suiton-suiro-same-odori" "futon-kiryu-ranbu" "asakujaku" "suiton-daibakufu" "suiton-suijinheki" "futon-shinku-renpa" "futon-kazekiri" "sogu-tensasai" "hyoton-koridomu" "doton-doryu-heki" "katon-endan" "futon-zankukyokuha" "futon-shinkuha" "futon-shinku-dai-gyoku" "sofusha-san-no-tachi" "soshoryu" "bunshin-no-henge" "katon-housenka" "futon-shinku-gyoku" "doton-moguragakure" "suiton-mizurappa" "katon-gokakyu" "futon-zankuha"]
 set bonuslist [list "sennin-mode" "mangekyo-sharingan-obito" "hachimon-8" "hachimon-7" "sharingan-3" "hachimon-6" "kuchiese-gamabunta" "kuchiese-yatai-kuzushi" "tengoku-no-kuchiese" "kuchiese-ninkame" "hachimon-5" "suiton-dai-baku-suishoha" "sharingan-2" "hachimon-4" "hachimon-3" "doton-domu" "doton-tsuiga" "suiton-baku-suishoha" "suiton-mizu-bunshin" "katon-haisekisho" "soshuga" "kuchiese-meisu" "narakumi" "kokoni-arazu" "kibakufuda-no-kawarimi" "kibakufuda" "sharingan-1" "hachimon-2" "taju-kage-bunshin" "suiken" "hachimon-1" "hyoton-korikyo" "suiton-kirigakure" "suiton-suika" "kuchiese-kusarigama" "raiko-kenka" "kage-bunshin" "kawarimi" "kai"]
@@ -197,4 +197,7 @@ proc is_melee_max {tech} {
 }
 proc is_mass {name} {
 	return [is_in $name [list "hirudora" "asakujaku" "suiton-daibakufu" "suiton-suiryudan" "futon-kazekiri" "futon-rasensuriken"]]
+}
+proc is_longranged {name} {
+	return [is_in $name [list "sofusha-san-no-tachi" "futon-shinkuha"]]
 }
