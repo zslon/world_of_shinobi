@@ -1274,15 +1274,15 @@ proc ranged_tech {from to name par ans par2} {
 	while {$n <= $num || $n <= $num2} {		
 		if {$n == 1 && [get_status $from] == "cast" && ($name == "kunai" || $name == "kusarigama" || $name == "suriken")} {
 			set colvo [clones_interface $from "get_number"]
-			if {$colvo > 0} {
+			if {$colvo > 0 && [is_in "shihohappo-suriken" [get_skills $from]]} {
 				tech_shihohappo $from $to 0 100 [expr $colvo * 2] $colvo
-			} 
+			}
 		}	
 		if {$n == 1 && [get_status $to] == "cast" && ($ans == "kunai" || $ans == "kusarigama" || $ans == "suriken")} {
 			set colvo2 [clones_interface $to "get_number"]
-			if {$colvo2 > 0} {
+			if {$colvo2 > 0 && [is_in "shihohappo-suriken" [get_skills $to]]} {
 				tech_shihohappo $to $from 0 100 [expr $colvo2 * 2] $colvo2
-			} 
+			}
 		}	
 		if {[get_status $from] == "cast" && $n <= $num} {
 			set i 1
