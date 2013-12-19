@@ -1,6 +1,6 @@
-set level 2
-set tai 3
+set level 1
+set tai 2
 set gen 1
-set nin 3
-set speed 2
-set skills {taju-kage-bunshin nine-tails kage-bunshin kawarimi futon-hien konoha-senpu kai}
+set nin 2
+set speed 1
+set skills {taju-kage-bunshin nine-tails}
