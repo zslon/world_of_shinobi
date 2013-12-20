@@ -253,6 +253,7 @@ proc effect {name owner what {pr "nextturn"}} {
 				.c delete original_$owner
 				after 2000 {unblock_battlepanel}
 			} else {
+				clon_message
 				set_hitpoints $owner 0
 				#die
 			}

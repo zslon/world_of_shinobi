@@ -964,12 +964,10 @@ proc dies {} {
 				if {[is_in [list "shadow-clon" enemy$e -1] $effects]} {
 after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] clon-pufff 10.gif] run enemy$e
 .c itemconfigure enemy$e -image dieenemy$e
-clon_message
 replace"
 				} elseif {[is_in [list "water-clon" enemy$e -1] $effects]} {
 after 1100 "get_image dieenemy$e [file join $mydir images heroes [get_name enemy$e] suiton-suika 12.gif] run enemy$e
 .c itemconfigure enemy$e -image dieenemy$e
-clon_message
 replace"
 				}
 				set u 0

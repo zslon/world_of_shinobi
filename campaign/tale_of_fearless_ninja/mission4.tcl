@@ -103,7 +103,8 @@ proc set_enemy_zero {} {
 proc special_sakura_ai {n tech p} {
 }
 proc slide_7  {} {
-	global locations bonus ai_type effects etap
+	global locations bonus skills effects ai_type etap nine
+	set nine 0
 	set etap 1
 	set ai_type "special"
 	phon 7
@@ -111,7 +112,7 @@ proc slide_7  {} {
 	haku 1000 420 {"senbon" "hyoton-korikyo" "hyoton-sensatsu-suisho" "hyoton-koridomu" "hyoton-makyo-hyosho"}
 }
 proc special_haku_ai {n tech p} {
-	global etap enemy effects
+	global etap enemy effects nine
 	set tag enemy$n
 	set nin [get_nin $tag]
 	set on [get_nin hero]
@@ -122,6 +123,14 @@ proc special_haku_ai {n tech p} {
 	set speed [get_speed $tag]
 	set chikara [get_chakra $tag]
 	set tai [get_tai $tag]
+	set fox [is_in [list "kyubi-1" hero -1] $effects]
+	if {$nine == 0 && $fox == 1} {
+		#help of kyubi
+		set nine 1
+		replic "kyubi-1" 6000
+		set_chakra hero 800 
+		tech_kyubi-2 hero
+	}
 	if {$etap == 34} {
 		#from etap 4 back to etap 3
 		set etap 3
